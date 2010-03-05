@@ -42,7 +42,7 @@ describe CSVReckon do
   describe "each_index_backwards" do
     it "should hit every index" do
       count = 0
-      @chase.each_index_backwards { count += 1}
+      @chase.each_row_backwards { count += 1}
       count.should == 9
     end
   end
@@ -80,9 +80,9 @@ describe CSVReckon do
   describe "pretty_money_for" do
     it "work with negative and positive numbers" do
       @some_other_bank.pretty_money_for(1).should == "-$20.00"
-      @some_other_bank.pretty_money_for(4).should == "$1558.52"
+      @some_other_bank.pretty_money_for(4).should == " $1558.52"
       @some_other_bank.pretty_money_for(7).should == "-$116.22"
-      @some_other_bank.pretty_money_for(5).should == "$0.23"
+      @some_other_bank.pretty_money_for(5).should == " $0.23"
       @some_other_bank.pretty_money_for(6).should == "-$0.96"
     end
   end

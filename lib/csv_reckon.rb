@@ -18,7 +18,18 @@ class CSVReckon
     self.accounts = {}
     learn!
     parse
+    filter_csv
     detect_columns
+  end
+
+  def filter_csv
+    if options[:ignore_columns]
+      new_columns = []
+      columns.each_with_index do |column, index|
+        new_columns << column unless options[:ignore_columns].include?(index + 1)
+      end
+      @columns = new_columns
+    end
   end
 
   def learn_from(ledger)
@@ -55,21 +66,19 @@ class CSVReckon
   end
 
   def walk_backwards
-    each_index_backwards do |index|
-      puts Terminal::Table.new(:rows => [ [ pretty_date_for(index), pretty_money_for(index), description_for(index) ] ])
+    each_row_backwards do |row|
+      puts Terminal::Table.new(:rows => [ [ row[:pretty_date], row[:pretty_money], row[:description] ] ])
 
-      money = money_for(index)
-
-      ledger = if money > 0
-        out_of_account = ask("Which account provided this income? ") { |q| q.default = guess_account(index) }
-        ledger_format( index,
-                       [options[:bank_account], pretty_money_for(index)],
-                       [out_of_account, pretty_money_for(index, :negate)] )
+      ledger = if row[:money] > 0
+        out_of_account = ask("Which account provided this income? ") { |q| q.default = guess_account(row) }
+        ledger_format( row,
+                       [options[:bank_account], row[:pretty_money]],
+                       [out_of_account, row[:pretty_money_negated]] )
       else
-        into_account = ask("To which account did this money go? ") { |q| q.default = guess_account(index) }
-        ledger_format( index,
-                       [into_account, pretty_money_for(index, :negate)],
-                       [options[:bank_account], pretty_money_for(index)] )
+        into_account = ask("To which account did this money go? ") { |q| q.default = guess_account(row) }
+        ledger_format( row,
+                       [into_account, row[:pretty_money_negated]],
+                       [options[:bank_account], row[:pretty_money]] )
       end
 
       learn_from(ledger)
@@ -81,8 +90,8 @@ class CSVReckon
     options[:output_file].puts ledger_line
   end
 
-  def guess_account(index)
-    query_tokens = tokenize(description_for(index))
+  def guess_account(row)
+    query_tokens = tokenize(row[:description])
 
     search_vector = []
     account_vectors = {}
@@ -110,8 +119,8 @@ class CSVReckon
     account_vectors.first && account_vectors.first[:account]
   end
 
-  def ledger_format(index, line1, line2)
-    out = "#{pretty_date_for(index)}\t#{description_for(index)}\n"
+  def ledger_format(row, line1, line2)
+    out = "#{row[:pretty_date]}\t#{row[:description]}\n"
     out += "\t#{line1.first}\t\t\t\t\t#{line1.last}\n"
     out += "\t#{line2.first}\t\t\t\t\t#{line2.last}\n"
     out
@@ -125,7 +134,7 @@ class CSVReckon
   end
 
   def pretty_money_for(index, negate = false)
-    sprintf("%0.2f", money_for(index) * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, '\1$')
+    (money_for(index) >= 0 ? " " : "") + sprintf("%0.2f", money_for(index) * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, '\1$')
   end
 
   def date_for(index)
@@ -142,13 +151,11 @@ class CSVReckon
     description_column_indices.map { |i| columns[i][index] }.join("; ").squeeze(" ")
   end
 
-  def output_table(row = nil)
+  def output_table
     output = Terminal::Table.new do |t|
       t.headings = 'Date', 'Amount', 'Description'
-      each_index_backwards do |index|
-        t << [ { :value => pretty_date_for(index), :alignment => :center },
-               { :value => pretty_money_for(index), :alignment => :center },
-               description_for(index) ]
+      each_row_backwards do |row|
+        t << [ row[:pretty_date], row[:pretty_money], row[:description] ]
       end
     end
     puts output
@@ -227,9 +234,15 @@ class CSVReckon
     end
   end
 
-  def each_index_backwards
-    (0...columns.first.length).to_a.reverse.each do |index|
-      yield index
+  def each_row_backwards
+    rows = []
+    (0...columns.first.length).to_a.each do |index|
+      rows << { :date => date_for(index), :pretty_date => pretty_date_for(index),
+                :pretty_money => pretty_money_for(index), :pretty_money_negated => pretty_money_for(index, :negate),
+                :money => money_for(index), :description => description_for(index) }
+    end
+    rows.sort { |a,b| a[:date] <=> b[:date] }.each do |row|
+      yield row
     end
   end
 
@@ -278,6 +291,10 @@ class CSVReckon
 
       opts.on("-l", "--learn-from FILE", "An existing ledger file to learn accounts from") do |l|
         options[:existing_ledger_file] = l
+      end
+
+      opts.on("", "--ignore-columns 1,2,5", "Columns to ignore in the CSV file - the first column is column 1") do |ignore|
+        options[:ignore_columns] = ignore.split(",").map { |i| i.to_i }
       end
 
       opts.on_tail("-h", "--help", "Show this message") do
