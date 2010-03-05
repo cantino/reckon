@@ -10,7 +10,7 @@ require 'terminal-table'
 class CSVReckon
   VERSION = "CSVReckon 0.1"
 
-  attr_accessor :options, :csv_data, :accounts, :tokens, :money_column_index, :date_column_index, :description_column_indices
+  attr_accessor :options, :csv_data, :accounts, :tokens, :money_column_indices, :date_column_index, :description_column_indices
 
   def initialize(options = {})
     self.options = options
@@ -19,17 +19,16 @@ class CSVReckon
     learn!
     parse
     detect_columns
-    walk_backwards
   end
 
   def learn_from(ledger)
     ledger.split("\n\n").each do |entry|
-      header, line1, line2 = entry.strip.split("\n")
+      header, lines = entry.strip.split("\n")
       header = header.gsub(/^\W+/, '')
-      line1 = line1.strip[/\S+/]
-      line2 = line2.strip[/\S+/]
-      learn_about_account(line1, header)
-      learn_about_account(line2, header)
+      lines.each do |line|
+        line = line.strip[/\S+/]
+        learn_about_account(line, header)
+      end
     end
   end
 
@@ -119,7 +118,7 @@ class CSVReckon
   end
 
   def money_for(index)
-    value = columns[money_column_index][index]
+    value = money_column_indices.inject("") { |m, i| m + columns[i][index] }
     cleaned_value = value.gsub(/[^\d\.]/, '').to_f
     cleaned_value *= -1 if value =~ /[\(\-]/
     cleaned_value
@@ -155,28 +154,77 @@ class CSVReckon
     puts output
   end
 
-  def detect_columns
+  def evaluate_columns(cols)
     results = []
-    columns.each_with_index do |column, index|
-      money_score = date_score = 0
+    found_likely_money_column = false
+    cols.each_with_index do |column, index|
+      money_score = date_score = possible_neg_money_count = possible_pos_money_count = 0
       column.each do |entry|
-        money_score += entry.gsub(/[^\$]/, '').length * 10 + entry.gsub(/[^\d\.\-,\(\)]/, '').length
-        money_score -= 20 if entry !~ /^[\$\.\-,\d\(\)]+$/
+        money_score += 10 if entry[/^[\-\+\(]{0,2}\$/]
+        money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length
+        money_score -= 100 if entry.length > 17
+        money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
+        possible_neg_money_count += 1 if entry =~ /^\$?[\-\(]\$?\d+/
+        possible_pos_money_count += 1 if entry =~ /^\+?\$?\+?\d+/
         date_score += 10 if entry =~ /^[\-\/\.\d:\[\]]+$/
         date_score += entry.gsub(/[^\-\/\.\d:\[\]]/, '').length
         date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length * 2
         date_score += 30 if entry =~ /^\d+[:\/\.]\d+[:\/\.]\d+([ :]\d+[:\/\.]\d+)?$/
         date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
       end
+
+      if possible_neg_money_count > (column.length / 5.0) && possible_pos_money_count > (column.length / 5.0)
+        money_score += 10 * column.length
+        found_likely_money_column = true
+      end
+
       results << { :index => index, :money_score => money_score, :date_score => date_score }
     end
 
-    self.money_column_index = results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index]
-    results.reject! {|i| i[:index] == money_column_index }
-    self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
-    results.reject! {|i| i[:index] == date_column_index }
+    return [results, found_likely_money_column]
+  end
 
-    self.description_column_indices = results.map { |i| i[:index] }
+  def merge_columns(a, b)
+    output_columns = []
+    columns.each_with_index do |column, index|
+      if index == a
+        new_column = []
+        column.each_with_index do |row, row_index|
+          new_column << row + columns[b][row_index]
+        end
+        output_columns << new_column
+      elsif index == b
+        # skip
+      else
+        output_columns << column
+      end
+    end
+    output_columns
+  end
+
+  def detect_columns
+    results, found_likely_money_column = evaluate_columns(columns)
+
+    if found_likely_money_column
+      self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
+    else
+      0.upto(columns.length - 2) do |i|
+        _, found_likely_money_column = evaluate_columns(merge_columns(i, i+1))
+
+        if found_likely_money_column
+          self.money_column_indices = [ i, i+1 ]
+          break
+        end
+      end
+    end
+
+    if money_column_indices
+      results.reject! {|i| money_column_indices.include?(i[:index]) }
+      self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
+      results.reject! {|i| i[:index] == date_column_index }
+
+      self.description_column_indices = results.map { |i| i[:index] }
+    end
   end
 
   def each_index_backwards
@@ -190,11 +238,13 @@ class CSVReckon
       last_row_length = nil
       csv_data.inject([]) do |memo, row|
         fail "Input CSV must have consistent row lengths." if last_row_length && row.length != last_row_length
-        row.each_with_index do |entry, index|
-          memo[index] ||= []
-          memo[index] << entry.strip
+        unless row.all? { |i| i.nil? || i.length == 0 }
+          row.each_with_index do |entry, index|
+            memo[index] ||= []
+            memo[index] << entry.strip
+          end
+          last_row_length = row.length
         end
-        last_row_length = row.length
         memo
       end
     end
@@ -270,5 +320,14 @@ if $0 == __FILE__
 
   if options[:print_table]
     csv_reckon.output_table
+    exit
   end
+
+  if !csv_reckon.money_column_indices
+    puts "I was unable to determine either a single or a pair of combined columns to use as the money column."
+    puts "Please pass in the money column index or indices with the command line option --money-column."
+    exit
+  end
+
+  csv_reckon.walk_backwards
 end
