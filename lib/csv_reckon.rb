@@ -5,7 +5,7 @@ require 'fastercsv'
 require 'highline/import'
 require 'optparse'
 require 'time'
-require 'terminal-table/import'
+require 'terminal-table'
 
 
 class CSVReckon
@@ -16,23 +16,60 @@ class CSVReckon
 
   def initialize(options = {})
     self.options = options
+    learn!
     parse
     detect_columns
     walk_backwards
   end
 
-  def walk_backwards
-    each_index_backwards do |index|
-      puts [pretty_date_for(index), pretty_money_for(index), description_for(index)].join("\t")
-#      puts ledger_format(index, out_of_account, into_account)
+  def learn_from(data)
+    return unless options[:ledger_path]
+  end
+
+  def learn!
+    if options[:existing_ledger_file]
+      fail "#{options[:existing_ledger_file]} doesn't exist!" unless File.exists?(options[:existing_ledger_file])
+      ledger_data = File.read(options[:existing_ledger_file])
+      learn_from(ledger_data)
     end
   end
 
-  def ledger_format(index, out_of_account, into_account)
-    puts "#{pretty_date_for(index)}\t#{description_for(index)}"
-    puts "\t#{into_account}\t\t\t\t\t#{pretty_money_for(index)}"
-    puts out_of_account
-    puts
+  def walk_backwards
+    each_index_backwards do |index|
+      puts Terminal::Table.new(:rows => [ [ pretty_date_for(index), pretty_money_for(index), description_for(index) ] ])
+
+      money = money_for(index)
+
+      ledger = if money > 0
+        out_of_account = ask("Which account provided this income? ") { |q| q.default = guess_account(index) }
+        ledger_format( index,
+                       [options[:bank_account], pretty_money_for(index)],
+                       [out_of_account, pretty_money_for(index, :negate)] )
+      else
+        into_account = ask("To which account did this money go? ") { |q| q.default = guess_account(index) }
+        ledger_format( index,
+                       [into_account, pretty_money_for(index, :negate)],
+                       [options[:bank_account], pretty_money_for(index)] )
+      end
+
+      learn_from(ledger)
+      output(ledger)
+    end
+  end
+
+  def output(ledger_line)
+    options[:output_file].puts ledger_line
+  end
+
+  def guess_account(index)
+    nil
+  end
+
+  def ledger_format(index, line1, line2)
+    out = "#{pretty_date_for(index)}\t#{description_for(index)}\n"
+    out += "\t#{line1.first}\t\t\t\t\t#{line1.last}\n"
+    out += "\t#{line2.first}\t\t\t\t\t#{line2.last}\n"
+    out
   end
 
   def money_for(index)
@@ -42,8 +79,8 @@ class CSVReckon
     cleaned_value
   end
 
-  def pretty_money_for(index)
-    sprintf("%0.2f", money_for(index)).gsub(/^((\-)|)(?=\d)/, '\1$')
+  def pretty_money_for(index, negate = false)
+    sprintf("%0.2f", money_for(index) * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, '\1$')
   end
 
   def date_for(index)
@@ -60,8 +97,8 @@ class CSVReckon
     description_column_indices.map { |i| columns[i][index] }.join("; ").squeeze(" ")
   end
 
-  def output_table
-    output = table do |t|
+  def output_table(row = nil)
+    output = Terminal::Table.new do |t|
       t.headings = 'Date', 'Amount', 'Description'
       each_index_backwards do |index|
         t << [ { :value => pretty_date_for(index), :alignment => :center },
@@ -70,7 +107,7 @@ class CSVReckon
       end
     end
     puts output
-  end  
+  end
 
   def detect_columns
     results = []
@@ -122,7 +159,7 @@ class CSVReckon
   end
 
   def self.parse_opts(args = ARGV)
-    options = {}
+    options = { :output_file => STDOUT }
     parser = OptionParser.new do |opts|
       opts.banner = "Usage: csvreckon.rb [options]"
       opts.separator ""
@@ -139,6 +176,14 @@ class CSVReckon
         options[:print_table] = p
       end
 
+      opts.on("-o", "--output-file FILE", "The ledger file to append to") do |o|
+        options[:output_file] = File.open(o, 'a')
+      end
+
+      opts.on("-l", "--learn-from FILE", "An existing ledger file to learn accounts from") do |l|
+        options[:existing_ledger_file] = l
+      end
+
       opts.on_tail("-h", "--help", "Show this message") do
         puts opts
         exit
@@ -153,9 +198,27 @@ class CSVReckon
     end
 
     unless options[:file]
-      puts "Missing required -f FILE option.\n"
-      puts parser
-      exit
+      options[:file] = ask("What CSV file should I parse? ")
+      unless options[:file].length > 0
+        puts "\nYou must provide a CSV file to parse.\n"
+        puts parser
+        exit
+      end
+    end
+
+    unless options[:bank_account]
+      options[:bank_account] = ask("What is the account name of this bank account in Ledger? ") do |q|
+        q.validate = /^.{2,}$/
+        q.default = "Assets:Bank:Checking"
+      end
+    end
+
+    unless options[:ledger_path]
+      options[:ledger_path] = `which ledger`.strip
+      if options[:ledger_path].length == 0
+        puts "\nWarning: you don't seem to have ledger installed (in your PATH), so I'll be unable to learn.\n"
+        options[:ledger_path] = nil
+      end
     end
 
     options
