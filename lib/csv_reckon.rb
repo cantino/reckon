@@ -34,11 +34,14 @@ class CSVReckon
 
   def learn_from(ledger)
     ledger.split("\n\n").each do |entry|
-      header, lines = entry.strip.split("\n")
+      header, *lines = entry.strip.split("\n")
       header = header.gsub(/^\W+/, '')
       lines.each do |line|
-        line = line.strip[/\S+/]
-        learn_about_account(line, header)
+        account = line.strip[/\S+/]
+        amount = line[/\s+([\$\.\d\-,]+)/, 1]
+        amount = amount && amount.gsub(/[\$,]/, '')
+        amount = amount.to_f
+        learn_about_account(account, [header, amount].join(" ")) unless account == options[:bank_account]
       end
     end
   end
