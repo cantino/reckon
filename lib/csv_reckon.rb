@@ -7,23 +7,30 @@ require 'optparse'
 require 'time'
 require 'terminal-table'
 
-
 class CSVReckon
   VERSION = "CSVReckon 0.1"
 
-  attr_accessor :options, :data
-  attr_accessor :money_column_index, :date_column_index, :description_column_indices
+  attr_accessor :options, :csv_data, :accounts, :tokens, :money_column_index, :date_column_index, :description_column_indices
 
   def initialize(options = {})
     self.options = options
+    self.tokens = {}
+    self.accounts = {}
     learn!
     parse
     detect_columns
     walk_backwards
   end
 
-  def learn_from(data)
-    return unless options[:ledger_path]
+  def learn_from(ledger)
+    ledger.split("\n\n").each do |entry|
+      header, line1, line2 = entry.strip.split("\n")
+      header = header.gsub(/^\W+/, '')
+      line1 = line1.strip[/\S+/]
+      line2 = line2.strip[/\S+/]
+      learn_about_account(line1, header)
+      learn_about_account(line2, header)
+    end
   end
 
   def learn!
@@ -32,6 +39,20 @@ class CSVReckon
       ledger_data = File.read(options[:existing_ledger_file])
       learn_from(ledger_data)
     end
+  end
+
+  def learn_about_account(account, data)
+    accounts[account] ||= 0
+    tokenize(data).each do |token|
+      tokens[token] ||= {}
+      tokens[token][account] ||= 0
+      tokens[token][account] += 1
+      accounts[account] += 1
+    end
+  end
+
+  def tokenize(str)
+    str.downcase.split(/[\s\-]/)
   end
 
   def walk_backwards
@@ -62,7 +83,32 @@ class CSVReckon
   end
 
   def guess_account(index)
-    nil
+    query_tokens = tokenize(description_for(index))
+
+    search_vector = []
+    account_vectors = {}
+
+    query_tokens.each do |token|
+      idf = Math.log((accounts.keys.length + 1) / ((tokens[token] || {}).keys.length.to_f + 1))
+      tf = 1.0 / query_tokens.length.to_f
+      search_vector << tf*idf
+
+      accounts.each do |account, total_terms|
+        tf = (tokens[token] && tokens[token][account]) ? tokens[token][account] / total_terms.to_f : 0
+        account_vectors[account] ||= []
+        account_vectors[account] << tf*idf
+      end
+    end
+
+    # Should I normalize the vectors?
+
+    account_vectors = account_vectors.to_a.map do |account, account_vector|
+      { :cosine => (0...account_vector.length).to_a.inject(0) { |m, i| m + search_vector[i] * account_vector[i] },
+        :account => account }
+    end
+
+    account_vectors.sort! {|a, b| b[:cosine] <=> a[:cosine] }
+    account_vectors.first && account_vectors.first[:account]
   end
 
   def ledger_format(index, line1, line2)
@@ -142,7 +188,7 @@ class CSVReckon
   def columns
     @columns ||= begin
       last_row_length = nil
-      @data.inject([]) do |memo, row|
+      csv_data.inject([]) do |memo, row|
         fail "Input CSV must have consistent row lengths." if last_row_length && row.length != last_row_length
         row.each_with_index do |entry, index|
           memo[index] ||= []
@@ -155,7 +201,7 @@ class CSVReckon
   end
 
   def parse
-    self.data = FasterCSV.parse(options[:string] || File.read(options[:file]))
+    self.csv_data = FasterCSV.parse(options[:string] || File.read(options[:file]))
   end
 
   def self.parse_opts(args = ARGV)
@@ -213,16 +259,9 @@ class CSVReckon
       end
     end
 
-    unless options[:ledger_path]
-      options[:ledger_path] = `which ledger`.strip
-      if options[:ledger_path].length == 0
-        puts "\nWarning: you don't seem to have ledger installed (in your PATH), so I'll be unable to learn.\n"
-        options[:ledger_path] = nil
-      end
-    end
-
     options
   end
+
 end
 
 if $0 == __FILE__
