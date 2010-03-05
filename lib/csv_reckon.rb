@@ -5,6 +5,8 @@ require 'fastercsv'
 require 'highline/import'
 require 'optparse'
 require 'time'
+require 'terminal-table/import'
+
 
 class CSVReckon
   VERSION = "CSVReckon 0.1"
@@ -21,8 +23,16 @@ class CSVReckon
 
   def walk_backwards
     each_index_backwards do |index|
-      
+      puts [pretty_date_for(index), pretty_money_for(index), description_for(index)].join("\t")
+#      puts ledger_format(index, out_of_account, into_account)
     end
+  end
+
+  def ledger_format(index, out_of_account, into_account)
+    puts "#{pretty_date_for(index)}\t#{description_for(index)}"
+    puts "\t#{into_account}\t\t\t\t\t#{pretty_money_for(index)}"
+    puts out_of_account
+    puts
   end
 
   def money_for(index)
@@ -32,15 +42,35 @@ class CSVReckon
     cleaned_value
   end
 
+  def pretty_money_for(index)
+    sprintf("%0.2f", money_for(index)).gsub(/^((\-)|)(?=\d)/, '\1$')
+  end
+
   def date_for(index)
     value = columns[date_column_index][index]
     value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
     Time.parse(value)
   end
 
+  def pretty_date_for(index)
+    date_for(index).strftime("%Y/%m/%d")
+  end
+
   def description_for(index)
     description_column_indices.map { |i| columns[i][index] }.join("; ").squeeze(" ")
   end
+
+  def output_table
+    output = table do |t|
+      t.headings = 'Date', 'Amount', 'Description'
+      each_index_backwards do |index|
+        t << [ { :value => pretty_date_for(index), :alignment => :center },
+               { :value => pretty_money_for(index), :alignment => :center },
+               description_for(index) ]
+      end
+    end
+    puts output
+  end  
 
   def detect_columns
     results = []
@@ -105,6 +135,10 @@ class CSVReckon
         options[:verbose] = v
       end
 
+      opts.on("-p", "--print-table", "Print out the parsed CSV in table form") do |p|
+        options[:print_table] = p
+      end
+
       opts.on_tail("-h", "--help", "Show this message") do
         puts opts
         exit
@@ -129,5 +163,10 @@ class CSVReckon
 end
 
 if $0 == __FILE__
-  CSVReckon.new(CSVReckon.parse_opts)
+  options = CSVReckon.parse_opts
+  csv_reckon = CSVReckon.new(options)
+
+  if options[:print_table]
+    csv_reckon.output_table
+  end
 end

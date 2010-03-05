@@ -24,8 +24,8 @@ CHECK,2010/12/24,"CHECK 2656",($20.00)
 DEBIT,2009/12/24,"GITHUB 041287430274 CA           12/22GITHUB 04",($7.00)
 CREDIT,2008/12/24,"Some Company vendorpymt                 PPD ID: 59728JSL20",$3520.00
 CREDIT,2007/12/24,"Blarg BLARG REVENUE                  PPD ID: 00jah78563",$1558.52
-DEBIT,2006/12/24,"WEBSITE-BALANCE-17DEC09 12        12/17WEBSITE-BAL",($12.23)
-DEBIT,2005/12/24,"WEBSITE-BALANCE-10DEC09 12        12/10WEBSITE-BAL",($20.96)
+DEBIT,2006/12/24,"WEBSITE-BALANCE-17DEC09 12        12/17WEBSITE-BAL",$.23
+DEBIT,2005/12/24,"WEBSITE-BALANCE-10DEC09 12        12/10WEBSITE-BAL",($0.96)
 CREDIT,2004/12/24,"PAYPAL           TRANSFER                   PPD ID: PAYPALSDSL",($116.22)
 CREDIT,2003/12/24,"Some Company vendorpymt                 PPD ID: 5KL3832735",$2105.00
   CSV
@@ -91,4 +91,15 @@ CREDIT,2003/12/24,"Some Company vendorpymt                 PPD ID: 5KL3832735",$
       @chase.description_for(7).should == "CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL"
     end
   end
+
+  describe "pretty_money_for" do
+    it "work with negative and positive numbers" do
+      @some_other_bank.pretty_money_for(1).should == "-$20.00"
+      @some_other_bank.pretty_money_for(4).should == "$1558.52"
+      @some_other_bank.pretty_money_for(7).should == "-$116.22"
+      @some_other_bank.pretty_money_for(5).should == "$0.23"
+      @some_other_bank.pretty_money_for(6).should == "-$0.96"
+    end
+  end
 end
+
