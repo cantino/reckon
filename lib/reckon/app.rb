@@ -63,11 +63,18 @@ module Reckon
     end
 
     def walk_backwards
+      seen_anything_new = false
       each_row_backwards do |row|
         puts Terminal::Table.new(:rows => [ [ row[:pretty_date], row[:pretty_money], row[:description] ] ])
 
         if already_seen?(row)
           puts "NOTE: This row is very similar to a previous one!"
+          if !seen_anything_new
+            puts "Skipping..."
+            next
+          end
+        else
+          seen_anything_new = true
         end
 
         ledger = if row[:money] > 0
@@ -107,6 +114,7 @@ module Reckon
 
     def output(ledger_line)
       options[:output_file].puts ledger_line
+      options[:output_file].flush
     end
 
     def guess_account(row)

@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
      "lib/reckon.rb",
      "lib/reckon/app.rb",
      "lib/reckon/ledger_parser.rb",
+     "reckon.gemspec",
      "spec/reckon/app_spec.rb",
      "spec/reckon/ledger_parser_spec.rb",
      "spec/spec.opts",
