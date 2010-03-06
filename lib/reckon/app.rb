@@ -141,7 +141,7 @@ module Reckon
     def ledger_format(row, line1, line2)
       out = "#{row[:pretty_date]}\t#{row[:description]}\n"
       out += "\t#{line1.first}\t\t\t\t\t#{line1.last}\n"
-      out += "\t#{line2.first}\t\t\t\t\t#{line2.last}\n"
+      out += "\t#{line2.first}\t\t\t\t\t#{line2.last}\n\n"
       out
     end
 
