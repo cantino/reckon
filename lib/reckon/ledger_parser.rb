@@ -2,7 +2,7 @@
 
 require 'rubygems'
 
-module CSVReckon
+module Reckon
   class LedgerParser
 
     attr_accessor :entries

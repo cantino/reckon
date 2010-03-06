@@ -2,12 +2,12 @@
 
 require File.dirname(__FILE__) + '/../spec_helper'
 require 'rubygems'
-require 'csv_reckon'
+require 'reckon'
 require 'pp'
 
-describe CSVReckon::LedgerParser do
+describe Reckon::LedgerParser do
   before do
-    @ledger = CSVReckon::LedgerParser.new(EXAMPLE_LEDGER)
+    @ledger = Reckon::LedgerParser.new(EXAMPLE_LEDGER)
   end
 
   describe "parse" do

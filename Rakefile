@@ -4,14 +4,17 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "csv_reckon"
-    gem.summary = %Q{Tool for interactively converting and labeling bank CSV files for Ledger}
-    gem.description = %Q{TODO: longer description of your gem}
-    gem.email = "cantino@gmail.com"
-    gem.homepage = "http://github.com/iterationlabs/csv_reckon"
+    gem.name = "Reckon"
+    gem.summary = %Q{Utility for interactively converting and labeling CSV files for the Ledger accounting tool.}
+    gem.description = %Q{Recken automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you select the correct accounts associated with the CSV data using machine learning.}
+    gem.email = "andrew@iterationlabs.com"
+    gem.homepage = "http://github.com/iterationlabs/reckon"
     gem.authors = ["Andrew Cantino"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+    gem.add_dependency('fastercsv', '>= 1.5.1')
+    gem.add_dependency('highline', '>= 1.5.2')
+    gem.add_dependency('terminal-table', '>= 1.4.2')
+    gem.executables << 'recken'
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
@@ -39,7 +42,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "csv_reckon #{version}"
+  rdoc.title = "reckon #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

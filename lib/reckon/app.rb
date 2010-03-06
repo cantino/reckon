@@ -1,6 +1,6 @@
-module CSVReckon
+module Reckon
   class App
-    VERSION = "CSVReckon 0.1"
+    VERSION = "Reckon 0.1"
 
     attr_accessor :options, :csv_data, :accounts, :tokens, :money_column_indices, :date_column_index, :description_column_indices, :seen
 
@@ -86,7 +86,7 @@ module CSVReckon
           finish if into_account == "quit" || into_account = 'q'
           if into_account == "skip" || into_account == 's'
             puts "Skipping"
-            next 
+            next
           end
 
           ledger_format( row,
@@ -294,7 +294,7 @@ module CSVReckon
     def self.parse_opts(args = ARGV)
       options = { :output_file => STDOUT }
       parser = OptionParser.new do |opts|
-        opts.banner = "Usage: csvreckon.rb [options]"
+        opts.banner = "Usage: Reckon.rb [options]"
         opts.separator ""
 
         opts.on("-f", "--file FILE", "The CSV file to parse") do |file|
