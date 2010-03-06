@@ -1,6 +1,6 @@
 = reckon
 
-Recken automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you
+Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you
 select the correct accounts associated with the CSV data using machine learning.
 
 == Note on Patches/Pull Requests
