@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 
-require 'spec_helper'
+require File.dirname(__FILE__) + '/../spec_helper'
 require 'rubygems'
 require 'csv_reckon'
 
-describe CSVReckon do
+describe CSVReckon::App do
   before do
-    @chase = CSVReckon.new(:string => CHASE_CSV)
-    @some_other_bank = CSVReckon.new(:string => SOME_OTHER_CSV)
-    @two_money_columns = CSVReckon.new(:string => TWO_MONEY_COLUMNS_BANK)
-    @simple_csv = CSVReckon.new(:string => SIMPLE_CSV)
+    @chase = CSVReckon::App.new(:string => CHASE_CSV)
+    @some_other_bank = CSVReckon::App.new(:string => SOME_OTHER_CSV)
+    @two_money_columns = CSVReckon::App.new(:string => TWO_MONEY_COLUMNS_BANK)
+    @simple_csv = CSVReckon::App.new(:string => SIMPLE_CSV)
   end
 
   describe "columns" do
