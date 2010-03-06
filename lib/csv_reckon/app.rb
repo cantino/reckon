@@ -72,16 +72,22 @@ module CSVReckon
 
         ledger = if row[:money] > 0
           out_of_account = ask("Which account provided this income? (account/quit/skip) ") { |q| q.default = guess_account(row) }
-          finish if out_of_account == "quit"
-          next if out_of_account == "skip"
+          finish if out_of_account == "quit" || out_of_account == "q"
+          if out_of_account == "skip" || out_of_account == "s"
+            puts "Skipping"
+            next
+          end
 
           ledger_format( row,
                          [options[:bank_account], row[:pretty_money]],
                          [out_of_account, row[:pretty_money_negated]] )
         else
           into_account = ask("To which account did this money go? (account/quit/skip) ") { |q| q.default = guess_account(row) }
-          finish if out_of_account == "quit"
-          next if out_of_account == "skip"
+          finish if into_account == "quit" || into_account = 'q'
+          if into_account == "skip" || into_account == 's'
+            puts "Skipping"
+            next 
+          end
 
           ledger_format( row,
                          [into_account, row[:pretty_money_negated]],
@@ -121,7 +127,7 @@ module CSVReckon
         end
       end
 
-      # Should I normalize the vectors?
+      # Should I normalize the vectors?  Probably unnecessary due to tf-idf and short documents.
 
       account_vectors = account_vectors.to_a.map do |account, account_vector|
         { :cosine => (0...account_vector.length).to_a.inject(0) { |m, i| m + search_vector[i] * account_vector[i] },
@@ -184,6 +190,7 @@ module CSVReckon
       cols.each_with_index do |column, index|
         money_score = date_score = possible_neg_money_count = possible_pos_money_count = 0
         column.each do |entry|
+          entry = entry.strip
           money_score += 10 if entry[/^[\-\+\(]{0,2}\$/]
           money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length
           money_score -= 100 if entry.length > 17
@@ -214,7 +221,7 @@ module CSVReckon
         if index == a
           new_column = []
           column.each_with_index do |row, row_index|
-            new_column << row + columns[b][row_index]
+            new_column << row + " " + columns[b][row_index]
           end
           output_columns << new_column
         elsif index == b
