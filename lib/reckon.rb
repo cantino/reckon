@@ -7,6 +7,6 @@ require 'optparse'
 require 'time'
 require 'terminal-table'
 
-require File.dirname(__FILE__) + "/reckon/app"
-require File.dirname(__FILE__) + "/reckon/ledger_parser"
+require File.expand_path(File.join(File.dirname(__FILE__), "reckon", "app"))
+require File.expand_path(File.join(File.dirname(__FILE__), "reckon", "ledger_parser"))
 

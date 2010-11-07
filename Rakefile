@@ -6,7 +6,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "reckon"
     gem.summary = %Q{Utility for interactively converting and labeling CSV files for the Ledger accounting tool.}
-    gem.description = %Q{Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you select the correct accounts associated with the CSV data using machine learning.}
+    gem.description = %Q{Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.}
     gem.email = "andrew@iterationlabs.com"
     gem.homepage = "http://github.com/iterationlabs/reckon"
     gem.authors = ["Andrew Cantino"]
@@ -14,7 +14,6 @@ begin
     gem.add_dependency('fastercsv', '>= 1.5.1')
     gem.add_dependency('highline', '>= 1.5.2')
     gem.add_dependency('terminal-table', '>= 1.4.2')
-    gem.executables << 'reckon'
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError

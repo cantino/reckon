@@ -13,7 +13,6 @@ end
 
 if !reckon.money_column_indices
   puts "I was unable to determine either a single or a pair of combined columns to use as the money column."
-#  puts "Please pass in the money column index or indices with the command line option --money-column."
   exit
 end
 
