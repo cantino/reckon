@@ -2,7 +2,7 @@
 
 Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.
 
-== Example Usage ==
+== Example Usage
 
 First, login to your bank and export your transaction data as a CSV file.  This example uses data from Chase.
 
