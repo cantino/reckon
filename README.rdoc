@@ -2,6 +2,28 @@
 
 Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.
 
+Example Usage
+
+Login to chase.com (or your bank) and export your transaction data as a CSV file.
+
+To see how the CSV parses:
+  
+  reckon -f chase.csv -p
+
+To convert to ledger format and label everything, do:
+  
+  reckon -f chase.csv -o output.dat
+
+
+To have reckon learn from an existing ledger file, provide it with -l:
+  
+  reckon -f chase.csv -l 2010.dat -o output.dat -p
+
+Learn more with
+
+  reckon -h
+
+
 == Note on Patches/Pull Requests
 
 * Fork the project.
