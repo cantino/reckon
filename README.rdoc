@@ -22,7 +22,7 @@ To convert to ledger format and label everything, do:
 
 To have reckon learn from an existing ledger file, provide it with -l:
   
-  reckon -f chase.csv -l 2010.dat -o output.dat -p
+  reckon -f chase.csv -l 2010.dat -o output.dat
 
 Learn more with
 
