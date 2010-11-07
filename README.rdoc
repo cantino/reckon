@@ -10,19 +10,19 @@ Assuming you have Ruby and Rubygems[http://rubygems.org/pages/download] installe
 
 == Example Usage
 
-First, login to your bank and export your transaction data as a CSV file.  This example uses data from Chase.
+First, login to your bank and export your transaction data as a CSV file.
 
 To see how the CSV parses:
   
-  reckon -f chase.csv -p
+  reckon -f bank.csv -p
 
 To convert to ledger format and label everything, do:
   
-  reckon -f chase.csv -o output.dat
+  reckon -f bank.csv -o output.dat
 
 To have reckon learn from an existing ledger file, provide it with -l:
   
-  reckon -f chase.csv -l 2010.dat -o output.dat
+  reckon -f bank.csv -l 2010.dat -o output.dat
 
 Learn more with
 
