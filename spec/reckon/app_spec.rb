@@ -20,22 +20,29 @@ describe Reckon::App do
   end
 
   describe "detect_columns" do
+    before do
+      @harder_date_example_csv = Reckon::App.new(:string => HARDER_DATE_EXAMPLE)
+    end
+    
     it "should detect the money column" do
       @chase.money_column_indices.should == [3]
       @some_other_bank.money_column_indices.should == [3]
       @two_money_columns.money_column_indices.should == [3, 4]
+      @harder_date_example_csv.money_column_indices.should == [1]
     end
 
     it "should detect the date column" do
       @chase.date_column_index.should == 1
       @some_other_bank.date_column_index.should == 1
       @two_money_columns.date_column_index.should == 0
+      @harder_date_example_csv.date_column_index.should == 0
     end
 
     it "should consider all other columns to be description columns" do
       @chase.description_column_indices.should == [0, 2]
       @some_other_bank.description_column_indices.should == [0, 2]
       @two_money_columns.description_column_indices.should == [1, 2, 5]
+      @harder_date_example_csv.description_column_indices.should == [2, 3, 4, 5, 6, 7]
     end
   end
 
@@ -134,5 +141,12 @@ describe Reckon::App do
     3/26/2008,Check - 0000000251,251,-$88.55,"","$1,298.57"
     3/26/2008,Check - 0000000251,251,"","+$88.55","$1,298.57"
   CSV
-
+  
+  HARDER_DATE_EXAMPLE = (<<-CSV).strip
+    10-Nov-9,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER MORTGAGE,0.00,
+    09-Nov-10,123.12,,,SALARY SALARY,NGHSKS46383BGDJKD  FOO BAR,432.12,
+    04-Nov-11,-1234.00,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER   SAV TO MECU,0.00,
+    04-Nov-9,1234.00,,,TRANSFER CREDIT INTERNET TRANSFER,INTERNET TRANSFER,1234.00,
+    28-Oct-10,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER SAV TO MORTGAGE,0.00,
+  CSV
 end

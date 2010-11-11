@@ -171,7 +171,12 @@ module Reckon
     def date_for(index)
       value = columns[date_column_index][index]
       value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
-      Time.parse(value)
+      begin
+        Time.parse(value)
+      rescue
+        puts "I'm having trouble parsing #{value}, which I thought was a date.  Please report this so that we"
+        puts "can make this parser better!"
+      end
     end
 
     def pretty_date_for(index)
@@ -205,9 +210,10 @@ module Reckon
           money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
           possible_neg_money_count += 1 if entry =~ /^\$?[\-\(]\$?\d+/
           possible_pos_money_count += 1 if entry =~ /^\+?\$?\+?\d+/
-          date_score += 10 if entry =~ /^[\-\/\.\d:\[\]]+$/
-          date_score += entry.gsub(/[^\-\/\.\d:\[\]]/, '').length
-          date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length * 2
+          date_score += 10 if entry =~ /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i
+          date_score += 5 if entry =~ /^[\-\/\.\d:\[\]]+$/
+          date_score += entry.gsub(/[^\-\/\.\d:\[\]]/, '').length if entry.gsub(/[^\-\/\.\d:\[\]]/, '').length > 3
+          date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length
           date_score += 30 if entry =~ /^\d+[:\/\.]\d+[:\/\.]\d+([ :]\d+[:\/\.]\d+)?$/
           date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
         end
@@ -286,7 +292,7 @@ module Reckon
           unless row.all? { |i| i.nil? || i.length == 0 }
             row.each_with_index do |entry, index|
               memo[index] ||= []
-              memo[index] << entry.strip
+              memo[index] << (entry || '').strip
             end
             last_row_length = row.length
           end
