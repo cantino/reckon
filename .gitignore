@@ -20,4 +20,4 @@ pkg
 
 ## PROJECT::SPECIFIC
 .idea
-bin/reckon_local
+reckon_local

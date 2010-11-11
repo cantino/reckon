@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{reckon}
-  s.version = "0.2.1"
+  s.version = "0.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andrew Cantino"]
-  s.date = %q{2010-11-06}
+  s.date = %q{2010-11-10}
   s.default_executable = %q{reckon}
   s.description = %q{Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.}
   s.email = %q{andrew@iterationlabs.com}

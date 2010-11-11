@@ -17,6 +17,12 @@ describe Reckon::App do
       @simple_csv.columns.should == [["entry1", "entry4"], ["entry2", "entry5"], ["entry3", "entry6"]]
       @chase.columns.length.should == 4
     end
+    
+    it "should be ok with empty lines" do
+      lambda {
+        Reckon::App.new(:string => "one,two\nthree,four\n\n\n\n\n").columns.should == [['one', 'three'], ['two', 'four']]
+      }.should_not raise_error
+    end
   end
 
   describe "detect_columns" do
@@ -103,7 +109,6 @@ describe Reckon::App do
       @simple_csv.merge_columns(0,2).should == [["entry1 entry3", "entry4 entry6"], ["entry2", "entry5"]]
     end
   end
-
 
 
   # Data

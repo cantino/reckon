@@ -302,7 +302,8 @@ module Reckon
     end
 
     def parse
-      self.csv_data = FasterCSV.parse(options[:string] || File.read(options[:file]))
+      data = options[:string] || File.read(options[:file])
+      self.csv_data = FasterCSV.parse(data.strip)
     end
 
     def self.parse_opts(args = ARGV)
