@@ -4,12 +4,23 @@ require File.dirname(__FILE__) + '/../spec_helper'
 require 'rubygems'
 require 'reckon'
 
+Reckon::App.settings[:testing] = true
+
 describe Reckon::App do
   before do
     @chase = Reckon::App.new(:string => CHASE_CSV)
     @some_other_bank = Reckon::App.new(:string => SOME_OTHER_CSV)
     @two_money_columns = Reckon::App.new(:string => TWO_MONEY_COLUMNS_BANK)
     @simple_csv = Reckon::App.new(:string => SIMPLE_CSV)
+  end
+  
+  it "should be in testing mode" do
+    @chase.settings[:testing].should be_true
+    Reckon::App.settings[:testing].should be_true
+  end
+  
+  it "should work with other separators" do
+    Reckon::App.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
   end
 
   describe "columns" do
@@ -73,6 +84,12 @@ describe Reckon::App do
       @two_money_columns.money_for(2).should == -800
       @two_money_columns.money_for(3).should == -88.55
       @two_money_columns.money_for(4).should == 88.55
+    end
+    
+    it "should handle the comma_separates_cents option correctly" do
+      european_csv = Reckon::App.new(:string => "$2,00;something\n1.025,67;something else", :csv_separator => ';', :comma_separates_cents => true)
+      european_csv.money_for(0).should == 2.00
+      european_csv.money_for(1).should == 1025.67
     end
   end
 

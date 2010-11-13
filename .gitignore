@@ -21,3 +21,4 @@ pkg
 ## PROJECT::SPECIFIC
 .idea
 reckon_local
+private_tests

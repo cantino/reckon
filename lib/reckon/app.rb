@@ -1,7 +1,6 @@
 module Reckon
   class App
     VERSION = "Reckon 0.1"
-
     attr_accessor :options, :csv_data, :accounts, :tokens, :money_column_indices, :date_column_index, :description_column_indices, :seen
 
     def initialize(options = {})
@@ -155,6 +154,7 @@ module Reckon
 
     def money_for(index)
       value = money_column_indices.inject("") { |m, i| m + columns[i][index] }
+      value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
       cleaned_value = value.gsub(/[^\d\.]/, '').to_f
       cleaned_value *= -1 if value =~ /[\(\-]/
       cleaned_value
@@ -184,7 +184,7 @@ module Reckon
     end
 
     def description_for(index)
-      description_column_indices.map { |i| columns[i][index] }.join("; ").squeeze(" ")
+      description_column_indices.map { |i| columns[i][index] }.join("; ").squeeze(" ").gsub(/(;\s+){2,}/, '').strip
     end
 
     def output_table
@@ -202,11 +202,14 @@ module Reckon
       found_likely_money_column = false
       cols.each_with_index do |column, index|
         money_score = date_score = possible_neg_money_count = possible_pos_money_count = 0
-        column.each do |entry|
+        last = nil
+        column.reverse.each_with_index do |entry, row_from_bottom|
+          row = csv_data[csv_data.length - 1 - row_from_bottom]
           entry = entry.strip
-          money_score += 10 if entry[/^[\-\+\(]{0,2}\$/]
-          money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length
-          money_score -= 100 if entry.length > 17
+          money_score += 20 if entry[/^[\-\+\(]{0,2}\$/]
+          money_score += 20 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
+          money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length if entry.length < 7
+          money_score -= entry.length if entry.length > 8
           money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
           possible_neg_money_count += 1 if entry =~ /^\$?[\-\(]\$?\d+/
           possible_pos_money_count += 1 if entry =~ /^\+?\$?\+?\d+/
@@ -216,6 +219,19 @@ module Reckon
           date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length
           date_score += 30 if entry =~ /^\d+[:\/\.]\d+[:\/\.]\d+([ :]\d+[:\/\.]\d+)?$/
           date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
+
+          # Try to determine if this is a balance column
+          entry_as_num = entry.gsub(/[^\-\d\.]/, '').to_f
+          if last && entry_as_num != 0 && last != 0 
+            row.each do |row_entry|
+              row_entry = row_entry.to_s.gsub(/[^\-\d\.]/, '').to_f
+              if row_entry != 0 && last + row_entry == entry_as_num
+                 money_score -= 10
+                 break
+              end
+            end
+          end
+          last = entry_as_num
         end
 
         if possible_neg_money_count > (column.length / 5.0) && possible_pos_money_count > (column.length / 5.0)
@@ -235,7 +251,7 @@ module Reckon
         if index == a
           new_column = []
           column.each_with_index do |row, row_index|
-            new_column << row + " " + columns[b][row_index]
+            new_column << row + " " + (columns[b][row_index] || '')
           end
           output_columns << new_column
         elsif index == b
@@ -247,29 +263,37 @@ module Reckon
       output_columns
     end
 
+    require 'pp'
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
+      self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
 
-      if found_likely_money_column
-        self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
-      else
+      if !found_likely_money_column
+        found_likely_double_money_columns = false
         0.upto(columns.length - 2) do |i|
-          _, found_likely_money_column = evaluate_columns(merge_columns(i, i+1))
+          _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
 
-          if found_likely_money_column
+          if found_likely_double_money_columns
             self.money_column_indices = [ i, i+1 ]
+            unless settings[:testing]
+              puts "It looks like this CSV has two seperate columns for money, one of which shows positive"
+              puts "changes and one of which shows negative changes.  If this is true, great.  Otherwise,"
+              puts "please report this issue to us so we can take a look!\n"
+            end
             break
           end
         end
+        
+        if !found_likely_double_money_columns && !settings[:testing]
+          puts "I didn't find a high-likelyhood money column, but I'm taking my best guess with column #{money_column_indices.first + 1}."
+        end
       end
 
-      if money_column_indices
-        results.reject! {|i| money_column_indices.include?(i[:index]) }
-        self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
-        results.reject! {|i| i[:index] == date_column_index }
+      results.reject! {|i| money_column_indices.include?(i[:index]) }
+      self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
+      results.reject! {|i| i[:index] == date_column_index }
 
-        self.description_column_indices = results.map { |i| i[:index] }
-      end
+      self.description_column_indices = results.map { |i| i[:index] }
     end
 
     def each_row_backwards
@@ -288,7 +312,7 @@ module Reckon
       @columns ||= begin
         last_row_length = nil
         csv_data.inject([]) do |memo, row|
-          fail "Input CSV must have consistent row lengths." if last_row_length && row.length != last_row_length
+          # fail "Input CSV must have consistent row lengths." if last_row_length && row.length != last_row_length
           unless row.all? { |i| i.nil? || i.length == 0 }
             row.each_with_index do |entry, index|
               memo[index] ||= []
@@ -303,7 +327,7 @@ module Reckon
 
     def parse
       data = options[:string] || File.read(options[:file])
-      self.csv_data = FasterCSV.parse(data.strip)
+      self.csv_data = FasterCSV.parse(data.strip, :col_sep => options[:csv_separator] || ',')
     end
 
     def self.parse_opts(args = ARGV)
@@ -334,6 +358,14 @@ module Reckon
 
         opts.on("", "--ignore-columns 1,2,5", "Columns to ignore in the CSV file - the first column is column 1") do |ignore|
           options[:ignore_columns] = ignore.split(",").map { |i| i.to_i }
+        end
+
+        opts.on("", "--csv-separator ';'", "Separator for parsing the CSV - default is comma.") do |csv_separator|
+          options[:csv_separator] = csv_separator
+        end
+
+        opts.on("", "--comma-separates-cents", "Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)") do |c|
+          options[:comma_separates_cents] = c
         end
 
         opts.on_tail("-h", "--help", "Show this message") do
@@ -367,5 +399,16 @@ module Reckon
 
       options
     end
+
+    @settings = { :testing => false }
+
+    def self.settings
+      @settings
+    end
+    
+    def settings
+      self.class.settings
+    end
   end
 end
+  
