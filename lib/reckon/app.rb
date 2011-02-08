@@ -172,7 +172,11 @@ module Reckon
       value = columns[date_column_index][index]
       value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
       begin
-        Time.parse(value)
+        guess = Chronic.parse(value, :context => :past)
+        if guess.to_i < 953236800 && value =~ /\//
+          guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+        end
+        guess
       rescue
         puts "I'm having trouble parsing #{value}, which I thought was a date.  Please report this so that we"
         puts "can make this parser better!"
@@ -327,7 +331,7 @@ module Reckon
 
     def parse
       data = options[:string] || File.read(options[:file])
-      self.csv_data = FasterCSV.parse(data.strip, :col_sep => options[:csv_separator] || ',')
+      self.csv_data = (RUBY_VERSION =~ /^1\.9/ ? CSV : FasterCSV).parse(data.strip, :col_sep => options[:csv_separator] || ',')
     end
 
     def self.parse_opts(args = ARGV)

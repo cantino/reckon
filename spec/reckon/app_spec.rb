@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require File.dirname(__FILE__) + '/../spec_helper'
+require "./#{File.dirname(__FILE__)}/../spec_helper"
 require 'rubygems'
 require 'reckon'
 
@@ -95,8 +95,12 @@ describe Reckon::App do
 
   describe "date_for" do
     it "should return a parsed date object" do
-      @chase.date_for(1).should == Time.parse("2009/12/24")
-      @some_other_bank.date_for(1).should == Time.parse("2010/12/24")
+      @chase.date_for(1).year.should == Time.parse("2009/12/24").year
+      @chase.date_for(1).month.should == Time.parse("2009/12/24").month
+      @chase.date_for(1).day.should == Time.parse("2009/12/24").day
+      @some_other_bank.date_for(1).year.should == Time.parse("2010/12/24").year
+      @some_other_bank.date_for(1).month.should == Time.parse("2010/12/24").month
+      @some_other_bank.date_for(1).day.should == Time.parse("2010/12/24").day
     end
   end
 

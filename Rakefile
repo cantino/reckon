@@ -10,8 +10,10 @@ begin
     gem.email = "andrew@iterationlabs.com"
     gem.homepage = "http://github.com/iterationlabs/reckon"
     gem.authors = ["Andrew Cantino"]
-    gem.add_development_dependency "rspec", ">= 1.2.9"
+    gem.add_development_dependency "rspec", "1.3.1"
+    gem.add_development_dependency "jeweler"
     gem.add_dependency('fastercsv', '>= 1.5.1')
+    gem.add_dependency('chronic', '>= 0.3.0')
     gem.add_dependency('highline', '>= 1.5.2')
     gem.add_dependency('terminal-table', '>= 1.4.2')
   end

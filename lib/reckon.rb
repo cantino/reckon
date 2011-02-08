@@ -1,9 +1,14 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 'fastercsv'
+if RUBY_VERSION =~ /^1\.9/
+  require 'csv'
+else
+  require 'fastercsv'
+end
 require 'highline/import'
 require 'optparse'
+require 'chronic'
 require 'time'
 require 'terminal-table'
 
