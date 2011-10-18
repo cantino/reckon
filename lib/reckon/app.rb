@@ -365,7 +365,7 @@ module Reckon
           options[:ignore_columns] = ignore.split(",").map { |i| i.to_i }
         end
 
-        opts.on("", "--csv-separator ';'", "Separator for parsing the CSV - default is comma.") do |csv_separator|
+        opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
           options[:csv_separator] = csv_separator
         end
 
