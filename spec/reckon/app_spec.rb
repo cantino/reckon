@@ -12,6 +12,7 @@ describe Reckon::App do
     @some_other_bank = Reckon::App.new(:string => SOME_OTHER_CSV)
     @two_money_columns = Reckon::App.new(:string => TWO_MONEY_COLUMNS_BANK)
     @simple_csv = Reckon::App.new(:string => SIMPLE_CSV)
+    @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
   end
   
   it "should be in testing mode" do
@@ -101,6 +102,9 @@ describe Reckon::App do
       @some_other_bank.date_for(1).year.should == Time.parse("2010/12/24").year
       @some_other_bank.date_for(1).month.should == Time.parse("2010/12/24").month
       @some_other_bank.date_for(1).day.should == Time.parse("2010/12/24").day
+      @german_date.date_for(1).year.should == Time.parse("2009/12/24").year
+      @german_date.date_for(1).month.should == Time.parse("2009/12/24").month
+      @german_date.date_for(1).day.should == Time.parse("2009/12/24").day
     end
   end
 
@@ -174,5 +178,10 @@ describe Reckon::App do
     04-Nov-11,-1234.00,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER   SAV TO MECU,0.00,
     04-Nov-9,1234.00,,,TRANSFER CREDIT INTERNET TRANSFER,INTERNET TRANSFER,1234.00,
     28-Oct-10,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER SAV TO MORTGAGE,0.00,
+  CSV
+  GERMAN_DATE_EXAMPLE = (<<-CSV).strip
+    24.12.2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
+    24.12.2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
+    24.12.2009,Check - 0000000112,112,-$800.00,"","$1,498.57"
   CSV
 end

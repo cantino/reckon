@@ -171,6 +171,7 @@ module Reckon
     def date_for(index)
       value = columns[date_column_index][index]
       value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
+      value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # chase format
       begin
         guess = Chronic.parse(value, :context => :past)
         if guess.to_i < 953236800 && value =~ /\//
@@ -364,7 +365,7 @@ module Reckon
           options[:ignore_columns] = ignore.split(",").map { |i| i.to_i }
         end
 
-        opts.on("", "--csv-separator ';'", "Separator for parsing the CSV - default is comma.") do |csv_separator|
+        opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
           options[:csv_separator] = csv_separator
         end
 
