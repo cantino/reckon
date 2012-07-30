@@ -1,3 +1,5 @@
+require 'pp'
+
 module Reckon
   class App
     VERSION = "Reckon 0.1"
@@ -227,7 +229,7 @@ module Reckon
 
           # Try to determine if this is a balance column
           entry_as_num = entry.gsub(/[^\-\d\.]/, '').to_f
-          if last && entry_as_num != 0 && last != 0 
+          if last && entry_as_num != 0 && last != 0
             row.each do |row_entry|
               row_entry = row_entry.to_s.gsub(/[^\-\d\.]/, '').to_f
               if row_entry != 0 && last + row_entry == entry_as_num
@@ -268,7 +270,6 @@ module Reckon
       output_columns
     end
 
-    require 'pp'
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
       self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
@@ -288,7 +289,7 @@ module Reckon
             break
           end
         end
-        
+
         if !found_likely_double_money_columns && !settings[:testing]
           puts "I didn't find a high-likelyhood money column, but I'm taking my best guess with column #{money_column_indices.first + 1}."
         end
@@ -332,7 +333,9 @@ module Reckon
 
     def parse
       data = options[:string] || File.read(options[:file])
-      self.csv_data = (RUBY_VERSION =~ /^1\.9/ ? CSV : FasterCSV).parse(data.strip, :col_sep => options[:csv_separator] || ',')
+      @csv_data = (RUBY_VERSION =~ /^1\.9/ ? CSV : FasterCSV).parse(data.strip, :col_sep => options[:csv_separator] || ',')
+      csv_data.shift if options[:contains_header]
+      csv_data
     end
 
     def self.parse_opts(args = ARGV)
@@ -363,6 +366,10 @@ module Reckon
 
         opts.on("", "--ignore-columns 1,2,5", "Columns to ignore in the CSV file - the first column is column 1") do |ignore|
           options[:ignore_columns] = ignore.split(",").map { |i| i.to_i }
+        end
+
+        opts.on("", "--contains-header", "The first row of the CSV is a header and should be skipped") do |contains_header|
+          options[:contains_header] = contains_header
         end
 
         opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
@@ -410,10 +417,9 @@ module Reckon
     def self.settings
       @settings
     end
-    
+
     def settings
       self.class.settings
     end
   end
 end
-  
