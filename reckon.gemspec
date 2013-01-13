@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version = "0.3.1"
   s.authors = ["Andrew Cantino"]
   s.email = %q{andrew@iterationlabs.com}
-  s.homepage = %q{http://github.com/iterationlabs/reckon}
+  s.homepage = %q{https://github.com/cantino/reckon}
   s.description = %q{Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.}
   s.summary = %q{Utility for interactively converting and labeling CSV files for the Ledger accounting tool.}
 
