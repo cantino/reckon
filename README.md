@@ -16,6 +16,8 @@ To see how the CSV parses:
   
     reckon -f bank.csv -p
 
+If your CSV file has a header on the first line, include `--contains-header`.
+
 To convert to ledger format and label everything, do:
   
     reckon -f bank.csv -o output.dat
@@ -24,11 +26,29 @@ To have reckon learn from an existing ledger file, provide it with -l:
   
     reckon -f bank.csv -l 2010.dat -o output.dat
 
-Learn more with
+Learn more:
 
-    reckon -h
+    > reckon -h
+    
+      Usage: Reckon.rb [options]
 
-If you find CSV files that it can't parse, send me examples and I'll try to fix it.
+      -f, --file FILE                  The CSV file to parse
+      -v, --[no-]verbose               Run verbosely
+      -p, --print-table                Print out the parsed CSV in table form
+      -o, --output-file FILE           The ledger file to append to
+      -l, --learn-from FILE            An existing ledger file to learn accounts from
+          --ignore-columns 1,2,5
+                                       Columns to ignore in the CSV file - the first column is column 1
+          --contains-header
+                                       The first row of the CSV is a header and should be skipped
+          --csv-separator ','
+                                       Separator for parsing the CSV - default is comma.
+          --comma-separates-cents
+                                       Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)
+      -h, --help                       Show this message
+          --version                    Show version
+
+If you find CSV files that it can't parse, send me examples or pull requests!
 
 ## Note on Patches/Pull Requests
 
