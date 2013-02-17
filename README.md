@@ -1,10 +1,10 @@
 # Reckon
 
-Reckon automagically converts CSV files for use with the command-line accounting tool Ledger[https://github.com/jwiegley/ledger/wiki].  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.
+Reckon automagically converts CSV files for use with the command-line accounting tool [Ledger](https://github.com/jwiegley/ledger/wiki).  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.
 
 ## Installation
 
-Assuming you have Ruby and Rubygems[http://rubygems.org/pages/download] installed on your system, simply run
+Assuming you have Ruby and [Rubygems](http://rubygems.org/pages/download) installed on your system, simply run
 
     (sudo) gem install reckon
 
