@@ -5,6 +5,9 @@
 *.tmproj
 tmtags
 
+## SUBLIME
+*.sublime-project
+
 ## EMACS
 *~
 \#*
