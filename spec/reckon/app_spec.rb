@@ -96,11 +96,17 @@ describe Reckon::App do
       @danish_kroner_nordea.money_for(4).should == -3452.90
       @danish_kroner_nordea.money_for(5).should == -655.00
     end
-    
+
     it "should handle the comma_separates_cents option correctly" do
       european_csv = Reckon::App.new(:string => "$2,00;something\n1.025,67;something else", :csv_separator => ';', :comma_separates_cents => true)
       european_csv.money_for(0).should == 2.00
       european_csv.money_for(1).should == 1025.67
+    end
+
+    it "should return negated values if the inverse option is passed" do
+      inversed_csv = Reckon::App.new(:string => INVERSED_CREDIT_CARD, :inverse => true)
+      inversed_csv.money_for(0).should == -30.00
+      inversed_csv.money_for(3).should == 500.00
     end
   end
 
@@ -175,6 +181,25 @@ describe Reckon::App do
     DEBIT,2005/12/24,"WEBSITE-BALANCE-10DEC09 12        12/10WEBSITE-BAL",($0.96)
     CREDIT,2004/12/24,"PAYPAL           TRANSFER                   PPD ID: PAYPALSDSL",($116.22)
     CREDIT,2003/12/24,"Some Company vendorpymt                 PPD ID: 5KL3832735",$2105.00
+  CSV
+
+  INVERSED_CREDIT_CARD = (<<-CSV).strip
+    2013/01/17,2013/01/16,2013011702,DEBIT,2226,"VODAFONE PREPAY VISA M   AUCKLAND      NZL",30.00
+    2013/01/18,2013/01/17,2013011801,DEBIT,2226,"WILSON PARKING           AUCKLAND      NZL",4.60
+    2013/01/18,2013/01/17,2013011802,DEBIT,2226,"AUCKLAND TRANSPORT       HENDERSON     NZL",2.00
+    2013/01/19,2013/01/19,2013011901,CREDIT,2226,"INTERNET PAYMENT RECEIVED                 ",-500.00
+    2013/01/26,2013/01/23,2013012601,DEBIT,2226,"ITUNES NZ                CORK          IRL",64.99
+    2013/01/26,2013/01/25,2013012602,DEBIT,2226,"VODAFONE FXFLNE BBND R   NEWTON        NZL",90.26
+    2013/01/29,2013/01/29,2013012901,CREDIT,2101,"PAYMENT RECEIVED THANK YOU                ",-27.75
+    2013/01/30,2013/01/29,2013013001,DEBIT,2226,"AUCKLAND TRANSPORT       HENDERSON     NZL",3.50
+    2013/02/05,2013/02/03,2013020501,DEBIT,2226,"Z BEACH RD               AUCKLAND      NZL",129.89
+    2013/02/05,2013/02/03,2013020502,DEBIT,2226,"TOURNAMENT KHYBER PASS   AUCKLAND      NZL",8.00
+    2013/02/05,2013/02/04,2013020503,DEBIT,2226,"VODAFONE PREPAY VISA M   AUCKLAND      NZL",30.00
+    2013/02/08,2013/02/07,2013020801,DEBIT,2226,"AKLD TRANSPORT PARKING   AUCKLAND      NZL",2.50
+    2013/02/08,2013/02/07,2013020802,DEBIT,2226,"AUCKLAND TRANSPORT       HENDERSON     NZL",3.50
+    2013/02/12,2013/02/11,2013021201,DEBIT,2226,"AKLD TRANSPORT PARKING   AUCKLAND      NZL",1.50
+    2013/02/17,2013/02/17,2013021701,CREDIT,2226,"INTERNET PAYMENT RECEIVED                 ",-12.00
+    2013/02/17,2013/02/17,2013021702,CREDIT,2226,"INTERNET PAYMENT RECEIVED                 ",-18.00
   CSV
 
   TWO_MONEY_COLUMNS_BANK = (<<-CSV).strip

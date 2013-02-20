@@ -159,6 +159,7 @@ module Reckon
       value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
       cleaned_value = value.gsub(/[^\d\.]/, '').to_f
       cleaned_value *= -1 if value =~ /[\(\-]/
+      cleaned_value = -(cleaned_value) if options[:inverse]
       cleaned_value
     end
 
@@ -351,6 +352,10 @@ module Reckon
 
         opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
           options[:verbose] = v
+        end
+
+        opts.on("-i", "--inverse", "Use the negative of each amount") do |v|
+          options[:inverse] = v
         end
 
         opts.on("-p", "--print-table", "Print out the parsed CSV in table form") do |p|
