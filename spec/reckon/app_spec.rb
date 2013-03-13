@@ -21,8 +21,16 @@ describe Reckon::App do
     Reckon::App.settings[:testing].should be_true
   end
   
-  it "should work with other separators" do
-    Reckon::App.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
+  describe "parse" do
+    it "should work with foreign character encodings" do
+      app = Reckon::App.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
+      app.columns[0][0..2].should == ["Data", "10/31/2012", "11/01/2012"]
+      app.columns[2].first.should == "Hist?rico"
+    end
+
+    it "should work with other separators" do
+      Reckon::App.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
+    end
   end
 
   describe "columns" do

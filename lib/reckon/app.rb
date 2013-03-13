@@ -334,7 +334,15 @@ module Reckon
 
     def parse
       data = options[:string] || File.read(options[:file])
-      @csv_data = (RUBY_VERSION =~ /^1\.9/ ? CSV : FasterCSV).parse(data.strip, :col_sep => options[:csv_separator] || ',')
+
+      if RUBY_VERSION =~ /^1\.9/
+        data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
+        csv_engine = CSV
+      else
+        csv_engine = FasterCSV
+      end
+
+      @csv_data = csv_engine.parse data.strip, :col_sep => options[:csv_separator] || ','
       csv_data.shift if options[:contains_header]
       csv_data
     end
@@ -379,6 +387,10 @@ module Reckon
 
         opts.on("", "--comma-separates-cents", "Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)") do |c|
           options[:comma_separates_cents] = c
+        end
+
+        opts.on("", "--encoding", "Specify an encoding for the CSV file") do |e|
+          options[:encoding] = e
         end
 
         opts.on_tail("-h", "--help", "Show this message") do
