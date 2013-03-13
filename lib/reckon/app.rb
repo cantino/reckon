@@ -335,7 +335,7 @@ module Reckon
     def parse
       data = options[:string] || File.read(options[:file])
 
-      if RUBY_VERSION =~ /^1\.9/
+      if RUBY_VERSION =~ /^1\.9/ || RUBY_VERSION =~ /^2/
         data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
         csv_engine = CSV
       else
