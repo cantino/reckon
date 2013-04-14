@@ -14,6 +14,7 @@ describe Reckon::App do
     @simple_csv = Reckon::App.new(:string => SIMPLE_CSV)
     @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
     @danish_kroner_nordea = Reckon::App.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
+    @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
   end
   
   it "should be in testing mode" do
@@ -57,6 +58,7 @@ describe Reckon::App do
       @two_money_columns.money_column_indices.should == [3, 4]
       @harder_date_example_csv.money_column_indices.should == [1]
       @danish_kroner_nordea.money_column_indices.should == [3]
+      @yyyymmdd_date.money_column_indices.should == [3]
     end
 
     it "should detect the date column" do
@@ -65,6 +67,7 @@ describe Reckon::App do
       @two_money_columns.date_column_index.should == 0
       @harder_date_example_csv.date_column_index.should == 0
       @danish_kroner_nordea.date_column_index.should == 0
+      @yyyymmdd_date.date_column_index.should == 1
     end
 
     it "should consider all other columns to be description columns" do
@@ -73,6 +76,7 @@ describe Reckon::App do
       @two_money_columns.description_column_indices.should == [1, 2, 5]
       @harder_date_example_csv.description_column_indices.should == [2, 3, 4, 5, 6, 7]
       @danish_kroner_nordea.description_column_indices.should == [1, 2, 4]
+      @yyyymmdd_date.description_column_indices.should == [0, 2]
     end
   end
 
@@ -103,6 +107,7 @@ describe Reckon::App do
       @danish_kroner_nordea.money_for(3).should == -995.00
       @danish_kroner_nordea.money_for(4).should == -3452.90
       @danish_kroner_nordea.money_for(5).should == -655.00
+      @yyyymmdd_date.money_for(0).should == -123.45
     end
 
     it "should handle the comma_separates_cents option correctly" do
@@ -132,6 +137,9 @@ describe Reckon::App do
       @danish_kroner_nordea.date_for(0).year.should == Time.parse("2012/11/16").year
       @danish_kroner_nordea.date_for(0).month.should == Time.parse("2012/11/16").month
       @danish_kroner_nordea.date_for(0).day.should == Time.parse("2012/11/16").day
+      @yyyymmdd_date.date_for(0).year.should == Time.parse("2012/12/31").year
+      @yyyymmdd_date.date_for(0).month.should == Time.parse("2012/12/31").month
+      @yyyymmdd_date.date_for(0).day.should == Time.parse("2012/12/31").day
     end
   end
 
@@ -238,6 +246,10 @@ describe Reckon::App do
     12-10-2012;Visa kob DKK     995,00            WWW.ASOS.COM   00000               ;12-10-2012;-995,00;27939,54
     12-09-2012;Dankort-nota B.J. TRADING E 14660;12-09-2012;-3452,90;26164,80
     27-08-2012;Dankort-nota MATAS - 20319  18230;27-08-2012;-655,00;21127,45
+  CSV
+
+  YYYYMMDD_DATE_EXAMPLE = (<<-CSV).strip
+    DEBIT,20121231,"ODESK***BAL-27DEC12 650-12345 CA 12/28",-123.45
   CSV
 
 end
