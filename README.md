@@ -1,5 +1,7 @@
 # Reckon
 
+[![Build Status](https://travis-ci.org/cantino/reckon.png)](https://travis-ci.org/cantino/reckon)
+
 Reckon automagically converts CSV files for use with the command-line accounting tool [Ledger](https://github.com/jwiegley/ledger/wiki).  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.
 
 ## Installation
