@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-if RUBY_VERSION =~ /^1\.9/
+if RUBY_VERSION =~ /^1\.9/ || RUBY_VERSION =~ /^2/
   require 'csv'
 else
   require 'fastercsv'
