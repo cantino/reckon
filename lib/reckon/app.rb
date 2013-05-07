@@ -359,6 +359,10 @@ module Reckon
           options[:file] = file
         end
 
+        opts.on("-a", "--account name", "The Ledger Account this file is for") do |a|
+          options[:bank_account] = a
+        end
+
         opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
           options[:verbose] = v
         end

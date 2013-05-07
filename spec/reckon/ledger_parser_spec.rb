@@ -17,7 +17,7 @@ describe Reckon::LedgerParser do
 
     it "should parse entries correctly" do
       @ledger.entries.first[:desc].should == "* Checking balance"
-      @ledger.entries.first[:date].should == "2004/05/01"
+      @ledger.entries.first[:date].should == "2004-05-01"
       @ledger.entries.first[:accounts].first[:name].should == "Assets:Bank:Checking"
       @ledger.entries.first[:accounts].first[:amount].should == 1000
       @ledger.entries.first[:accounts].last[:name].should == "Equity:Opening Balances"
@@ -72,7 +72,7 @@ describe Reckon::LedgerParser do
   Assets:Bank:Checking          $500.00
   Income:Salary
 
-2004/05/01 * Checking balance
+2004-05-01 * Checking balance
   Assets:Bank:Checking        $1,000.00
   Equity:Opening Balances
 
