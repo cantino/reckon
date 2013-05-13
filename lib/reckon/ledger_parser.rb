@@ -18,7 +18,7 @@ module Reckon
       accounts = []
       ledger.strip.split("\n").each do |entry|
         next if entry =~ /^\s*$/ || entry =~ /^[^ \t\d]/
-        if entry =~ /^([\d\/]+)(\=[\d\/]+)?(\s+[\*!]?\s*.*?)$/
+        if entry =~ /^([\d\/-]+)(\=[\d\/-]+)?(\s+[\*!]?\s*.*?)$/
           @entries << { :date => date.strip, :desc => desc.strip, :accounts => balance(accounts) } if date
           date = $1
           desc = $3
