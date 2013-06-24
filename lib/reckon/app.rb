@@ -10,6 +10,15 @@ module Reckon
       self.tokens = {}
       self.accounts = {}
       self.seen = {}
+
+      unless options[:currency]
+        options[:currency] = '$'
+      end
+
+      unless options[:suffixed]
+        options[:suffixed] = false
+      end
+
       learn!
       parse
       filter_csv
@@ -168,7 +177,12 @@ module Reckon
     end
 
     def pretty_money(amount, negate = false)
-      (amount >= 0 ? " " : "") + sprintf("%0.2f", amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, '\1$')
+      currency = options[:currency]
+      if options[:suffixed]
+        (amount >= 0 ? " " : "") + sprintf("%0.2f #{currency}", amount * (negate ? -1 : 1))
+      else
+        (amount >= 0 ? " " : "") + sprintf("%0.2f", amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, "\\1#{currency}")
+      end      
     end
 
     def date_for(index)
@@ -401,6 +415,14 @@ module Reckon
 
         opts.on("", "--encoding", "Specify an encoding for the CSV file") do |e|
           options[:encoding] = e
+        end
+
+        opts.on("-c", "--currency", "Currency symbol to use, defaults to $. ex.) $, EUR") do |e|
+          options[:currency] = e
+        end
+
+        opts.on("", "--suffixed", "If --currency should be used as a suffix. Defaults to false.") do |e|
+          options[:suffixed] = e
         end
 
         opts.on_tail("-h", "--help", "Show this message") do
