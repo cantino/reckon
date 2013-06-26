@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 require "spec_helper"
 require 'rubygems'
@@ -157,6 +158,24 @@ describe Reckon::App do
       @some_other_bank.pretty_money_for(7).should == "-$116.22"
       @some_other_bank.pretty_money_for(5).should == " $0.23"
       @some_other_bank.pretty_money_for(6).should == "-$0.96"
+    end
+
+    it "work with other currencies such as €" do
+      euro_bank = Reckon::App.new(:string => SOME_OTHER_CSV, :currency => "€", :suffixed => false )
+      euro_bank.pretty_money_for(1).should == "-€20.00"
+      euro_bank.pretty_money_for(4).should == " €1558.52"
+      euro_bank.pretty_money_for(7).should == "-€116.22"
+      euro_bank.pretty_money_for(5).should == " €0.23"
+      euro_bank.pretty_money_for(6).should == "-€0.96"
+    end
+
+    it "work with suffixed currencies such as SEK" do
+      swedish_bank = Reckon::App.new(:string => SOME_OTHER_CSV, :currency => 'SEK', :suffixed => true )
+      swedish_bank.pretty_money_for(1).should == "-20.00 SEK"
+      swedish_bank.pretty_money_for(4).should == " 1558.52 SEK"
+      swedish_bank.pretty_money_for(7).should == "-116.22 SEK"
+      swedish_bank.pretty_money_for(5).should == " 0.23 SEK"
+      swedish_bank.pretty_money_for(6).should == "-0.96 SEK"
     end
   end
 
