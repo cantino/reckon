@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#encoding: utf-8
 
 require "spec_helper"
 require 'rubygems'
@@ -12,7 +13,7 @@ describe Reckon::LedgerParser do
 
   describe "parse" do
     it "should ignore non-standard entries" do
-      @ledger.entries.length.should == 5
+      @ledger.entries.length.should == 7
     end
 
     it "should parse entries correctly" do
@@ -74,6 +75,14 @@ describe Reckon::LedgerParser do
 
 2004-05-01 * Checking balance
   Assets:Bank:Checking        $1,000.00
+  Equity:Opening Balances
+
+2004-05-01 * Checking balance
+  Assets:Bank:Checking        €1,000.00
+  Equity:Opening Balances
+
+2004-05-01 * Checking balance
+  Assets:Bank:Checking        1,000.00 SEK
   Equity:Opening Balances
 
 2004/05/01 * Investment balance
