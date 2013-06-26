@@ -10,15 +10,7 @@ module Reckon
       self.tokens = {}
       self.accounts = {}
       self.seen = {}
-
-      unless options[:currency]
-        options[:currency] = '$'
-      end
-
-      unless options[:suffixed]
-        options[:suffixed] = false
-      end
-
+      self.options[:currency] ||= '$'
       learn!
       parse
       filter_csv
