@@ -1,3 +1,4 @@
+#coding: utf-8
 require 'pp'
 
 module Reckon
@@ -409,7 +410,7 @@ module Reckon
           options[:encoding] = e
         end
 
-        opts.on("-c", "--currency", "Currency symbol to use, defaults to $. ex.) $, EUR") do |e|
+        opts.on("-c", "--currency '$'", "Currency symbol to use, defaults to $ (£, EUR)") do |e|
           options[:currency] = e
         end
 
