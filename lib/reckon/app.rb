@@ -184,6 +184,7 @@ module Reckon
       value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
       value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
       value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
+      value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\/(\d{2})\/(\d{4})$/            # german format
       begin
         guess = Chronic.parse(value, :context => :past)
         if guess.to_i < 953236800 && value =~ /\//
