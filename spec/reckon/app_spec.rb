@@ -16,7 +16,7 @@ describe Reckon::App do
     @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
     @danish_kroner_nordea = Reckon::App.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
     @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
-    @spanish_date = Reckon::App.new(:string => SPANISH_DATE_EXAMPLE)
+    @spanish_date = Reckon::App.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
     @english_date = Reckon::App.new(:string => ENGLISH_DATE_EXAMPLE)
   end
   
