@@ -196,7 +196,6 @@ module Reckon
       begin
           guess = Chronic.parse(value, :context => :past)
           if guess.to_i < 953236800 && value =~ /\//
-            puts (value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s])
             guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
           end
           guess
@@ -424,7 +423,7 @@ module Reckon
           options[:currency] = e
         end
 
-        opts.on("", "--date-format 'dd/mm/yyyy'", "Force the date format") do |d|
+        opts.on("", "--date-format '%d/%m/%Y'", "Force the date format (see Ruby DateTime strftime)") do |d|
           options[:date_format] = d
         end
 
