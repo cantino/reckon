@@ -16,6 +16,8 @@ describe Reckon::App do
     @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
     @danish_kroner_nordea = Reckon::App.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
     @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
+    @spanish_date = Reckon::App.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
+    @english_date = Reckon::App.new(:string => ENGLISH_DATE_EXAMPLE)
   end
   
   it "should be in testing mode" do
@@ -141,6 +143,12 @@ describe Reckon::App do
       @yyyymmdd_date.date_for(0).year.should == Time.parse("2012/12/31").year
       @yyyymmdd_date.date_for(0).month.should == Time.parse("2012/12/31").month
       @yyyymmdd_date.date_for(0).day.should == Time.parse("2012/12/31").day
+      @spanish_date.date_for(1).year.should == Time.parse("2009/12/02").year
+      @spanish_date.date_for(1).month.should == Time.parse("2009/12/02").month
+      @spanish_date.date_for(1).day.should == Time.parse("2009/12/02").day
+      @english_date.date_for(1).year.should == Time.parse("2009/12/24").year
+      @english_date.date_for(1).month.should == Time.parse("2009/12/24").month
+      @english_date.date_for(1).day.should == Time.parse("2009/12/24").day
     end
   end
 
@@ -269,6 +277,18 @@ describe Reckon::App do
 
   YYYYMMDD_DATE_EXAMPLE = (<<-CSV).strip
     DEBIT,20121231,"ODESK***BAL-27DEC12 650-12345 CA 12/28",-123.45
+  CSV
+
+  SPANISH_DATE_EXAMPLE = (<<-CSV).strip
+    02/12/2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
+    02/12/2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
+    02/12/2009,Check - 0000000112,112,-$800.00,"","$1,498.57"
+  CSV
+
+  ENGLISH_DATE_EXAMPLE = (<<-CSV).strip
+    24/12/2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
+    24/12/2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
+    24/12/2009,Check - 0000000112,112,-$800.00,"","$1,498.57"
   CSV
 
 end
