@@ -1,3 +1,4 @@
+#coding: utf-8
 require 'pp'
 
 module Reckon
@@ -179,16 +180,25 @@ module Reckon
 
     def date_for(index)
       value = columns[date_column_index][index]
-      value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
-      value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
-      value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
-      value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
-      begin
-        guess = Chronic.parse(value, :context => :past)
-        if guess.to_i < 953236800 && value =~ /\//
-          guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+      if options[:date_format].nil?
+        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
+        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
+        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
+        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
+      else
+        begin
+          value = Date.strptime(value, options[:date_format])
+        rescue
+          puts "I'm having trouble parsing #{value} with the desired format: #{options[:date_format]}"
+          exit 1
         end
-        guess
+      end
+      begin
+          guess = Chronic.parse(value, :context => :past)
+          if guess.to_i < 953236800 && value =~ /\//
+            guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+          end
+          guess
       rescue
         puts "I'm having trouble parsing #{value}, which I thought was a date.  Please report this so that we"
         puts "can make this parser better!"
@@ -409,8 +419,12 @@ module Reckon
           options[:encoding] = e
         end
 
-        opts.on("-c", "--currency", "Currency symbol to use, defaults to $. ex.) $, EUR") do |e|
+        opts.on("-c", "--currency '$'", "Currency symbol to use, defaults to $ (£, EUR)") do |e|
           options[:currency] = e
+        end
+
+        opts.on("", "--date-format '%d/%m/%Y'", "Force the date format (see Ruby DateTime strftime)") do |d|
+          options[:date_format] = d
         end
 
         opts.on("", "--suffixed", "If --currency should be used as a suffix. Defaults to false.") do |e|
