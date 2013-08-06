@@ -21,5 +21,4 @@ end
 require_local 'version'
 require_local 'app'
 require_local 'ledger_parser'
-require_local 'classifier'
 
