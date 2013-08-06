@@ -1,5 +1,4 @@
-#coding: utf-8
-require 'pp'
+# -*- coding: UTF-8 -*-
 
 module Reckon
   class App
@@ -47,6 +46,7 @@ module Reckon
       if options[:existing_ledger_file]
         fail "#{options[:existing_ledger_file]} doesn't exist!" unless File.exists?(options[:existing_ledger_file])
         ledger_data = File.read(options[:existing_ledger_file])
+        ledger_data = ensure_utf8(ledger_data)
         learn_from(ledger_data)
       end
     end
@@ -175,7 +175,7 @@ module Reckon
         (amount >= 0 ? " " : "") + sprintf("%0.2f #{currency}", amount * (negate ? -1 : 1))
       else
         (amount >= 0 ? " " : "") + sprintf("%0.2f", amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, "\\1#{currency}")
-      end      
+      end
     end
 
     def date_for(index)
@@ -354,7 +354,8 @@ module Reckon
       data = options[:string] || File.read(options[:file])
 
       if RUBY_VERSION =~ /^1\.9/ || RUBY_VERSION =~ /^2/
-        data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
+        #data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
+        data = ensure_utf8(data)
         csv_engine = CSV
       else
         csv_engine = FasterCSV
@@ -363,6 +364,12 @@ module Reckon
       @csv_data = csv_engine.parse data.strip, :col_sep => options[:csv_separator] || ','
       csv_data.shift if options[:contains_header]
       csv_data
+    end
+
+    def ensure_utf8(content)
+      detection            = CharlockHolmes::EncodingDetector.detect(content)
+      utf8_encoded_content = CharlockHolmes::Converter.convert content, detection[:encoding], 'UTF-8'
+      return utf8_encoded_content
     end
 
     def self.parse_opts(args = ARGV)

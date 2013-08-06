@@ -1,6 +1,4 @@
-#!/usr/bin/env ruby
-
-require 'rubygems'
+# -*- coding: UTF-8 -*-
 
 module Reckon
   class LedgerParser

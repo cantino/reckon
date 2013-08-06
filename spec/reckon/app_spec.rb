@@ -1,35 +1,37 @@
-#!/usr/bin/env ruby
 # encoding: utf-8
 
-require "spec_helper"
-require 'rubygems'
-require 'reckon'
+require "./spec/spec_helper"
 
 Reckon::App.settings[:testing] = true
 
 describe Reckon::App do
   before do
-    @chase = Reckon::App.new(:string => CHASE_CSV)
-    @some_other_bank = Reckon::App.new(:string => SOME_OTHER_CSV)
-    @two_money_columns = Reckon::App.new(:string => TWO_MONEY_COLUMNS_BANK)
-    @simple_csv = Reckon::App.new(:string => SIMPLE_CSV)
-    @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
-    @danish_kroner_nordea = Reckon::App.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
-    @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
-    @spanish_date = Reckon::App.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
-    @english_date = Reckon::App.new(:string => ENGLISH_DATE_EXAMPLE)
+    @chase                = Reckon::App.new(:string => Fixtures.data[:chase_csv])
+    @some_other_bank      = Reckon::App.new(:string => Fixtures.data[:some_other_csv])
+    @two_money_columns    = Reckon::App.new(:string => Fixtures.data[:two_money_columns_bank])
+    @simple_csv           = Reckon::App.new(:string => Fixtures.data[:simple_csv])
+    @german_date          = Reckon::App.new(:string => Fixtures.data[:german_date_example])
+    @danish_kroner_nordea = Reckon::App.new(:string => Fixtures.data[:danish_kroner_nordea_example], :csv_separator => ';', :comma_separates_cents => true)
+    @yyyymmdd_date        = Reckon::App.new(:string => Fixtures.data[:yyyymmdd_date_example])
+    @spanish_date         = Reckon::App.new(:string => Fixtures.data[:spanish_date_example], :date_format => '%d/%m/%Y')
+    @english_date         = Reckon::App.new(:string => Fixtures.data[:english_date_example])
+
+    @german_bank = Reckon::App.new(:string => Fixtures.data[:german_bank_example],
+      :csv_separator  => ';',
+      :ignore_columns => [1,3]
+    )
   end
-  
+
   it "should be in testing mode" do
     @chase.settings[:testing].should be_true
     Reckon::App.settings[:testing].should be_true
   end
-  
+
   describe "parse" do
     it "should work with foreign character encodings" do
       app = Reckon::App.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
       app.columns[0][0..2].should == ["Data", "10/31/2012", "11/01/2012"]
-      app.columns[2].first.should == "Hist?rico"
+      app.columns[2].first.should == "Hist\u00F3rico"
     end
 
     it "should work with other separators" do
@@ -42,7 +44,7 @@ describe Reckon::App do
       @simple_csv.columns.should == [["entry1", "entry4"], ["entry2", "entry5"], ["entry3", "entry6"]]
       @chase.columns.length.should == 4
     end
-    
+
     it "should be ok with empty lines" do
       lambda {
         Reckon::App.new(:string => "one,two\nthree,four\n\n\n\n\n").columns.should == [['one', 'three'], ['two', 'four']]
@@ -52,9 +54,9 @@ describe Reckon::App do
 
   describe "detect_columns" do
     before do
-      @harder_date_example_csv = Reckon::App.new(:string => HARDER_DATE_EXAMPLE)
+      @harder_date_example_csv = Reckon::App.new(:string => Fixtures.data[:harder_date_example])
     end
-    
+
     it "should detect the money column" do
       @chase.money_column_indices.should == [3]
       @some_other_bank.money_column_indices.should == [3]
@@ -120,7 +122,8 @@ describe Reckon::App do
     end
 
     it "should return negated values if the inverse option is passed" do
-      inversed_csv = Reckon::App.new(:string => INVERSED_CREDIT_CARD, :inverse => true)
+
+      inversed_csv = Reckon::App.new(:string => Fixtures.data[:inversed_credit_card], :inverse => true)
       inversed_csv.money_for(0).should == -30.00
       inversed_csv.money_for(3).should == 500.00
     end
@@ -169,7 +172,8 @@ describe Reckon::App do
     end
 
     it "work with other currencies such as €" do
-      euro_bank = Reckon::App.new(:string => SOME_OTHER_CSV, :currency => "€", :suffixed => false )
+
+      euro_bank = Reckon::App.new(:string => Fixtures.data[:some_other_csv], :currency => "€", :suffixed => false )
       euro_bank.pretty_money_for(1).should == "-€20.00"
       euro_bank.pretty_money_for(4).should == " €1558.52"
       euro_bank.pretty_money_for(7).should == "-€116.22"
@@ -178,7 +182,7 @@ describe Reckon::App do
     end
 
     it "work with suffixed currencies such as SEK" do
-      swedish_bank = Reckon::App.new(:string => SOME_OTHER_CSV, :currency => 'SEK', :suffixed => true )
+      swedish_bank = Reckon::App.new(:string => Fixtures.data[:some_other_csv], :currency => 'SEK', :suffixed => true )
       swedish_bank.pretty_money_for(1).should == "-20.00 SEK"
       swedish_bank.pretty_money_for(4).should == " 1558.52 SEK"
       swedish_bank.pretty_money_for(7).should == "-116.22 SEK"
@@ -196,99 +200,4 @@ describe Reckon::App do
       @simple_csv.merge_columns(0,2).should == [["entry1 entry3", "entry4 entry6"], ["entry2", "entry5"]]
     end
   end
-
-
-  # Data
-
-  SIMPLE_CSV = "entry1,entry2,entry3\nentry4,entry5,entry6"
-
-  CHASE_CSV = (<<-CSV).strip
-    DEBIT,20091224120000[0:GMT],"HOST 037196321563 MO        12/22SLICEHOST",-85.00
-    CHECK,20091224120000[0:GMT],"CHECK 2656",-20.00
-    DEBIT,20091224120000[0:GMT],"GITHUB 041287430274 CA           12/22GITHUB 04",-7.00
-    CREDIT,20091223120000[0:GMT],"Some Company vendorpymt                 PPD ID: 59728JSL20",3520.00
-    CREDIT,20091223120000[0:GMT],"Blarg BLARG REVENUE                  PPD ID: 00jah78563",1558.52
-    DEBIT,20091221120000[0:GMT],"WEBSITE-BALANCE-17DEC09 12        12/17WEBSITE-BAL",-12.23
-    DEBIT,20091214120000[0:GMT],"WEBSITE-BALANCE-10DEC09 12        12/10WEBSITE-BAL",-20.96
-    CREDIT,20091211120000[0:GMT],"PAYPAL           TRANSFER                   PPD ID: PAYPALSDSL",-116.22
-    CREDIT,20091210120000[0:GMT],"Some Company vendorpymt                 PPD ID: 5KL3832735",2105.00
-  CSV
-
-  SOME_OTHER_CSV = (<<-CSV).strip
-    DEBIT,2011/12/24,"HOST 037196321563 MO        12/22SLICEHOST",($85.00)
-    CHECK,2010/12/24,"CHECK 2656",($20.00)
-    DEBIT,2009/12/24,"GITHUB 041287430274 CA           12/22GITHUB 04",($7.00)
-    CREDIT,2008/12/24,"Some Company vendorpymt                 PPD ID: 59728JSL20",$3520.00
-    CREDIT,2007/12/24,"Blarg BLARG REVENUE                  PPD ID: 00jah78563",$1558.52
-    DEBIT,2006/12/24,"WEBSITE-BALANCE-17DEC09 12        12/17WEBSITE-BAL",$.23
-    DEBIT,2005/12/24,"WEBSITE-BALANCE-10DEC09 12        12/10WEBSITE-BAL",($0.96)
-    CREDIT,2004/12/24,"PAYPAL           TRANSFER                   PPD ID: PAYPALSDSL",($116.22)
-    CREDIT,2003/12/24,"Some Company vendorpymt                 PPD ID: 5KL3832735",$2105.00
-  CSV
-
-  INVERSED_CREDIT_CARD = (<<-CSV).strip
-    2013/01/17,2013/01/16,2013011702,DEBIT,2226,"VODAFONE PREPAY VISA M   AUCKLAND      NZL",30.00
-    2013/01/18,2013/01/17,2013011801,DEBIT,2226,"WILSON PARKING           AUCKLAND      NZL",4.60
-    2013/01/18,2013/01/17,2013011802,DEBIT,2226,"AUCKLAND TRANSPORT       HENDERSON     NZL",2.00
-    2013/01/19,2013/01/19,2013011901,CREDIT,2226,"INTERNET PAYMENT RECEIVED                 ",-500.00
-    2013/01/26,2013/01/23,2013012601,DEBIT,2226,"ITUNES NZ                CORK          IRL",64.99
-    2013/01/26,2013/01/25,2013012602,DEBIT,2226,"VODAFONE FXFLNE BBND R   NEWTON        NZL",90.26
-    2013/01/29,2013/01/29,2013012901,CREDIT,2101,"PAYMENT RECEIVED THANK YOU                ",-27.75
-    2013/01/30,2013/01/29,2013013001,DEBIT,2226,"AUCKLAND TRANSPORT       HENDERSON     NZL",3.50
-    2013/02/05,2013/02/03,2013020501,DEBIT,2226,"Z BEACH RD               AUCKLAND      NZL",129.89
-    2013/02/05,2013/02/03,2013020502,DEBIT,2226,"TOURNAMENT KHYBER PASS   AUCKLAND      NZL",8.00
-    2013/02/05,2013/02/04,2013020503,DEBIT,2226,"VODAFONE PREPAY VISA M   AUCKLAND      NZL",30.00
-    2013/02/08,2013/02/07,2013020801,DEBIT,2226,"AKLD TRANSPORT PARKING   AUCKLAND      NZL",2.50
-    2013/02/08,2013/02/07,2013020802,DEBIT,2226,"AUCKLAND TRANSPORT       HENDERSON     NZL",3.50
-    2013/02/12,2013/02/11,2013021201,DEBIT,2226,"AKLD TRANSPORT PARKING   AUCKLAND      NZL",1.50
-    2013/02/17,2013/02/17,2013021701,CREDIT,2226,"INTERNET PAYMENT RECEIVED                 ",-12.00
-    2013/02/17,2013/02/17,2013021702,CREDIT,2226,"INTERNET PAYMENT RECEIVED                 ",-18.00
-  CSV
-
-  TWO_MONEY_COLUMNS_BANK = (<<-CSV).strip
-    4/1/2008,Check - 0000000122,122,-$76.00,"","$1,750.06"
-    3/28/2008,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
-    3/27/2008,Check - 0000000112,112,-$800.00,"","$1,498.57"
-    3/26/2008,Check - 0000000251,251,-$88.55,"","$1,298.57"
-    3/26/2008,Check - 0000000251,251,"","+$88.55","$1,298.57"
-  CSV
-  
-  HARDER_DATE_EXAMPLE = (<<-CSV).strip
-    10-Nov-9,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER MORTGAGE,0.00,
-    09-Nov-10,123.12,,,SALARY SALARY,NGHSKS46383BGDJKD  FOO BAR,432.12,
-    04-Nov-11,-1234.00,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER   SAV TO MECU,0.00,
-    04-Nov-9,1234.00,,,TRANSFER CREDIT INTERNET TRANSFER,INTERNET TRANSFER,1234.00,
-    28-Oct-10,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER SAV TO MORTGAGE,0.00,
-  CSV
-  GERMAN_DATE_EXAMPLE = (<<-CSV).strip
-    24.12.2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
-    24.12.2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
-    24.12.2009,Check - 0000000112,112,-$800.00,"","$1,498.57"
-  CSV
-
-  DANISH_KRONER_NORDEA_EXAMPLE = (<<-CSV).strip
-    16-11-2012;Dankort-nota DSB Kobenhavn  15149;16-11-2012;-48,00;26550,33
-    26-10-2012;Dankort-nota Ziggy Cafe     19471;26-10-2012;-79,00;26054,54
-    22-10-2012;Dankort-nota H&M Hennes & M 10681;23-10-2012;497,90;25433,54
-    12-10-2012;Visa kob DKK     995,00            WWW.ASOS.COM   00000               ;12-10-2012;-995,00;27939,54
-    12-09-2012;Dankort-nota B.J. TRADING E 14660;12-09-2012;-3452,90;26164,80
-    27-08-2012;Dankort-nota MATAS - 20319  18230;27-08-2012;-655,00;21127,45
-  CSV
-
-  YYYYMMDD_DATE_EXAMPLE = (<<-CSV).strip
-    DEBIT,20121231,"ODESK***BAL-27DEC12 650-12345 CA 12/28",-123.45
-  CSV
-
-  SPANISH_DATE_EXAMPLE = (<<-CSV).strip
-    02/12/2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
-    02/12/2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
-    02/12/2009,Check - 0000000112,112,-$800.00,"","$1,498.57"
-  CSV
-
-  ENGLISH_DATE_EXAMPLE = (<<-CSV).strip
-    24/12/2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
-    24/12/2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
-    24/12/2009,Check - 0000000112,112,-$800.00,"","$1,498.57"
-  CSV
-
 end

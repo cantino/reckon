@@ -1,6 +1,4 @@
 require 'rubygems'
 require 'rspec'
 require 'reckon'
-
-RSpec.configure do |config|
-end
+require './spec/data_fixtures/fixtures'

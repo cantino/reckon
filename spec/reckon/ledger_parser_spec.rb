@@ -1,10 +1,6 @@
-#!/usr/bin/env ruby
 #encoding: utf-8
 
-require "spec_helper"
-require 'rubygems'
-require 'reckon'
-require 'pp'
+require "./spec/spec_helper"
 
 describe Reckon::LedgerParser do
   before do
