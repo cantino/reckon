@@ -1,9 +1,10 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 
+require 'reckon/version'
 Gem::Specification.new do |s|
   s.name = %q{reckon}
-  s.version = "0.3.8"
+  s.version = Reckon::VERSION
   s.authors = ["Andrew Cantino"]
   s.email = %q{andrew@iterationlabs.com}
   s.homepage = %q{https://github.com/cantino/reckon}
