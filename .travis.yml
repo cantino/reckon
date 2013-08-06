@@ -3,3 +3,5 @@ rvm:
   - 1.9.3
   - 2.0.0
 script: "bundle exec rake"
+before_script:
+  - "apt-get install libicu-dev"
