@@ -216,11 +216,7 @@ module Reckon
     def output_table
       output = Terminal::Table.new do |t|
         t.headings = 'Date', 'Amount', 'Description'
-        # enforce utf8 for string values
-        row.each_key do |k|
-          v      = row[k]
-          row[k] = v.force_encoding("UTF-8") if v.class.to_s == "String"
-        end
+
         each_row_backwards do |row|
           t << [ row[:pretty_date], row[:pretty_money], row[:description] ]
         end
@@ -335,6 +331,11 @@ module Reckon
                   :money => money_for(index), :description => description_for(index) }
       end
       rows.sort { |a, b| a[:date] <=> b[:date] }.each do |row|
+        # enforce utf8 for string values
+        row.each_key do |k|
+          v      = row[k]
+          row[k] = v.force_encoding("UTF-8") if v.class.to_s == "String"
+        end
         yield row
       end
     end
