@@ -32,23 +32,32 @@ Learn more:
 
     > reckon -h
     
-      Usage: Reckon.rb [options]
+    Usage: Reckon.rb [options]
 
-      -f, --file FILE                  The CSV file to parse
-      -v, --[no-]verbose               Run verbosely
-      -p, --print-table                Print out the parsed CSV in table form
-      -o, --output-file FILE           The ledger file to append to
-      -l, --learn-from FILE            An existing ledger file to learn accounts from
-          --ignore-columns 1,2,5
-                                       Columns to ignore in the CSV file - the first column is column 1
-          --contains-header
-                                       The first row of the CSV is a header and should be skipped
-          --csv-separator ','
-                                       Separator for parsing the CSV - default is comma.
-          --comma-separates-cents
-                                       Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)
-      -h, --help                       Show this message
-          --version                    Show version
+    -f, --file FILE                  The CSV file to parse
+    -a, --account name               The Ledger Account this file is for
+    -v, --[no-]verbose               Run verbosely
+    -i, --inverse                    Use the negative of each amount
+    -p, --print-table                Print out the parsed CSV in table form
+    -o, --output-file FILE           The ledger file to append to
+    -l, --learn-from FILE            An existing ledger file to learn accounts from
+        --ignore-columns 1,2,5
+                                     Columns to ignore in the CSV file - the first column is column 1
+        --contains-header
+                                     The first row of the CSV is a header and should be skipped
+        --csv-separator ','
+                                     Separator for parsing the CSV - default is comma.
+        --comma-separates-cents
+                                     Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)
+        --encoding
+                                     Specify an encoding for the CSV file
+    -c, --currency '$'               Currency symbol to use, defaults to $ (£, EUR)
+        --date-format '%d/%m/%Y'
+                                     Force the date format (see Ruby DateTime strftime)
+        --suffixed
+                                     If --currency should be used as a suffix. Defaults to false.
+    -h, --help                       Show this message
+        --version                    Show version
 
 If you find CSV files that it can't parse, send me examples or pull requests!
 
