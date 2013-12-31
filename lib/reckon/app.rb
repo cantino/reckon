@@ -362,6 +362,9 @@ module Reckon
 
       @csv_data = csv_engine.parse data.strip, :col_sep => options[:csv_separator] || ','
       csv_data.shift if options[:contains_header]
+			if options[:skip_lines]
+				options[:skip_lines].times do csv_data.shift end
+			end
       csv_data
     end
 
@@ -405,7 +408,12 @@ module Reckon
 
         opts.on("", "--contains-header", "The first row of the CSV is a header and should be skipped") do |contains_header|
           options[:contains_header] = contains_header
+				end
+
+        opts.on("", "--skip-lines NUMBER", "The first lines of the CSV is a header and should be skipped") do |l|
+          options[:skip_lines] = l.to_i
         end
+
 
         opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
           options[:csv_separator] = csv_separator
