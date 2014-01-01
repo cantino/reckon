@@ -406,7 +406,8 @@ module Reckon
         end
 
         opts.on("", "--contains-header [N]", "The first row of the CSV is a header and should be skipped. Optionally add the number of rows to skip.") do |contains_header|
-          options[:contains_header] = contains_header.to_i || 1
+					options[:contains_header] = 1
+					options[:contains_header] = contains_header.to_i if contains_header
         end
 
         opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
