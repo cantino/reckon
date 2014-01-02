@@ -13,6 +13,7 @@ describe Reckon::App do
     @some_other_bank = Reckon::App.new(:string => SOME_OTHER_CSV)
     @two_money_columns = Reckon::App.new(:string => TWO_MONEY_COLUMNS_BANK)
     @simple_csv = Reckon::App.new(:string => SIMPLE_CSV)
+		@nationwide = Reckon::App.new( :string => NATIONWIDE_CSV, :csv_separator => ',' )
     @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
     @danish_kroner_nordea = Reckon::App.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
     @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
@@ -59,6 +60,7 @@ describe Reckon::App do
       @chase.money_column_indices.should == [3]
       @some_other_bank.money_column_indices.should == [3]
       @two_money_columns.money_column_indices.should == [3, 4]
+      @nationwide.money_column_indices.should == [3, 4]
       @harder_date_example_csv.money_column_indices.should == [1]
       @danish_kroner_nordea.money_column_indices.should == [3]
       @yyyymmdd_date.money_column_indices.should == [3]
@@ -252,6 +254,13 @@ describe Reckon::App do
     3/26/2008,Check - 0000000251,251,-$88.55,"","$1,298.57"
     3/26/2008,Check - 0000000251,251,"","+$88.55","$1,298.57"
   CSV
+
+	NATIONWIDE_CSV = (<<-CSV).strip
+		07 Nov 2013,Bank credit,Bank credit,,500.00,500.00
+		09 Oct 2013,ATM Withdrawal,Withdrawal,20.00,,480.00
+		09 Dec 2013,Visa,Supermarket,19.77,,460.23
+		10 Dec 2013,ATM Withdrawal 2,ATM Withdrawal 4,100.00,,360.23
+	CSV
   
   HARDER_DATE_EXAMPLE = (<<-CSV).strip
     10-Nov-9,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER MORTGAGE,0.00,
@@ -260,6 +269,7 @@ describe Reckon::App do
     04-Nov-9,1234.00,,,TRANSFER CREDIT INTERNET TRANSFER,INTERNET TRANSFER,1234.00,
     28-Oct-10,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER SAV TO MORTGAGE,0.00,
   CSV
+
   GERMAN_DATE_EXAMPLE = (<<-CSV).strip
     24.12.2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
     24.12.2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
