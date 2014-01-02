@@ -233,7 +233,8 @@ module Reckon
           row = csv_data[csv_data.length - 1 - row_from_bottom]
           entry = entry.strip
           money_score += 20 if entry[/^[\-\+\(]{0,2}\$/]
-          money_score += 20 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
+          money_score += 10 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
+					money_score += 10 if entry[/\d+[\.,\d]*?[\.,]\d\d$/]
           money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length if entry.length < 7
           money_score -= entry.length if entry.length > 8
           money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
@@ -269,7 +270,7 @@ module Reckon
       end
 
       return [results, found_likely_money_column]
-    end
+		end
 
     def merge_columns(a, b)
       output_columns = []
@@ -289,15 +290,28 @@ module Reckon
       output_columns
     end
 
+		def evaluate_two_money_columns( columns, id1, id2, unmerged_results )
+			merged_columns = merge_columns( id1, id2 )
+			results, found_likely_money_column = evaluate_columns( merged_columns )
+			if !found_likely_money_column
+				new_res = results.find { |el| el[:index] == id1 }
+				old_res1 = unmerged_results.find { |el| el[:index] == id1 }
+				old_res2 = unmerged_results.find { |el| el[:index] == id2 }
+				if new_res[:money_score] > old_res1[:money_score] &&
+					new_res[:money_score] > old_res2[:money_score]
+					found_likely_money_column = true
+				end
+			end
+			[results, found_likely_money_column]
+		end
+
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
       self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
-
       if !found_likely_money_column
         found_likely_double_money_columns = false
         0.upto(columns.length - 2) do |i|
-          _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
-
+          _, found_likely_double_money_columns = evaluate_two_money_columns( columns, i, i+1, results )
           if found_likely_double_money_columns
             self.money_column_indices = [ i, i+1 ]
             unless settings[:testing]
