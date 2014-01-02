@@ -233,7 +233,8 @@ module Reckon
           row = csv_data[csv_data.length - 1 - row_from_bottom]
           entry = entry.strip
           money_score += 20 if entry[/^[\-\+\(]{0,2}\$/]
-          money_score += 20 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
+          money_score += 10 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
+					money_score += 10 if entry[/\d+[\.,\d]*?[\.,]\d\d$/]
           money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length if entry.length < 7
           money_score -= entry.length if entry.length > 8
           money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
@@ -307,7 +308,6 @@ module Reckon
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
       self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
-
       if !found_likely_money_column
         found_likely_double_money_columns = false
         0.upto(columns.length - 2) do |i|
