@@ -289,6 +289,30 @@ module Reckon
       output_columns
     end
 
+    def evaluate_two_money_columns( columns, id1, id2, unmerged_results )
+      merged_columns = merge_columns( id1, id2 )
+      results, found_likely_money_column = evaluate_columns( merged_columns )
+      if !found_likely_money_column
+        new_res = results.find { |el| el[:index] == id1 }
+        old_res1 = unmerged_results.find { |el| el[:index] == id1 }
+        old_res2 = unmerged_results.find { |el| el[:index] == id2 }
+        if new_res[:money_score] > old_res1[:money_score] &&
+          new_res[:money_score] > old_res2[:money_score]
+          found_likely_money_column = true
+        end
+      end
+      [results, found_likely_money_column]
+    end
+
+    def found_double_money_column( id1, id2 )
+      self.money_column_indices = [ id1, id2 ]
+      unless settings[:testing]
+        puts "It looks like this CSV has two seperate columns for money, one of which shows positive"
+        puts "changes and one of which shows negative changes.  If this is true, great.  Otherwise,"
+        puts "please report this issue to us so we can take a look!\n"
+      end
+    end
+
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
       self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
@@ -297,15 +321,20 @@ module Reckon
         found_likely_double_money_columns = false
         0.upto(columns.length - 2) do |i|
           _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
-
           if found_likely_double_money_columns
-            self.money_column_indices = [ i, i+1 ]
-            unless settings[:testing]
-              puts "It looks like this CSV has two seperate columns for money, one of which shows positive"
-              puts "changes and one of which shows negative changes.  If this is true, great.  Otherwise,"
-              puts "please report this issue to us so we can take a look!\n"
-            end
+            found_double_money_column( i, i + 1 )
             break
+          end
+        end
+
+        if !found_likely_double_money_columns
+          0.upto(columns.length - 2) do |i|
+            # Try a more specific test
+            _, found_likely_double_money_columns = evaluate_two_money_columns( columns, i, i+1, results )
+            if found_likely_double_money_columns
+              found_double_money_column( i, i + 1 )
+              break
+            end
           end
         end
 
@@ -361,9 +390,9 @@ module Reckon
       end
 
       @csv_data = csv_engine.parse data.strip, :col_sep => options[:csv_separator] || ','
-			if options[:contains_header]
-				options[:contains_header].times { csv_data.shift }
-			end
+      if options[:contains_header]
+        options[:contains_header].times { csv_data.shift }
+      end
       csv_data
     end
 
@@ -406,8 +435,8 @@ module Reckon
         end
 
         opts.on("", "--contains-header [N]", "The first row of the CSV is a header and should be skipped. Optionally add the number of rows to skip.") do |contains_header|
-					options[:contains_header] = 1
-					options[:contains_header] = contains_header.to_i if contains_header
+          options[:contains_header] = 1
+          options[:contains_header] = contains_header.to_i if contains_header
         end
 
         opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
