@@ -13,14 +13,14 @@ describe Reckon::App do
     @some_other_bank = Reckon::App.new(:string => SOME_OTHER_CSV)
     @two_money_columns = Reckon::App.new(:string => TWO_MONEY_COLUMNS_BANK)
     @simple_csv = Reckon::App.new(:string => SIMPLE_CSV)
-		@nationwide = Reckon::App.new( :string => NATIONWIDE_CSV, :csv_separator => ',' )
+    @nationwide = Reckon::App.new( :string => NATIONWIDE_CSV, :csv_separator => ',' )
     @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
     @danish_kroner_nordea = Reckon::App.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
     @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
     @spanish_date = Reckon::App.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
     @english_date = Reckon::App.new(:string => ENGLISH_DATE_EXAMPLE)
   end
-  
+
   it "should be in testing mode" do
     @chase.settings[:testing].should be_true
     Reckon::App.settings[:testing].should be_true
@@ -255,13 +255,13 @@ describe Reckon::App do
     3/26/2008,Check - 0000000251,251,"","+$88.55","$1,298.57"
   CSV
 
-	NATIONWIDE_CSV = (<<-CSV).strip
-		07 Nov 2013,Bank credit,Bank credit,,500.00,500.00
-		09 Oct 2013,ATM Withdrawal,Withdrawal,20.00,,480.00
-		09 Dec 2013,Visa,Supermarket,19.77,,460.23
-		10 Dec 2013,ATM Withdrawal 2,ATM Withdrawal 4,100.00,,360.23
-	CSV
-  
+  NATIONWIDE_CSV = (<<-CSV).strip
+    07 Nov 2013,Bank credit,Bank credit,,500.00,500.00
+    09 Oct 2013,ATM Withdrawal,Withdrawal,20.00,,480.00
+    09 Dec 2013,Visa,Supermarket,19.77,,460.23
+    10 Dec 2013,ATM Withdrawal 2,ATM Withdrawal 4,100.00,,360.23
+  CSV
+
   HARDER_DATE_EXAMPLE = (<<-CSV).strip
     10-Nov-9,-123.12,,,TRANSFER DEBIT INTERNET TRANSFER,INTERNET TRANSFER MORTGAGE,0.00,
     09-Nov-10,123.12,,,SALARY SALARY,NGHSKS46383BGDJKD  FOO BAR,432.12,

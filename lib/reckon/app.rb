@@ -269,7 +269,7 @@ module Reckon
       end
 
       return [results, found_likely_money_column]
-		end
+    end
 
     def merge_columns(a, b)
       output_columns = []
@@ -289,20 +289,20 @@ module Reckon
       output_columns
     end
 
-		def evaluate_two_money_columns( columns, id1, id2, unmerged_results )
-			merged_columns = merge_columns( id1, id2 )
-			results, found_likely_money_column = evaluate_columns( merged_columns )
-			if !found_likely_money_column
-				new_res = results.find { |el| el[:index] == id1 }
-				old_res1 = unmerged_results.find { |el| el[:index] == id1 }
-				old_res2 = unmerged_results.find { |el| el[:index] == id2 }
-				if new_res[:money_score] > old_res1[:money_score] &&
-					new_res[:money_score] > old_res2[:money_score]
-					found_likely_money_column = true
-				end
-			end
-			[results, found_likely_money_column]
-		end
+    def evaluate_two_money_columns( columns, id1, id2, unmerged_results )
+      merged_columns = merge_columns( id1, id2 )
+      results, found_likely_money_column = evaluate_columns( merged_columns )
+      if !found_likely_money_column
+        new_res = results.find { |el| el[:index] == id1 }
+        old_res1 = unmerged_results.find { |el| el[:index] == id1 }
+        old_res2 = unmerged_results.find { |el| el[:index] == id2 }
+        if new_res[:money_score] > old_res1[:money_score] &&
+          new_res[:money_score] > old_res2[:money_score]
+          found_likely_money_column = true
+        end
+      end
+      [results, found_likely_money_column]
+    end
 
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
@@ -375,9 +375,9 @@ module Reckon
       end
 
       @csv_data = csv_engine.parse data.strip, :col_sep => options[:csv_separator] || ','
-			if options[:contains_header]
-				options[:contains_header].times { csv_data.shift }
-			end
+      if options[:contains_header]
+        options[:contains_header].times { csv_data.shift }
+      end
       csv_data
     end
 
@@ -420,8 +420,8 @@ module Reckon
         end
 
         opts.on("", "--contains-header [N]", "The first row of the CSV is a header and should be skipped. Optionally add the number of rows to skip.") do |contains_header|
-					options[:contains_header] = 1
-					options[:contains_header] = contains_header.to_i if contains_header
+          options[:contains_header] = 1
+          options[:contains_header] = contains_header.to_i if contains_header
         end
 
         opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
