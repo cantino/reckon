@@ -233,7 +233,8 @@ module Reckon
           row = csv_data[csv_data.length - 1 - row_from_bottom]
           entry = entry.strip
           money_score += 20 if entry[/^[\-\+\(]{0,2}\$/]
-          money_score += 20 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
+          money_score += 10 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
+          money_score += 10 if entry[/\d+[\.,\d]*?[\.,]\d\d$/]
           money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length if entry.length < 7
           money_score -= entry.length if entry.length > 8
           money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
