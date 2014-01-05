@@ -256,10 +256,10 @@ describe Reckon::App do
   CSV
 
   NATIONWIDE_CSV = (<<-CSV).strip
-    07 Nov 2013,Bank credit,Bank credit,,500.00,500.00
-    09 Oct 2013,ATM Withdrawal,Withdrawal,20.00,,480.00
-    09 Dec 2013,Visa,Supermarket,19.77,,460.23
-    10 Dec 2013,ATM Withdrawal 2,ATM Withdrawal 4,100.00,,360.23
+    07 Nov 2013,Bank credit,Bank credit,,£500.00,£500.00
+    09 Oct 2013,ATM Withdrawal,Withdrawal,£20.00,,£480.00
+    09 Dec 2013,Visa,Supermarket,£19.77,,£460.23
+    10 Dec 2013,ATM Withdrawal 2,ATM Withdrawal 4,£100.00,,£360.23
   CSV
 
   HARDER_DATE_EXAMPLE = (<<-CSV).strip
