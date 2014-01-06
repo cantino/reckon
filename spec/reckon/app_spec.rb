@@ -19,11 +19,24 @@ describe Reckon::App do
     @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
     @spanish_date = Reckon::App.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
     @english_date = Reckon::App.new(:string => ENGLISH_DATE_EXAMPLE)
+    @rows = []
+    @chase.each_row_backwards { |row| @rows.push( row ) }
   end
 
   it "should be in testing mode" do
     @chase.settings[:testing].should be_true
     Reckon::App.settings[:testing].should be_true
+  end
+
+  describe "each_row_backwards" do
+    it "should return rows with hashes" do
+      @rows[0][:pretty_date].should == "2009/12/10"
+      @rows[0][:pretty_money].should == " $2105.00"
+      @rows[0][:description].should == "CREDIT; Some Company vendorpymt PPD ID: 5KL3832735"
+      @rows[1][:pretty_date].should == "2009/12/11"
+      @rows[1][:pretty_money].should == "-$116.22"
+      @rows[1][:description].should == "CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL"
+    end
   end
   
   describe "parse" do

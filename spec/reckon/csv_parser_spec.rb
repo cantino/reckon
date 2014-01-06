@@ -5,36 +5,36 @@ require "spec_helper"
 require 'rubygems'
 require 'reckon'
 
-Reckon::App.settings[:testing] = true
+Reckon::CSVParser.settings[:testing] = true
 
-describe Reckon::App do
+describe Reckon::CSVParser do
   before do
-    @chase = Reckon::App.new(:string => CHASE_CSV)
-    @some_other_bank = Reckon::App.new(:string => SOME_OTHER_CSV)
-    @two_money_columns = Reckon::App.new(:string => TWO_MONEY_COLUMNS_BANK)
-    @simple_csv = Reckon::App.new(:string => SIMPLE_CSV)
-    @nationwide = Reckon::App.new( :string => NATIONWIDE_CSV, :csv_separator => ',' )
-    @german_date = Reckon::App.new(:string => GERMAN_DATE_EXAMPLE)
-    @danish_kroner_nordea = Reckon::App.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
-    @yyyymmdd_date = Reckon::App.new(:string => YYYYMMDD_DATE_EXAMPLE)
-    @spanish_date = Reckon::App.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
-    @english_date = Reckon::App.new(:string => ENGLISH_DATE_EXAMPLE)
+    @chase = Reckon::CSVParser.new(:string => CHASE_CSV)
+    @some_other_bank = Reckon::CSVParser.new(:string => SOME_OTHER_CSV)
+    @two_money_columns = Reckon::CSVParser.new(:string => TWO_MONEY_COLUMNS_BANK)
+    @simple_csv = Reckon::CSVParser.new(:string => SIMPLE_CSV)
+    @nationwide = Reckon::CSVParser.new( :string => NATIONWIDE_CSV, :csv_separator => ',' )
+    @german_date = Reckon::CSVParser.new(:string => GERMAN_DATE_EXAMPLE)
+    @danish_kroner_nordea = Reckon::CSVParser.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
+    @yyyymmdd_date = Reckon::CSVParser.new(:string => YYYYMMDD_DATE_EXAMPLE)
+    @spanish_date = Reckon::CSVParser.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
+    @english_date = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE)
   end
 
   it "should be in testing mode" do
     @chase.settings[:testing].should be_true
-    Reckon::App.settings[:testing].should be_true
+    Reckon::CSVParser.settings[:testing].should be_true
   end
   
   describe "parse" do
     it "should work with foreign character encodings" do
-      app = Reckon::App.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
+      app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
       app.columns[0][0..2].should == ["Data", "10/31/2012", "11/01/2012"]
       app.columns[2].first.should == "Hist?rico"
     end
 
     it "should work with other separators" do
-      Reckon::App.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
+      Reckon::CSVParser.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
     end
   end
 
@@ -46,14 +46,14 @@ describe Reckon::App do
     
     it "should be ok with empty lines" do
       lambda {
-        Reckon::App.new(:string => "one,two\nthree,four\n\n\n\n\n").columns.should == [['one', 'three'], ['two', 'four']]
+        Reckon::CSVParser.new(:string => "one,two\nthree,four\n\n\n\n\n").columns.should == [['one', 'three'], ['two', 'four']]
       }.should_not raise_error
     end
   end
 
   describe "detect_columns" do
     before do
-      @harder_date_example_csv = Reckon::App.new(:string => HARDER_DATE_EXAMPLE)
+      @harder_date_example_csv = Reckon::CSVParser.new(:string => HARDER_DATE_EXAMPLE)
     end
     
     it "should detect the money column" do
@@ -116,13 +116,13 @@ describe Reckon::App do
     end
 
     it "should handle the comma_separates_cents option correctly" do
-      european_csv = Reckon::App.new(:string => "$2,00;something\n1.025,67;something else", :csv_separator => ';', :comma_separates_cents => true)
+      european_csv = Reckon::CSVParser.new(:string => "$2,00;something\n1.025,67;something else", :csv_separator => ';', :comma_separates_cents => true)
       european_csv.money_for(0).should == 2.00
       european_csv.money_for(1).should == 1025.67
     end
 
     it "should return negated values if the inverse option is passed" do
-      inversed_csv = Reckon::App.new(:string => INVERSED_CREDIT_CARD, :inverse => true)
+      inversed_csv = Reckon::CSVParser.new(:string => INVERSED_CREDIT_CARD, :inverse => true)
       inversed_csv.money_for(0).should == -30.00
       inversed_csv.money_for(3).should == 500.00
     end
@@ -171,7 +171,7 @@ describe Reckon::App do
     end
 
     it "work with other currencies such as €" do
-      euro_bank = Reckon::App.new(:string => SOME_OTHER_CSV, :currency => "€", :suffixed => false )
+      euro_bank = Reckon::CSVParser.new(:string => SOME_OTHER_CSV, :currency => "€", :suffixed => false )
       euro_bank.pretty_money_for(1).should == "-€20.00"
       euro_bank.pretty_money_for(4).should == " €1558.52"
       euro_bank.pretty_money_for(7).should == "-€116.22"
@@ -180,7 +180,7 @@ describe Reckon::App do
     end
 
     it "work with suffixed currencies such as SEK" do
-      swedish_bank = Reckon::App.new(:string => SOME_OTHER_CSV, :currency => 'SEK', :suffixed => true )
+      swedish_bank = Reckon::CSVParser.new(:string => SOME_OTHER_CSV, :currency => 'SEK', :suffixed => true )
       swedish_bank.pretty_money_for(1).should == "-20.00 SEK"
       swedish_bank.pretty_money_for(4).should == " 1558.52 SEK"
       swedish_bank.pretty_money_for(7).should == "-116.22 SEK"
@@ -198,7 +198,6 @@ describe Reckon::App do
       @simple_csv.merge_columns(0,2).should == [["entry1 entry3", "entry4 entry6"], ["entry2", "entry5"]]
     end
   end
-
 
   # Data
 
