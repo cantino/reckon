@@ -23,7 +23,7 @@ module Reckon
           learn_about_account( account[:name],
                               [entry[:desc], account[:amount]].join(" ") ) unless account[:name] == options[:bank_account]
           seen[entry[:date]] ||= {}
-          seen[entry[:date]][pretty_money(account[:amount])] = true
+          seen[entry[:date]][@csv_parser.pretty_money(account[:amount])] = true
         end
       end
     end
