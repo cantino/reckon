@@ -11,7 +11,7 @@ if options[:print_table]
   exit
 end
 
-if !reckon.money_column_indices
+if !reckon.csv_parser.money_column_indices
   puts "I was unable to determine either a single or a pair of combined columns to use as the money column."
   exit
 end

@@ -4,7 +4,7 @@ require 'pp'
 module Reckon
   class App
     VERSION = "Reckon 0.1"
-    attr_accessor :options, :accounts, :tokens, :seen
+    attr_accessor :options, :accounts, :tokens, :seen, :csv_parser
 
     def initialize(options = {})
       self.options = options
