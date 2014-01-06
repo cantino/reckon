@@ -5,18 +5,11 @@ require "spec_helper"
 require 'rubygems'
 require 'reckon'
 
-Reckon::App.settings[:testing] = true
-
 describe Reckon::App do
   before do
     @chase = Reckon::App.new(:string => BANK_CSV)
     @rows = []
     @chase.each_row_backwards { |row| @rows.push( row ) }
-  end
-
-  it "should be in testing mode" do
-    @chase.settings[:testing].should be_true
-    Reckon::App.settings[:testing].should be_true
   end
 
   describe "each_row_backwards" do

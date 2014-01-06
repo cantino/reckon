@@ -268,15 +268,5 @@ module Reckon
 
       options
     end
-
-    @settings = { :testing => false }
-
-    def self.settings
-      @settings
-    end
-
-    def settings
-      self.class.settings
-    end
   end
 end
