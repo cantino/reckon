@@ -85,14 +85,6 @@ describe Reckon::CSVParser do
     end
   end
 
-  describe "each_index_backwards" do
-    it "should hit every index" do
-      count = 0
-      @chase.each_row_backwards { count += 1}
-      count.should == 9
-    end
-  end
-
   describe "money_for" do
     it "should return the appropriate fields" do
       @chase.money_for(1).should == -20
