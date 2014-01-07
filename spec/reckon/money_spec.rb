@@ -43,7 +43,7 @@ describe Reckon::Money do
   end
   describe "likelihood" do
     it "should return the likelihood that a string represents money" do
-      Reckon::Money::likelihood( "$20.00" ).should == 20
+      Reckon::Money::likelihood( "$20.00" ).should == 45
     end
   end
 end
