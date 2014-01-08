@@ -21,6 +21,7 @@ describe Reckon::Money do
 
     it "should return nil for an empty string" do
       Reckon::Money::from_s( "" ).should == nil
+      Reckon::Money::from_s( "" ).should_not == 0
     end
 
     it "should handle 1000 indicators correctly" do
