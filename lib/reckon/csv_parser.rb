@@ -25,24 +25,15 @@ module Reckon
 
     def money_for(index)
       value = money_column_indices.inject("") { |m, i| m + columns[i][index] }
-      value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
-      cleaned_value = value.gsub(/[^\d\.]/, '').to_f
-      cleaned_value *= -1 if value =~ /[\(\-]/
-      cleaned_value = -(cleaned_value) if options[:inverse]
-      cleaned_value
+      Money::from_s(value, @options)
     end
 
     def pretty_money_for(index, negate = false)
-      pretty_money(money_for(index), negate)
+      money_for( index ).pretty( negate )
     end
 
     def pretty_money(amount, negate = false)
-      currency = options[:currency]
-      if options[:suffixed]
-        (amount >= 0 ? " " : "") + sprintf("%0.2f #{currency}", amount * (negate ? -1 : 1))
-      else
-        (amount >= 0 ? " " : "") + sprintf("%0.2f", amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, "\\1#{currency}")
-      end      
+      Money.new( amount, @options ).pretty( negate )
     end
 
     def date_for(index)
@@ -89,12 +80,7 @@ module Reckon
         column.reverse.each_with_index do |entry, row_from_bottom|
           row = csv_data[csv_data.length - 1 - row_from_bottom]
           entry = entry.strip
-          money_score += 20 if entry[/^[\-\+\(]{0,2}\$/]
-          money_score += 10 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
-          money_score += 10 if entry[/\d+[\.,\d]*?[\.,]\d\d$/]
-          money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length if entry.length < 7
-          money_score -= entry.length if entry.length > 8
-          money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
+          money_score += Money::likelihood( entry )
           possible_neg_money_count += 1 if entry =~ /^\$?[\-\(]\$?\d+/
           possible_pos_money_count += 1 if entry =~ /^\+?\$?\+?\d+/
           date_score += 10 if entry =~ /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i
