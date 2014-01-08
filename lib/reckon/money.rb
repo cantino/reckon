@@ -3,9 +3,15 @@ require 'pp'
 
 module Reckon
   class Money
-    attr_accessor :amount
-    def initialize( amount )
-      @amount = amount.to_f
+    attr_accessor :amount, :currency, :suffixed
+    def initialize( amount, options = {} )
+      if options[:inverse]
+        @amount = -1*amount.to_f
+      else
+        @amount = amount.to_f
+      end
+      @currency = options[:currency] || "$"
+      @suffixed = options[:suffixed]
     end
 
     def to_f
@@ -16,13 +22,11 @@ module Reckon
       to_f == mon.to_f
     end
     
-    def pretty( options = {} )
-      currency = options[:currency] || "$"
-      negate = options[:inverse]
-      if options[:suffixed]
-        (@amount >= 0 ? " " : "") + sprintf("%0.2f #{currency}", @amount * (negate ? -1 : 1))
+    def pretty( negate = false )
+      if @suffixed
+        (@amount >= 0 ? " " : "") + sprintf("%0.2f #{@currency}", @amount * (negate ? -1 : 1))
       else
-        (@amount >= 0 ? " " : "") + sprintf("%0.2f", @amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, "\\1#{currency}")
+        (@amount >= 0 ? " " : "") + sprintf("%0.2f", @amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, "\\1#{@currency}")
       end      
     end
 
@@ -31,8 +35,7 @@ module Reckon
       value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
       amount = value.gsub(/[^\d\.]/, '').to_f
       amount *= -1 if value =~ /[\(\-]/
-      amount = -(cleaned_value) if options[:inverse]
-      Money.new( amount )
+      Money.new( amount, options )
     end
 
     def Money::likelihood( entry )

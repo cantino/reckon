@@ -37,13 +37,13 @@ describe Reckon::Money do
     end
 
     it "work with other currencies such as €" do
-      Reckon::Money.new( -20.00 ).pretty(:currency => "€", :suffixed => false).should == "-€20.00"
-      Reckon::Money.new( 1558.52 ).pretty(:currency => "€", :suffixed => false).should == " €1558.52"
+      Reckon::Money.new( -20.00, :currency => "€", :suffixed => false ).pretty.should == "-€20.00"
+      Reckon::Money.new( 1558.52, :currency => "€", :suffixed => false ).pretty.should == " €1558.52"
     end
 
     it "work with suffixed currencies such as SEK" do
-      Reckon::Money.new( -20.00 ).pretty(:currency => "SEK", :suffixed => true).should == "-20.00 SEK"
-      Reckon::Money.new( 1558.52 ).pretty(:currency => "SEK", :suffixed => true).should == " 1558.52 SEK"
+      Reckon::Money.new( -20.00, :currency => "SEK", :suffixed => true ).pretty.should == "-20.00 SEK"
+      Reckon::Money.new( 1558.52, :currency => "SEK", :suffixed => true ).pretty.should == " 1558.52 SEK"
     end
   end
   describe "likelihood" do
