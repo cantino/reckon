@@ -46,9 +46,23 @@ describe Reckon::Money do
       Reckon::Money.new( 1558.52, :currency => "SEK", :suffixed => true ).pretty.should == " 1558.52 SEK"
     end
   end
+
   describe "likelihood" do
     it "should return the likelihood that a string represents money" do
       Reckon::Money::likelihood( "$20.00" ).should == 45
+    end
+  end
+
+  describe "equality" do
+    it "should be comparable to other money" do
+      Reckon::Money.new( 2.0 ).should == Reckon::Money.new( 2.0 )
+      Reckon::Money.new( 1.0 ).should <= Reckon::Money.new( 2.0 )
+      Reckon::Money.new( 3.0 ).should > Reckon::Money.new( 2.0 )
+    end
+    it "should be comparable to other float" do
+      Reckon::Money.new( 2.0 ).should == 2.0
+      Reckon::Money.new( 1.0 ).should <= 2.0
+      Reckon::Money.new( 3.0 ).should > 2.0
     end
   end
 end

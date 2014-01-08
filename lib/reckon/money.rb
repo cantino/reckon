@@ -3,6 +3,7 @@ require 'pp'
 
 module Reckon
   class Money
+    include Comparable
     attr_accessor :amount, :currency, :suffixed
     def initialize( amount, options = {} )
       if options[:inverse]
@@ -18,10 +19,17 @@ module Reckon
       return @amount
     end
 
-    def ==( mon )
-      to_f == mon.to_f
+     def <=>( mon )
+      other_amount = mon.to_f
+      if @amount < other_amount
+        -1
+      elsif @amount > other_amount
+        1
+      else
+        0
+      end
     end
-    
+ 
     def pretty( negate = false )
       if @suffixed
         (@amount >= 0 ? " " : "") + sprintf("%0.2f #{@currency}", @amount * (negate ? -1 : 1))
