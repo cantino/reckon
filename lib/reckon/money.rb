@@ -19,7 +19,7 @@ module Reckon
       return @amount
     end
 
-     def <=>( mon )
+    def <=>( mon )
       other_amount = mon.to_f
       if @amount < other_amount
         -1
@@ -29,7 +29,7 @@ module Reckon
         0
       end
     end
- 
+
     def pretty( negate = false )
       if @suffixed
         (@amount >= 0 ? " " : "") + sprintf("%0.2f #{@currency}", @amount * (negate ? -1 : 1))
@@ -58,4 +58,4 @@ module Reckon
     end
   end
 end
- 
+
