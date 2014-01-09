@@ -11,6 +11,12 @@ describe Reckon::MoneyColumn do
       Reckon::MoneyColumn.new( ["1.00", "-2.00"] ).should == [ 
         Reckon::Money.new( 1.00 ), Reckon::Money.new( -2.00 ) ]
     end
+    it "should convert empty string into nil" do
+      Reckon::MoneyColumn.new( ["1.00", ""] ).should == [ 
+        Reckon::Money.new( 1.00 ), nil ]
+      Reckon::MoneyColumn.new( ["", "-2.00"] ).should == [ 
+        nil, Reckon::Money.new( -2.00 ) ]
+    end
   end
 
   describe "positive?" do
