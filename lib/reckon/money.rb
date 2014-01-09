@@ -57,5 +57,11 @@ module Reckon
       money_score
     end
   end
+
+  class MoneyColumn < Array
+    def initialize( arr, options = {} )
+      arr.each { |str| self.push( Money.new( arr, options ) ) }
+    end
+  end
 end
 
