@@ -19,7 +19,7 @@ module Reckon
       return @amount
     end
 
-    def invert
+    def -@
       Money.new( -@amount, :currency => @currency, :suffixed => @suffixed )
     end
 
@@ -82,7 +82,7 @@ module Reckon
         other = other_column[i]
         if mon && !other
           if invert
-            result.push( mon.invert )
+            result.push( -mon )
           else
             result.push( mon )
           end
