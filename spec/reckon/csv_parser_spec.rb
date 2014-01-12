@@ -98,6 +98,8 @@ describe Reckon::CSVParser do
       @two_money_columns.money_for(2).should == -800
       @two_money_columns.money_for(3).should == -88.55
       @two_money_columns.money_for(4).should == 88.55
+      @nationwide.money_for(0).should == 500.00
+      @nationwide.money_for(1).should == -20.00
       @danish_kroner_nordea.money_for(0).should == -48.00
       @danish_kroner_nordea.money_for(1).should == -79.00
       @danish_kroner_nordea.money_for(2).should == 497.90

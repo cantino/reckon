@@ -3,7 +3,7 @@ require 'pp'
 
 module Reckon
   class CSVParser 
-    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices
+    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column
 
     def initialize(options = {})
       self.options = options
@@ -24,8 +24,9 @@ module Reckon
     end
 
     def money_for(index)
-      value = money_column_indices.inject("") { |m, i| m + columns[i][index] }
-      Money::from_s(value, @options)
+      #value = money_column_indices.inject("") { |m, i| m + columns[i][index] }
+      #Money::from_s(value, @options)
+      @money_column[index]
     end
 
     def pretty_money_for(index, negate = false)
@@ -52,11 +53,11 @@ module Reckon
         end
       end
       begin
-          guess = Chronic.parse(value, :context => :past)
-          if guess.to_i < 953236800 && value =~ /\//
-            guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
-          end
-          guess
+        guess = Chronic.parse(value, :context => :past)
+        if guess.to_i < 953236800 && value =~ /\//
+          guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+        end
+        guess
       rescue
         puts "I'm having trouble parsing #{value}, which I thought was a date.  Please report this so that we"
         puts "can make this parser better!"
@@ -190,6 +191,15 @@ module Reckon
       results.reject! {|i| money_column_indices.include?(i[:index]) }
       self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
       results.reject! {|i| i[:index] == date_column_index }
+
+      if ( money_column_indices.length == 1 )
+        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
+                                        @options )
+      else
+        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
+                                        @options ).merge(
+          MoneyColumn.new( columns[money_column_indices[1]] ) )
+      end
 
       self.description_column_indices = results.map { |i| i[:index] }
     end
