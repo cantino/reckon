@@ -165,20 +165,26 @@ module Reckon
       if !found_likely_money_column
         found_likely_double_money_columns = false
         0.upto(columns.length - 2) do |i|
-          _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
-          if found_likely_double_money_columns
-            found_double_money_column( i, i + 1 )
-            break
+          if MoneyColumn.new( columns[i] ).
+            merge( MoneyColumn.new( columns[i+1] ) )
+            _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
+            if found_likely_double_money_columns
+              found_double_money_column( i, i + 1 )
+              break
+            end
           end
         end
 
         if !found_likely_double_money_columns
           0.upto(columns.length - 2) do |i|
-            # Try a more specific test
-            _, found_likely_double_money_columns = evaluate_two_money_columns( columns, i, i+1, results )
-            if found_likely_double_money_columns
-              found_double_money_column( i, i + 1 )
-              break
+            if MoneyColumn.new( columns[i] ).
+              merge( MoneyColumn.new( columns[i+1] ) )
+              # Try a more specific test
+              _, found_likely_double_money_columns = evaluate_two_money_columns( columns, i, i+1, results )
+              if found_likely_double_money_columns
+                found_double_money_column( i, i + 1 )
+                break
+              end
             end
           end
         end
