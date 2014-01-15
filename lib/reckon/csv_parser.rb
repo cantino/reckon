@@ -204,7 +204,7 @@ module Reckon
       else
         @money_column = MoneyColumn.new( columns[money_column_indices[0]],
                                         @options ).merge(
-          MoneyColumn.new( columns[money_column_indices[1]] ) )
+          MoneyColumn.new( columns[money_column_indices[1]], @options ) )
       end
 
       self.description_column_indices = results.map { |i| i[:index] }
