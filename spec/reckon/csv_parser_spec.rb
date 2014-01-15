@@ -13,7 +13,7 @@ describe Reckon::CSVParser do
     @some_other_bank = Reckon::CSVParser.new(:string => SOME_OTHER_CSV)
     @two_money_columns = Reckon::CSVParser.new(:string => TWO_MONEY_COLUMNS_BANK)
     @simple_csv = Reckon::CSVParser.new(:string => SIMPLE_CSV)
-    @nationwide = Reckon::CSVParser.new( :string => NATIONWIDE_CSV, :csv_separator => ',' )
+    @nationwide = Reckon::CSVParser.new( :string => NATIONWIDE_CSV, :csv_separator => ',', :suffixed => true, :currency => "POUND" )
     @german_date = Reckon::CSVParser.new(:string => GERMAN_DATE_EXAMPLE)
     @danish_kroner_nordea = Reckon::CSVParser.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
     @yyyymmdd_date = Reckon::CSVParser.new(:string => YYYYMMDD_DATE_EXAMPLE)
@@ -180,6 +180,11 @@ describe Reckon::CSVParser do
       swedish_bank.pretty_money_for(7).should == "-116.22 SEK"
       swedish_bank.pretty_money_for(5).should == " 0.23 SEK"
       swedish_bank.pretty_money_for(6).should == "-0.96 SEK"
+    end
+
+    it "should work with merge columns" do
+      @nationwide.pretty_money_for(0).should == " 500.00 POUND"
+      @nationwide.pretty_money_for(1).should == "-20.00 POUND"
     end
   end
 
