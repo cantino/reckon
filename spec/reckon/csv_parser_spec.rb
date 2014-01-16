@@ -19,6 +19,7 @@ describe Reckon::CSVParser do
     @yyyymmdd_date = Reckon::CSVParser.new(:string => YYYYMMDD_DATE_EXAMPLE)
     @spanish_date = Reckon::CSVParser.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
     @english_date = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE)
+    @ing_csv = Reckon::CSVParser.new(:string => ING_CSV, :comma_separates_cents => true )
   end
 
   it "should be in testing mode" do
@@ -64,6 +65,7 @@ describe Reckon::CSVParser do
       @harder_date_example_csv.money_column_indices.should == [1]
       @danish_kroner_nordea.money_column_indices.should == [3]
       @yyyymmdd_date.money_column_indices.should == [3]
+      @ing_csv.money_column_indices.should == [6]
     end
 
     it "should detect the date column" do
@@ -107,6 +109,8 @@ describe Reckon::CSVParser do
       @danish_kroner_nordea.money_for(4).should == -3452.90
       @danish_kroner_nordea.money_for(5).should == -655.00
       @yyyymmdd_date.money_for(0).should == -123.45
+      @ing_csv.money_for(0).should == -136.13
+      @ing_csv.money_for(1).should == 375.00 
     end
 
     it "should handle the comma_separates_cents option correctly" do
@@ -258,6 +262,12 @@ describe Reckon::CSVParser do
     09 Oct 2013,ATM Withdrawal,Withdrawal,£20.00,,£480.00
     09 Dec 2013,Visa,Supermarket,£19.77,,£460.23
     10 Dec 2013,ATM Withdrawal 2,ATM Withdrawal 4,£100.00,,£360.23
+  CSV
+
+  ING_CSV = (<<-CSV).strip
+    20121115,From1,Acc,T1,IC,Af,"136,13",Incasso,SEPA Incasso, Opm1
+    20121112,Names,NL28 INGB 1200 3244 16,21817,GT,Bij,"375,00", Opm2       
+    20091117,Names,NL28 INGB 1200 3244 16,21817,GT,Af,"257,50", Opm3      
   CSV
 
   HARDER_DATE_EXAMPLE = (<<-CSV).strip
