@@ -24,8 +24,6 @@ module Reckon
     end
 
     def money_for(index)
-      #value = money_column_indices.inject("") { |m, i| m + columns[i][index] }
-      #Money::from_s(value, @options)
       @money_column[index]
     end
 
