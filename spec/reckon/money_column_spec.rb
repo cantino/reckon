@@ -32,18 +32,18 @@ describe Reckon::MoneyColumn do
 
   describe "merge" do
     it "should merge two columns" do
-      Reckon::MoneyColumn.new( ["1.00", ""] ).merge( 
+      Reckon::MoneyColumn.new( ["1.00", ""] ).merge!( 
         Reckon::MoneyColumn.new( ["", "-2.00"] ) ).should == [ 
           Reckon::Money.new( 1.00 ), Reckon::Money.new( -2.00 ) ]
     end
 
     it "should return nil if columns cannot be merged" do
-      Reckon::MoneyColumn.new( ["1.00", ""] ).merge( 
+      Reckon::MoneyColumn.new( ["1.00", ""] ).merge!( 
         Reckon::MoneyColumn.new( ["1.00", "-2.00"] ) ).should == nil
     end
 
     it "should invert first column if both positive" do
-      Reckon::MoneyColumn.new( ["1.00", ""] ).merge( 
+      Reckon::MoneyColumn.new( ["1.00", ""] ).merge!( 
         Reckon::MoneyColumn.new( ["", "2.00"] ) ).should == [ 
           Reckon::Money.new( -1.00 ), Reckon::Money.new( 2.00 ) ]
     end

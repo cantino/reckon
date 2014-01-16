@@ -74,25 +74,22 @@ module Reckon
       true
     end
 
-    def merge( other_column )
-      result = MoneyColumn.new
+    def merge!( other_column )
       invert = false
       invert = true if self.positive? && other_column.positive?
       self.each_with_index do |mon, i|
         other = other_column[i]
         if mon && !other
           if invert
-            result.push( -mon )
-          else
-            result.push( mon )
+            self[i]= -mon
           end
         elsif !mon && other
-          result.push( other )
+          self[i] = other
         else
           return nil
         end
       end
-      result
+      self
     end
   end
 end
