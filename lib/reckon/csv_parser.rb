@@ -3,7 +3,7 @@ require 'pp'
 
 module Reckon
   class CSVParser 
-    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices
+    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column
 
     def initialize(options = {})
       self.options = options
@@ -24,8 +24,7 @@ module Reckon
     end
 
     def money_for(index)
-      value = money_column_indices.inject("") { |m, i| m + columns[i][index] }
-      Money::from_s(value, @options)
+      @money_column[index]
     end
 
     def pretty_money_for(index, negate = false)
@@ -52,11 +51,11 @@ module Reckon
         end
       end
       begin
-          guess = Chronic.parse(value, :context => :past)
-          if guess.to_i < 953236800 && value =~ /\//
-            guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
-          end
-          guess
+        guess = Chronic.parse(value, :context => :past)
+        if guess.to_i < 953236800 && value =~ /\//
+          guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+        end
+        guess
       rescue
         puts "I'm having trouble parsing #{value}, which I thought was a date.  Please report this so that we"
         puts "can make this parser better!"
@@ -164,20 +163,24 @@ module Reckon
       if !found_likely_money_column
         found_likely_double_money_columns = false
         0.upto(columns.length - 2) do |i|
-          _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
-          if found_likely_double_money_columns
-            found_double_money_column( i, i + 1 )
-            break
+          if MoneyColumn.new( columns[i] ).merge!( MoneyColumn.new( columns[i+1] ) )
+            _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
+            if found_likely_double_money_columns
+              found_double_money_column( i, i + 1 )
+              break
+            end
           end
         end
 
         if !found_likely_double_money_columns
           0.upto(columns.length - 2) do |i|
-            # Try a more specific test
-            _, found_likely_double_money_columns = evaluate_two_money_columns( columns, i, i+1, results )
-            if found_likely_double_money_columns
-              found_double_money_column( i, i + 1 )
-              break
+            if MoneyColumn.new( columns[i] ).merge!( MoneyColumn.new( columns[i+1] ) )
+              # Try a more specific test
+              _, found_likely_double_money_columns = evaluate_two_money_columns( columns, i, i+1, results )
+              if found_likely_double_money_columns
+                found_double_money_column( i, i + 1 )
+                break
+              end
             end
           end
         end
@@ -190,6 +193,16 @@ module Reckon
       results.reject! {|i| money_column_indices.include?(i[:index]) }
       self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
       results.reject! {|i| i[:index] == date_column_index }
+
+      if ( money_column_indices.length == 1 )
+        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
+                                        @options )
+      else
+        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
+                                        @options )
+        @money_column.merge!(
+          MoneyColumn.new( columns[money_column_indices[1]], @options ) )
+      end
 
       self.description_column_indices = results.map { |i| i[:index] }
     end

@@ -19,6 +19,10 @@ module Reckon
       return @amount
     end
 
+    def -@
+      Money.new( -@amount, :currency => @currency, :suffixed => @suffixed )
+    end
+
     def <=>( mon )
       other_amount = mon.to_f
       if @amount < other_amount
@@ -55,6 +59,37 @@ module Reckon
       money_score -= entry.length if entry.length > 8
       money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
       money_score
+    end
+  end
+
+  class MoneyColumn < Array
+    def initialize( arr = [], options = {} )
+      arr.each { |str| self.push( Money.from_s( str, options ) ) }
+    end
+
+    def positive?
+      self.each do |money|
+        return false if money < 0 if money
+      end
+      true
+    end
+
+    def merge!( other_column )
+      invert = false
+      invert = true if self.positive? && other_column.positive?
+      self.each_with_index do |mon, i|
+        other = other_column[i]
+        if mon && !other
+          if invert
+            self[i]= -mon
+          end
+        elsif !mon && other
+          self[i] = other
+        else
+          return nil
+        end
+      end
+      self
     end
   end
 end

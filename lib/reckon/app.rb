@@ -12,9 +12,9 @@ module Reckon
       self.accounts = {}
       self.seen = {}
       self.options[:currency] ||= '$'
-      learn!
       options[:string] = File.read(options[:file]) unless options[:string]
       @csv_parser = CSVParser.new( options )
+      learn!
     end
 
     def learn_from(ledger)
