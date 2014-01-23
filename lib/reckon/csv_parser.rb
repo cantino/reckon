@@ -155,6 +155,25 @@ module Reckon
         puts "please report this issue to us so we can take a look!\n"
       end
     end
+    
+    # Some csv files negative/positive amounts are inicated in separate account
+    def detect_sign_column
+      # For now only look at preceding column
+      return false if @money_column_indices[0] == 0
+      column = columns[ @money_column_indices[0] - 1 ]
+      signs = column.uniq
+      if signs.length == 2
+        negative_first = false
+        negative_first = true if signs[0] == "Af" || signs[0].downcase =~ /^cr/ # look for known debit indicators
+        @money_column.each_with_index do |money, i|
+          if negative_first && column[i] == signs[0]
+            @money_column[i] = -money
+          elsif !negative_first && column[i] == signs[1]
+            @money_column[i] = -money
+          end
+        end
+      end
+    end
 
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
@@ -197,6 +216,7 @@ module Reckon
       if ( money_column_indices.length == 1 )
         @money_column = MoneyColumn.new( columns[money_column_indices[0]],
                                         @options )
+        detect_sign_column if @money_column.positive?
       else
         @money_column = MoneyColumn.new( columns[money_column_indices[0]],
                                         @options )
