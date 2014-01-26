@@ -20,6 +20,7 @@ describe Reckon::CSVParser do
     @spanish_date = Reckon::CSVParser.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
     @english_date = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE)
     @ing_csv = Reckon::CSVParser.new(:string => ING_CSV, :comma_separates_cents => true )
+    @austrian_csv = Reckon::CSVParser.new(:string => AUSTRIAN_EXAMPLE, :comma_separates_cents => true, :csv_separator => ';' )
   end
 
   it "should be in testing mode" do
@@ -66,6 +67,7 @@ describe Reckon::CSVParser do
       @danish_kroner_nordea.money_column_indices.should == [3]
       @yyyymmdd_date.money_column_indices.should == [3]
       @ing_csv.money_column_indices.should == [6]
+      @austrian_csv.money_column_indices.should == [4]
     end
 
     it "should detect the date column" do
@@ -111,6 +113,8 @@ describe Reckon::CSVParser do
       @yyyymmdd_date.money_for(0).should == -123.45
       @ing_csv.money_for(0).should == -136.13
       @ing_csv.money_for(1).should == 375.00 
+      @austrian_csv.money_for(0).should == -18.00
+      @austrian_csv.money_for(2).should == 120.00
     end
 
     it "should handle the comma_separates_cents option correctly" do
