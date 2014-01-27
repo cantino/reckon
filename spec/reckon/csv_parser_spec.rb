@@ -21,6 +21,7 @@ describe Reckon::CSVParser do
     @english_date = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE)
     @ing_csv = Reckon::CSVParser.new(:string => ING_CSV, :comma_separates_cents => true )
     @austrian_csv = Reckon::CSVParser.new(:string => AUSTRIAN_EXAMPLE, :comma_separates_cents => true, :csv_separator => ';' )
+    @french_csv = Reckon::CSVParser.new(:string => FRENCH_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
   end
 
   it "should be in testing mode" do
@@ -68,6 +69,7 @@ describe Reckon::CSVParser do
       @yyyymmdd_date.money_column_indices.should == [3]
       @ing_csv.money_column_indices.should == [6]
       @austrian_csv.money_column_indices.should == [4]
+      @french_csv.money_column_indices.should == [6]
     end
 
     it "should detect the date column" do
@@ -77,6 +79,7 @@ describe Reckon::CSVParser do
       @harder_date_example_csv.date_column_index.should == 0
       @danish_kroner_nordea.date_column_index.should == 0
       @yyyymmdd_date.date_column_index.should == 1
+      @french_csv.date_column_index.should == 2
     end
 
     it "should consider all other columns to be description columns" do
@@ -115,6 +118,8 @@ describe Reckon::CSVParser do
       @ing_csv.money_for(1).should == 375.00 
       @austrian_csv.money_for(0).should == -18.00
       @austrian_csv.money_for(2).should == 120.00
+      @french_csv.money_for(0).should == -10.00
+      @french_csv.money_for(1).should == -5.76
     end
 
     it "should handle the comma_separates_cents option correctly" do
@@ -328,4 +333,17 @@ describe Reckon::CSVParser do
     00075757575;Abbuchung Onlinebanking         000009999999 BG/000002451 BICBICBI AT099000000009999999 Asdfjklöasdf Asdfjklöasdfjklöasdf   ;02.01.2014;02.01.2014;-104,69;EUR
     00075757575;Abbuchung Onlinebanking                      FE/000002450 AT556600055665566556 CD Stadt Efghij Club Dipl.Ing. Max Muster M005566 - Mitgliedsbeitrag 2014  ;02.01.2014;02.01.2014;-39,00;EUR
   CSV
+
+  FRENCH_EXAMPLE = (<<-CSV).strip
+    01234567890;22/01/2014;22/01/2014;CHEQUE 012345678901234578ABC000  0000 4381974748378178473744441;0000037;22/01/2014;-10,00;
+  01234567890;22/01/2014;22/01/2014;CHEQUE 012345678901937845500TS1  0000 7439816947047874387438445;0000038;22/01/2014;-5,76;
+  01234567890;22/01/2014;22/01/2014;CARTE 012345 CB:*0123456 XX XXXXXX XXX  33BORDEAUX;00X0X0X;22/01/2014;-105,90;
+  01234567890;22/01/2014;22/01/2014;CARTE 012345 CB:*0123456 XXXXXXXXXXX    33SAINT ANDRE D;00X0X0X;22/01/2014;-39,99;
+  01234567890;22/01/2014;22/01/2014;CARTE 012345 CB:*0123456 XXXXXXX XXXXX  33BORDEAUX;10X9X6X;22/01/2014;-36,00;
+  01234567890;22/01/2014;22/01/2014;PRLV XXXXXXXX ABONNEMENT XXXXXXXXXXXXXX.NET N.EMETTEUR: 324411;0XX0XXX;22/01/2014;-40,00;
+  01234567890;21/01/2014;21/01/2014;CARTE 012345 CB:*0123456 XXXXX     XX33433ST ANDRE DE C;0POBUES;21/01/2014;-47,12;
+  01234567890;21/01/2014;21/01/2014;CARTE 012345 CB:*0123456 XXXXXXXXXXXX33433ST ANDRE DE C;0POBUER;21/01/2014;-27,02;
+  01234567890;21/01/2014;21/01/2014;CARTE 012345 CB:*0123456 XXXXXX XXXXXXXX33ST ANDRE 935/;0POBUEQ;21/01/2014;-25,65;
+  CSV
+
 end
