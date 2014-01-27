@@ -20,6 +20,7 @@ describe Reckon::CSVParser do
     @spanish_date = Reckon::CSVParser.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
     @english_date = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE)
     @ing_csv = Reckon::CSVParser.new(:string => ING_CSV, :comma_separates_cents => true )
+    @austrian_csv = Reckon::CSVParser.new(:string => AUSTRIAN_EXAMPLE, :comma_separates_cents => true, :csv_separator => ';' )
     @french_csv = Reckon::CSVParser.new(:string => FRENCH_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
   end
 
@@ -67,6 +68,7 @@ describe Reckon::CSVParser do
       @danish_kroner_nordea.money_column_indices.should == [3]
       @yyyymmdd_date.money_column_indices.should == [3]
       @ing_csv.money_column_indices.should == [6]
+      @austrian_csv.money_column_indices.should == [4]
       @french_csv.money_column_indices.should == [6]
     end
 
@@ -113,7 +115,9 @@ describe Reckon::CSVParser do
       @danish_kroner_nordea.money_for(5).should == -655.00
       @yyyymmdd_date.money_for(0).should == -123.45
       @ing_csv.money_for(0).should == -136.13
-      @ing_csv.money_for(1).should == 375.00
+      @ing_csv.money_for(1).should == 375.00 
+      @austrian_csv.money_for(0).should == -18.00
+      @austrian_csv.money_for(2).should == 120.00
       @french_csv.money_for(0).should == -10.00
       @french_csv.money_for(1).should == -5.76
     end
@@ -312,6 +316,22 @@ describe Reckon::CSVParser do
     24/12/2009,Check - 0000000122,122,-$76.00,"","$1,750.06"
     24/12/2009,BLARG    R SH 456930,"","",+$327.49,"$1,826.06"
     24/12/2009,Check - 0000000112,112,-$800.00,"","$1,498.57"
+  CSV
+
+  AUSTRIAN_EXAMPLE = (<<-CSV).strip
+    00075757575;Abbuchung Onlinebanking         654321098765 BG/000002462 BICBICBI AT654000000065432109 Thematische Universität Stadt    ;22.01.2014;22.01.2014;-18,00;EUR
+    00075757575;333222111333222             222111333222     OG/000002461 BICBICBIXXX AT333000000003332221 Telekom Land AG RECHNUNG       11/13  333222111333222   ;17.01.2014;17.01.2014;-9,05;EUR
+    00075757575;Helm                                         BG/000002460 10000 00007878787 Muster Dr.Beispiel-Vorname    ;15.01.2014;15.01.2014;+120,00;EUR
+    00075757575;Gutschrift Dauerauftrag                      BG/000002459 BICBICBI AT787000000007878787 Muster Dr.Beispiel-Vorname    ;15.01.2014;15.01.2014;+22,00;EUR
+    00075757575;Bezahlung Bankomat                           MC/000002458 0001  K1 06.01.UM 18.11 Bahn 8020 FSA\\Ort\10 10            2002200EUR   ;07.01.2014;06.01.2014;-37,60;EUR
+    00075757575;Bezahlung Bankomat             10.33         MC/000002457 0001  K1 02.01.UM 10.33 Abcdef Electronic\\Wie n\1150           0400444   ;03.01.2014;02.01.2014;-46,42;EUR
+    00075757575;050055556666000                              OG/000002456 BKAUATWWXXX AT555500000555566665 JKL Telekommm Stadt GmbH JKL Rechnung 555666555   ;03.01.2014;03.01.2014;-17,15;EUR
+    00075757575;Abbuchung Einzugsermächtigung                OG/000002455 INTERNATIONALER AUTOMOBIL-,       10000 00006655665    ;02.01.2014;02.01.2014;-17,40;EUR
+    00075757575;POLIZZE 1/01/0101010 Fondsge010101010101nsverOG/000002454 BICBICBIXXX AT101000000101010101 VERSICHERUNG NAMEDERV AG POLIZZE 1/01/0101010 Fondsgebundene Lebensversicherung - fällig 01.01.                                   2014 Folg eprämie ;02.01.2014;02.01.2014;-31,71;EUR
+    00075757575;POLIZZE 1/01/0101012 Rentenv010101010102- fälOG/000002453 BICBICBIXXX AT101000000101010102 VERSICHERUNG NAMEDERV AG POLIZZE 1/01/0101012 Rentenversicherung - fällig 01.01.20 14 Folgeprämi                                   e  ;02.01.2014;02.01.2014;-32,45;EUR
+    00075757575;Anlass                                       VD/000002452 BKAUATWWBRN AT808800080880880880 Dipl.Ing.Dr. Berta Beispiel   ;02.01.2014;02.01.2014;+61,90;EUR
+    00075757575;Abbuchung Onlinebanking         000009999999 BG/000002451 BICBICBI AT099000000009999999 Asdfjklöasdf Asdfjklöasdfjklöasdf   ;02.01.2014;02.01.2014;-104,69;EUR
+    00075757575;Abbuchung Onlinebanking                      FE/000002450 AT556600055665566556 CD Stadt Efghij Club Dipl.Ing. Max Muster M005566 - Mitgliedsbeitrag 2014  ;02.01.2014;02.01.2014;-39,00;EUR
   CSV
 
   FRENCH_EXAMPLE = (<<-CSV).strip
