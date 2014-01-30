@@ -7,7 +7,7 @@ require 'reckon'
 
 describe Reckon::App do
   before do
-    @chase = Reckon::App.new(:string => BANK_CSV)
+    @chase = Reckon::App.new(:string => BANK_CSV, :date_format => 'chase')
     @rows = []
     @chase.each_row_backwards { |row| @rows.push( row ) }
   end

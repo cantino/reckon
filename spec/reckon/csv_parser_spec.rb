@@ -9,16 +9,17 @@ Reckon::CSVParser.settings[:testing] = true
 
 describe Reckon::CSVParser do
   before do
-    @chase = Reckon::CSVParser.new(:string => CHASE_CSV)
-    @some_other_bank = Reckon::CSVParser.new(:string => SOME_OTHER_CSV)
+    @chase = Reckon::CSVParser.new(:string => CHASE_CSV, :date_format => 'chase')
+    @some_other_bank = Reckon::CSVParser.new(:string => SOME_OTHER_CSV, :date_format => '%Y/%m/%d')
     @two_money_columns = Reckon::CSVParser.new(:string => TWO_MONEY_COLUMNS_BANK)
     @simple_csv = Reckon::CSVParser.new(:string => SIMPLE_CSV)
     @nationwide = Reckon::CSVParser.new( :string => NATIONWIDE_CSV, :csv_separator => ',', :suffixed => true, :currency => "POUND" )
-    @german_date = Reckon::CSVParser.new(:string => GERMAN_DATE_EXAMPLE)
-    @danish_kroner_nordea = Reckon::CSVParser.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
-    @yyyymmdd_date = Reckon::CSVParser.new(:string => YYYYMMDD_DATE_EXAMPLE)
+    @german_date = Reckon::CSVParser.new(:string => GERMAN_DATE_EXAMPLE, :date_format => 'german')
+    @danish_kroner_nordea = Reckon::CSVParser.new(:string => DANISH_KRONER_NORDEA_EXAMPLE, :date_format => 'nordea', :csv_separator => ';', :comma_separates_cents => true)
+    @yyyymmdd_date = Reckon::CSVParser.new(:string => YYYYMMDD_DATE_EXAMPLE, :date_format => '%Y%m%d')
     @spanish_date = Reckon::CSVParser.new(:string => SPANISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
-    @english_date = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE)
+    @english_date = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE, :date_format => '%d/%m/%Y')
+    @english_date_with_default_date_format = Reckon::CSVParser.new(:string => ENGLISH_DATE_EXAMPLE)
     @ing_csv = Reckon::CSVParser.new(:string => ING_CSV, :comma_separates_cents => true )
     @austrian_csv = Reckon::CSVParser.new(:string => AUSTRIAN_EXAMPLE, :comma_separates_cents => true, :csv_separator => ';' )
     @french_csv = Reckon::CSVParser.new(:string => FRENCH_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
@@ -158,6 +159,10 @@ describe Reckon::CSVParser do
       @english_date.date_for(1).year.should == Time.parse("2009/12/24").year
       @english_date.date_for(1).month.should == Time.parse("2009/12/24").month
       @english_date.date_for(1).day.should == Time.parse("2009/12/24").day
+    end
+
+    it "should refuse to parse english dates using the default format" do
+      expect { @english_date_with_default_date_format.date_for(1) }.to raise_error(Reckon::CSVParser::ParseError)
     end
   end
 

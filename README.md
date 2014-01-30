@@ -52,8 +52,7 @@ Learn more:
         --encoding
                                      Specify an encoding for the CSV file
     -c, --currency '$'               Currency symbol to use, defaults to $ (£, EUR)
-        --date-format '%d/%m/%Y'
-                                     Force the date format (see Ruby DateTime strftime)
+        --date-format '%d/%m/%Y'     Force the date format (see Ruby DateTime strftime). Default is %m/%d/%Y. Special values include chase, nordea, germany, and guess.
         --suffixed
                                      If --currency should be used as a suffix. Defaults to false.
     -h, --help                       Show this message

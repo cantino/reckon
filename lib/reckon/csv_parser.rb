@@ -2,12 +2,15 @@
 require 'pp'
 
 module Reckon
-  class CSVParser 
+  class CSVParser
+    class ParseError < StandardError; end
+
     attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column
 
     def initialize(options = {})
       self.options = options
       self.options[:currency] ||= '$'
+      self.options[:date_format] ||= '%m/%d/%Y'
       parse
       filter_csv
       detect_columns
@@ -37,28 +40,25 @@ module Reckon
 
     def date_for(index)
       value = columns[date_column_index][index]
-      if options[:date_format].nil?
-        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
-        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
-        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
-        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
-      else
-        begin
-          value = Date.strptime(value, options[:date_format])
-        rescue
-          puts "I'm having trouble parsing #{value} with the desired format: #{options[:date_format]}"
-          exit 1
-        end
-      end
       begin
-        guess = Chronic.parse(value, :context => :past)
-        if guess.to_i < 953236800 && value =~ /\//
-          guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
-        end
-        guess
+        case options[:date_format]
+        when 'chase'
+          Date.new($1.to_i, $2.to_i, $3.to_i) if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/
+        when 'german'
+          Date.new($3.to_i, $2.to_i, $1.to_i) if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/
+        when 'nordea'
+          Date.new($3.to_i, $2.to_i, $1.to_i) if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/
+        when 'guess'
+          guess = Chronic.parse(value, :context => :past)
+          if guess.to_i < 953236800 && value =~ /\//
+            guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+          end
+          guess
+        else
+          Date.strptime(value, options[:date_format])
+        end || raise("fail")
       rescue
-        puts "I'm having trouble parsing #{value}, which I thought was a date.  Please report this so that we"
-        puts "can make this parser better!"
+        raise ParseError.new("I'm having trouble parsing #{value} with the desired format: #{options[:date_format]}")
       end
     end
 

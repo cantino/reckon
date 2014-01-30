@@ -229,7 +229,7 @@ module Reckon
           options[:currency] = e
         end
 
-        opts.on("", "--date-format '%d/%m/%Y'", "Force the date format (see Ruby DateTime strftime)") do |d|
+        opts.on("", "--date-format '%d/%m/%Y'", "Force the date format (see Ruby DateTime strftime). Default is %m/%d/%Y. Special values include chase, nordea, germany, and guess.") do |d|
           options[:date_format] = d
         end
 
