@@ -92,5 +92,14 @@ module Reckon
       self
     end
   end
+
+  class DateColumn < Array
+    def initialize( arr = [], options = {} )
+    end
+    def guess
+      nil
+    end
+  end
+
 end
 
