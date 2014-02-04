@@ -93,13 +93,37 @@ module Reckon
     end
   end
 
-  class DateColumn < Array
-    def initialize( arr = [], options = {} )
-    end
-    def guess
-      nil
-    end
-  end
+  # Pass :endian_precedence = [:little, :middle] (little before middel) to Chronic
+  # Look at chronic.time_class for guessing
+  # Use Time.now tests
+  # Chronic uses nil on error
 
+  class DateColumn < Array
+    attr_accessor :endian_preference
+    def initialize( arr = [], options = {} )
+      arr.each do |str| 
+        # Check for endian_precedence: First set to nil. 
+        # If first one is not \d\d/\d\d/\d\d\d?\d set it to whatever
+        # Else keep going till certain
+        self.push( str ) 
+      end
+      # if endian_precedence still nil, raise error
+      # Add specs for endian_precedence
+    end
+
+    def for( index )
+      value = self.at( index )
+      guess = Chronic.parse(value, :context => :past)
+      if guess.to_i < 953236800 && value =~ /\//
+        guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+      end
+      guess
+    end
+
+    def pretty_for(index)
+      self.for(index).strftime("%Y/%m/%d")
+    end
+
+  end
 end
 
