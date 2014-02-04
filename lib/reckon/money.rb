@@ -99,23 +99,35 @@ module Reckon
   # Chronic uses nil on error
 
   class DateColumn < Array
-    attr_accessor :endian_preference
+    attr_accessor :endian_precedence
     def initialize( arr = [], options = {} )
-      arr.each do |str| 
-        # Check for endian_precedence: First set to nil. 
-        # If first one is not \d\d/\d\d/\d\d\d?\d set it to whatever
-        # Else keep going till certain
+      arr.each do |str|
+        unless @endian_precedence
+          reg_match = str.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
+          # If first one is not \d\d/\d\d/\d\d\d?\d set it to default 
+          if !reg_match
+            @endian_precedence = [:little, :middle]
+          elsif reg_match[1].to_i > 12
+            @endian_precedence = [:little]
+          elsif reg_match[2].to_i > 12
+            @endian_precedence = [:middle]
+          end
+        end
         self.push( str ) 
       end
       # if endian_precedence still nil, raise error
-      # Add specs for endian_precedence
+      unless @endian_precedence
+        raise( "Unable to determine date format. Please specify using --date-format" )
+      end
     end
 
     def for( index )
       value = self.at( index )
-      guess = Chronic.parse(value, :context => :past)
+      guess = Chronic.parse(value, :context => :past, 
+                            :endian_precedence => @endian_precedence )
       if guess.to_i < 953236800 && value =~ /\//
-        guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
+        guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past, 
+                            :endian_precedence => @endian_precedence)
       end
       guess
     end
