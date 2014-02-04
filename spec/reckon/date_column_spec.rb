@@ -15,7 +15,7 @@ describe Reckon::DateColumn do
       Reckon::DateColumn.new( ["2013/01/02"] ).endian_preference.should == [:little, :middle] 
     end
     it "should raise an error when in doubt" do
-      Reckon::DateColumn.new( ["01/02/2013", "01/03/2013"] ).should == raise
+      expect{ Reckon::DateColumn.new( ["01/02/2013", "01/03/2013"] )}.to raise_error( StandardError )
     end
   end
   describe "for" do
