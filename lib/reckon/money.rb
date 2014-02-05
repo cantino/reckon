@@ -101,19 +101,31 @@ module Reckon
   class DateColumn < Array
     attr_accessor :endian_precedence
     def initialize( arr = [], options = {} )
-      arr.each do |str|
-        unless @endian_precedence
-          reg_match = str.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
+      if options[:date_format]
+        if options[:date_format] =~ /^%d\/%m/
+          @endian_precedence = [:little]
+        else
+          @endian_precedence = [:middle, :little]
+        end
+      end
+      arr.each do |value|
+        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
+          value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
+          value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
+          value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
+
+          unless @endian_precedence
+            reg_match = value.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
           # If first one is not \d\d/\d\d/\d\d\d?\d set it to default 
           if !reg_match
-            @endian_precedence = [:little, :middle]
+            @endian_precedence = [:middle, :little]
           elsif reg_match[1].to_i > 12
             @endian_precedence = [:little]
           elsif reg_match[2].to_i > 12
             @endian_precedence = [:middle]
           end
         end
-        self.push( str ) 
+        self.push( value ) 
       end
       # if endian_precedence still nil, raise error
       unless @endian_precedence

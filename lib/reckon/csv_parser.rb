@@ -3,7 +3,7 @@ require 'pp'
 
 module Reckon
   class CSVParser 
-    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column
+    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column, :date_column
 
     def initialize(options = {})
       self.options = options
@@ -36,34 +36,11 @@ module Reckon
     end
 
     def date_for(index)
-      value = columns[date_column_index][index]
-      if options[:date_format].nil?
-        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
-        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
-        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
-        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
-      else
-        begin
-          value = Date.strptime(value, options[:date_format])
-        rescue
-          puts "I'm having trouble parsing #{value} with the desired format: #{options[:date_format]}"
-          exit 1
-        end
-      end
-      begin
-        guess = Chronic.parse(value, :context => :past)
-        if guess.to_i < 953236800 && value =~ /\//
-          guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past)
-        end
-        guess
-      rescue
-        puts "I'm having trouble parsing #{value}, which I thought was a date.  Please report this so that we"
-        puts "can make this parser better!"
-      end
+      @date_column.for( index )
     end
 
     def pretty_date_for(index)
-      date_for(index).strftime("%Y/%m/%d")
+      @date_column.pretty_for( index )
     end
 
     def description_for(index)
@@ -212,6 +189,7 @@ module Reckon
       results.reject! {|i| money_column_indices.include?(i[:index]) }
       self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
       results.reject! {|i| i[:index] == date_column_index }
+      @date_column = DateColumn.new( columns[ self.date_column_index ], @options )
 
       if ( money_column_indices.length == 1 )
         @money_column = MoneyColumn.new( columns[money_column_indices[0]],
