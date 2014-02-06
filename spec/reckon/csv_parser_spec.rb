@@ -158,6 +158,9 @@ describe Reckon::CSVParser do
       @english_date.date_for(1).year.should == Time.parse("2009/12/24").year
       @english_date.date_for(1).month.should == Time.parse("2009/12/24").month
       @english_date.date_for(1).day.should == Time.parse("2009/12/24").day
+      @nationwide.date_for(1).month.should == 10
+      @ing_csv.date_for(1).month.should == Time.parse("2012/11/12").month
+      @ing_csv.date_for(1).day.should == Time.parse("2012/11/12").day
     end
   end
 
