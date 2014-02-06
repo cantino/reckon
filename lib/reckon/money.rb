@@ -110,12 +110,12 @@ module Reckon
       end
       arr.each do |value|
         value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
-          value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
-          value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
-          value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
+        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
+        value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
+        value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
 
-          unless @endian_precedence
-            reg_match = value.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
+        unless @endian_precedence
+          reg_match = value.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
           # If first one is not \d\d/\d\d/\d\d\d?\d set it to default 
           if !reg_match
             @endian_precedence = [:middle, :little]
@@ -139,7 +139,7 @@ module Reckon
                             :endian_precedence => @endian_precedence )
       if guess.to_i < 953236800 && value =~ /\//
         guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past, 
-                            :endian_precedence => @endian_precedence)
+                              :endian_precedence => @endian_precedence)
       end
       guess
     end
