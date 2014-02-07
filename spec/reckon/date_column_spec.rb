@@ -11,7 +11,7 @@ describe Reckon::DateColumn do
       Reckon::DateColumn.new( ["01/02/2013", "01/14/2013"] ).endian_precedence.should == [:middle] 
       Reckon::DateColumn.new( ["01/02/2013", "14/01/2013"] ).endian_precedence.should == [:little] 
     end
-    it "should set endian_prefence to default when no date format clear" do
+    it "should set endian_precedence to default when date format cannot be misinterpreted" do
       Reckon::DateColumn.new( ["2013/01/02"] ).endian_precedence.should == [:middle,:little] 
     end
     it "should raise an error when in doubt" do

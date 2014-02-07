@@ -115,7 +115,7 @@ module Reckon
           value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
           value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
 
-          unless @endian_precedence
+          unless @endian_precedence # Try to detect endian_precedence
             reg_match = value.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
             # If first one is not \d\d/\d\d/\d\d\d?\d set it to default 
             if !reg_match
