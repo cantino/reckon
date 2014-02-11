@@ -93,11 +93,6 @@ module Reckon
     end
   end
 
-  # Pass :endian_precedence = [:little, :middle] (little before middel) to Chronic
-  # Look at chronic.time_class for guessing
-  # Use Time.now tests
-  # Chronic uses nil on error
-
   class DateColumn < Array
     attr_accessor :endian_precedence
     def initialize( arr = [], options = {} )
@@ -106,7 +101,7 @@ module Reckon
           begin
             value = Date.strptime(value, options[:date_format])
           rescue
-            puts "I'm having trouble parsing #{value} with the desired formt: #{options[:date_format]}"
+            puts "I'm having trouble parsing #{value} with the desired format: #{options[:date_format]}"
             exit 1
           end
         else
