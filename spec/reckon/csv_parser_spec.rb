@@ -22,6 +22,7 @@ describe Reckon::CSVParser do
     @ing_csv = Reckon::CSVParser.new(:string => ING_CSV, :comma_separates_cents => true )
     @austrian_csv = Reckon::CSVParser.new(:string => AUSTRIAN_EXAMPLE, :comma_separates_cents => true, :csv_separator => ';' )
     @french_csv = Reckon::CSVParser.new(:string => FRENCH_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
+    @broker_canada = Reckon::CSVParser.new(:string => BROKER_CANADA_EXAMPLE)
   end
 
   it "should be in testing mode" do
@@ -70,6 +71,7 @@ describe Reckon::CSVParser do
       @ing_csv.money_column_indices.should == [6]
       @austrian_csv.money_column_indices.should == [4]
       @french_csv.money_column_indices.should == [6]
+      @broker_canada.money_column_indices.should == [8]
     end
 
     it "should detect the date column" do
@@ -80,6 +82,7 @@ describe Reckon::CSVParser do
       @danish_kroner_nordea.date_column_index.should == 0
       @yyyymmdd_date.date_column_index.should == 1
       @french_csv.date_column_index.should == 2
+      @broker_canada.date_column_index.should == 0
     end
 
     it "should consider all other columns to be description columns" do
@@ -120,6 +123,8 @@ describe Reckon::CSVParser do
       @austrian_csv.money_for(2).should == 120.00
       @french_csv.money_for(0).should == -10.00
       @french_csv.money_for(1).should == -5.76
+      @broker_canada.money_for(0).should == 12.55
+      @broker_canada.money_for(1).should == -81.57
     end
 
     it "should handle the comma_separates_cents option correctly" do
@@ -161,6 +166,9 @@ describe Reckon::CSVParser do
       @nationwide.date_for(1).month.should == 10
       @ing_csv.date_for(1).month.should == Time.parse("2012/11/12").month
       @ing_csv.date_for(1).day.should == Time.parse("2012/11/12").day
+      @broker_canada.date_for(5).year.should == 2014
+      @broker_canada.date_for(5).month.should == 1
+      @broker_canada.date_for(5).day.should == 7
     end
   end
 
@@ -347,6 +355,21 @@ describe Reckon::CSVParser do
   01234567890;21/01/2014;21/01/2014;CARTE 012345 CB:*0123456 XXXXX     XX33433ST ANDRE DE C;0POBUES;21/01/2014;-47,12;
   01234567890;21/01/2014;21/01/2014;CARTE 012345 CB:*0123456 XXXXXXXXXXXX33433ST ANDRE DE C;0POBUER;21/01/2014;-27,02;
   01234567890;21/01/2014;21/01/2014;CARTE 012345 CB:*0123456 XXXXXX XXXXXXXX33ST ANDRE 935/;0POBUEQ;21/01/2014;-25,65;
+  CSV
+
+  BROKER_CANADA_EXAMPLE = (<<-CSV).strip
+    2014-02-10,2014-02-10,Interest,ISHARES S&P/TSX CAPPED REIT IN,XRE,179,,,12.55,CAD
+    2014-01-16,2014-01-16,Reinvestment,ISHARES GLOBAL AGRICULTURE IND,COW,3,,,-81.57,CAD
+    2014-01-16,2014-01-16,Contribution,CONTRIBUTION,,,,,600.00,CAD
+    2014-01-16,2014-01-16,Interest,ISHARES GLOBAL AGRICULTURE IND,COW,200,,,87.05,CAD
+    2014-01-14,2014-01-14,Reinvestment,BMO NASDAQ 100 EQTY HEDGED TO,ZQQ,2,,,-54.72,CAD
+    2014-01-07,2014-01-10,Sell,BMO NASDAQ 100 EQTY HEDGED TO,ZQQ,-300,27.44,CDN,8222.05,CAD
+    2014-01-07,2014-01-07,Interest,BMO S&P/TSX EQUAL WEIGHT BKS I,ZEB,250,,,14.00,CAD
+    2013-07-02,2013-07-02,Dividend,SELECT SECTOR SPDR FD SHS BEN,XLB,130,,,38.70,USD
+    2013-06-27,2013-06-27,Dividend,ICICI BK SPONSORED ADR,IBN,100,,,66.70,USD
+    2013-06-19,2013-06-24,Buy,ISHARES S&P/TSX CAPPED REIT IN,XRE,300,15.90,CDN,-4779.95,CAD
+    2013-06-17,2013-06-17,Contribution,CONTRIBUTION,,,,,600.00,CAD
+    2013-05-22,2013-05-22,Dividend,NATBK,NA,70,,,58.10,CAD 
   CSV
 
 end
