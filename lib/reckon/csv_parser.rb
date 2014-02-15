@@ -133,15 +133,22 @@ module Reckon
       end
     end
     
-    # Some csv files negative/positive amounts are inicated in separate account
+    # Some csv files negative/positive amounts are indicated in separate account
     def detect_sign_column
-      # For now only look at preceding column
-      return false if @money_column_indices[0] == 0
-      column = columns[ @money_column_indices[0] - 1 ]
-      signs = column.uniq
+      return if columns[0].length <= 2 # This test needs requires more than two rows otherwise will lead to false positives
+      signs = []
+      if @money_column_indices[0] > 0
+        column = columns[ @money_column_indices[0] - 1 ]
+        signs = column.uniq
+      end
+      if (signs.length != 2 && 
+          (@money_column_indices[0] + 1 < columns.length))
+        column = columns[ @money_column_indices[0] + 1 ]
+        signs = column.uniq
+      end
       if signs.length == 2
-        negative_first = false
-        negative_first = true if signs[0] == "Af" || signs[0].downcase =~ /^cr/ # look for known debit indicators
+        negative_first = true 
+        negative_first = false if signs[0] == "Bij" || signs[0].downcase =~ /^cr/ # look for known debit indicators
         @money_column.each_with_index do |money, i|
           if negative_first && column[i] == signs[0]
             @money_column[i] = -money
