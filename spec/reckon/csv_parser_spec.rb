@@ -23,6 +23,7 @@ describe Reckon::CSVParser do
     @austrian_csv = Reckon::CSVParser.new(:string => AUSTRIAN_EXAMPLE, :comma_separates_cents => true, :csv_separator => ';' )
     @french_csv = Reckon::CSVParser.new(:string => FRENCH_EXAMPLE, :csv_separator => ';', :comma_separates_cents => true)
     @broker_canada = Reckon::CSVParser.new(:string => BROKER_CANADA_EXAMPLE)
+    @intuit_mint = Reckon::CSVParser.new(:string => INTUIT_MINT_EXAMPLE)
   end
 
   it "should be in testing mode" do
@@ -72,6 +73,7 @@ describe Reckon::CSVParser do
       @austrian_csv.money_column_indices.should == [4]
       @french_csv.money_column_indices.should == [6]
       @broker_canada.money_column_indices.should == [8]
+      @intuit_mint.money_column_indices.should == [3]
     end
 
     it "should detect the date column" do
@@ -83,6 +85,7 @@ describe Reckon::CSVParser do
       @yyyymmdd_date.date_column_index.should == 1
       @french_csv.date_column_index.should == 2
       @broker_canada.date_column_index.should == 0
+      @intuit_mint.date_column_index.should == 0
     end
 
     it "should consider all other columns to be description columns" do
@@ -125,6 +128,8 @@ describe Reckon::CSVParser do
       @french_csv.money_for(1).should == -5.76
       @broker_canada.money_for(0).should == 12.55
       @broker_canada.money_for(1).should == -81.57
+      @intuit_mint.money_for(0).should == 0.01
+      @intuit_mint.money_for(1).should == -331.63
     end
 
     it "should handle the comma_separates_cents option correctly" do
@@ -169,6 +174,9 @@ describe Reckon::CSVParser do
       @broker_canada.date_for(5).year.should == 2014
       @broker_canada.date_for(5).month.should == 1
       @broker_canada.date_for(5).day.should == 7
+      @intuit_mint.date_for(1).year.should == 2014
+      @intuit_mint.date_for(1).month.should == 2
+      @intuit_mint.date_for(1).day.should == 3
     end
   end
 
@@ -370,6 +378,16 @@ describe Reckon::CSVParser do
     2013-06-19,2013-06-24,Buy,ISHARES S&P/TSX CAPPED REIT IN,XRE,300,15.90,CDN,-4779.95,CAD
     2013-06-17,2013-06-17,Contribution,CONTRIBUTION,,,,,600.00,CAD
     2013-05-22,2013-05-22,Dividend,NATBK,NA,70,,,58.10,CAD 
+  CSV
+
+  INTUIT_MINT_EXAMPLE = (<<-CSV).strip
+"12/10/2014","Dn Ing Inv","[DN]ING             INV/PLA","0.01","credit","Investments","Chequing","",""
+"2/03/2014","Ds Lms Msp Condo","[DS]LMS598          MSP/DIV","331.63","debit","Condo Fees","Chequing","",""
+"2/10/2014","Ib Granville","[IB]           2601 GRANVILLE","100.00","debit","Uncategorized","Chequing","",""
+"2/06/2014","So Pa","[SO]PA    0005191230116379851","140.72","debit","Mortgage & Rent","Chequing","",""
+"2/03/2014","Dn Sun Life","[DN]SUN LIFE        MSP/DIV","943.34","credit","Income","Chequing","",""
+"1/30/2014","Transfer to CBT (Savings)","[CW] TF 0004#3409-797","500.00","debit","Transfer","Chequing","",""
+"1/30/2014","Costco","[PR]COSTCO WHOLESAL","559.96","debit","Business Services","Chequing","",""
   CSV
 
 end
