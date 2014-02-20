@@ -3,8 +3,8 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name = %q{reckon}
-  s.version = "0.3.8"
-  s.authors = ["Andrew Cantino"]
+  s.version = "0.3.9"
+  s.authors = ["Andrew Cantino", "BlackEdder"]
   s.email = %q{andrew@iterationlabs.com}
   s.homepage = %q{https://github.com/cantino/reckon}
   s.description = %q{Reckon automagically converts CSV files for use with the command-line accounting tool Ledger.  It also helps you to select the correct accounts associated with the CSV data using Bayesian machine learning.}
