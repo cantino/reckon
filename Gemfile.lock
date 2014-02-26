@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    reckon (0.3.8)
+    reckon (0.3.9)
       chronic (>= 0.3.0)
       fastercsv (>= 1.5.1)
       highline (>= 1.5.2)
