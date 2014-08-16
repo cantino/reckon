@@ -49,8 +49,8 @@ Learn more:
                                      Separator for parsing the CSV - default is comma.
         --comma-separates-cents
                                      Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)
-        --encoding
-                                     Specify an encoding for the CSV file
+        --encoding 'UTF-8'
+                                     Specify an encoding for the CSV file; usually not required.
     -c, --currency '$'               Currency symbol to use, defaults to $ (£, EUR)
         --date-format '%d/%m/%Y'
                                      Force the date format (see Ruby DateTime strftime)
