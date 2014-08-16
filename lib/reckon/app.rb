@@ -221,7 +221,7 @@ module Reckon
           options[:comma_separates_cents] = c
         end
 
-        opts.on("", "--encoding e", "Specify an encoding for the CSV file") do |e|
+        opts.on("", "--encoding 'UTF-8'", "Specify an encoding for the CSV file; not usually needed") do |e|
           options[:encoding] = e
         end
 
