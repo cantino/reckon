@@ -70,7 +70,10 @@ module Reckon
         end
 
         ledger = if row[:money] > 0
-          out_of_account = ask("Which account provided this income? ([account]/[q]uit/[s]kip) ") { |q| q.default = guess_account(row) }
+          out_of_account = ask("Which account provided this income? ([account]/[q]uit/[s]kip) ") { |q|
+            q.readline = true
+            q.default = guess_account(row)
+          }
           finish if out_of_account == "quit" || out_of_account == "q"
           if out_of_account == "skip" || out_of_account == "s"
             puts "Skipping"
@@ -81,7 +84,10 @@ module Reckon
                          [options[:bank_account], row[:pretty_money]],
                          [out_of_account, row[:pretty_money_negated]] )
         else
-          into_account = ask("To which account did this money go? ([account]/[q]uit/[s]kip) ") { |q| q.default = guess_account(row) }
+          into_account = ask("To which account did this money go? ([account]/[q]uit/[s]kip) ") { |q|
+            q.readline = true
+            q.default = guess_account(row)
+          }
           finish if into_account == "quit" || into_account == 'q'
           if into_account == "skip" || into_account == 's'
             puts "Skipping"
@@ -261,6 +267,7 @@ module Reckon
 
       unless options[:bank_account]
         options[:bank_account] = ask("What is the account name of this bank account in Ledger? ") do |q|
+          q.readline = true
           q.validate = /^.{2,}$/
           q.default = "Assets:Bank:Checking"
         end
