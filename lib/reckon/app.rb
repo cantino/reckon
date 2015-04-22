@@ -149,11 +149,6 @@ module Reckon
       return account_vectors
     end
 
-    def guess_account(row)
-      account_vectors = weighted_account_match( row )
-      account_vectors.first
-    end
-
     def ledger_format(row, line1, line2)
       out = "#{row[:pretty_date]}\t#{row[:description]}\n"
       out += "\t#{line1.first}\t\t\t\t\t#{line1.last}\n"
