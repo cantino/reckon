@@ -115,7 +115,8 @@ module Reckon
       options[:output_file].flush
     end
 
-    def guess_account(row)
+    # Weigh accounts by how well they match the row
+    def weighted_account_match( row )
       query_tokens = tokenize(row[:description])
 
       search_vector = []
@@ -139,9 +140,14 @@ module Reckon
         { :cosine => (0...account_vector.length).to_a.inject(0) { |m, i| m + search_vector[i] * account_vector[i] },
           :account => account }
       end
-
       account_vectors.sort! {|a, b| b[:cosine] <=> a[:cosine] }
-      account_vectors.first && account_vectors.first[:account]
+          .map! { |a| a[:account] }
+      return account_vectors
+    end
+
+    def guess_account(row)
+      account_vectors = weighted_account_match( row )
+      account_vectors.first
     end
 
     def ledger_format(row, line1, line2)
