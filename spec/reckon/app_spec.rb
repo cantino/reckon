@@ -24,12 +24,12 @@ describe Reckon::App do
     end
   end
 
-  describe "guess_account" do
+  describe "weighted_account_match" do
     it "should guess the correct account" do
-      @chase.guess_account( @rows[7] ).should == "Expenses:Books"
+      @chase.weighted_account_match( @rows[7] ).first[:account].should == "Expenses:Books"
     end
   end
-  
+
   #DATA
   BANK_CSV = (<<-CSV).strip
     DEBIT,20091224120000[0:GMT],"HOST 037196321563 MO        12/22SLICEHOST",-85.00
