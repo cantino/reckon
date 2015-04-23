@@ -4,7 +4,7 @@ require 'pp'
 module Reckon
   class Money
     include Comparable
-    attr_accessor :amount, :currency, :suffixed
+    attr_accessor :amount, :currency, :suffixed, :original_prefix, :original_postfix
     def initialize( amount, options = {} )
       if options[:inverse]
         @amount = -1*amount.to_f
@@ -46,15 +46,17 @@ module Reckon
       return nil if value.empty?
       value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
       value = value.gsub(/,/, '')
-      if m = value.match( /\d+\.\d\d/ )
-        amount = m[-1].to_f
-      elsif m = value.match(/[\d\.]+/)
-        amount = m[-1].to_f
+      m = value.match( /(\D*)(\d+\.\d\d)(\D*)/ ) || value.match(/^(.*?)([\d\.]+)(\D*)$/)
+      if m 
+        amount = m[2].to_f
+        amount *= -1 if value =~ /[\(\-]/
+        money = Money.new( amount, options )
+        money.original_prefix = m[1]
+        money.original_postfix = m[3]
+        return money
       else
         return nil
       end
-      amount *= -1 if value =~ /[\(\-]/
-      Money.new( amount, options )
     end
 
     def Money::likelihood( entry )
