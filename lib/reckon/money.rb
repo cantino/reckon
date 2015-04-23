@@ -49,7 +49,7 @@ module Reckon
       m = value.match( /(\D*)(\d+\.\d\d)(\D*)/ ) || value.match(/^(.*?)([\d\.]+)(\D*)$/)
       if m 
         amount = m[2].to_f
-        if (m[1].match( /^-/ ) || m[1].match( /-$/  ))
+        if (m[1].match( /^[\(-]/ ) || m[1].match( /-$/  ))
           amount *= -1
         end
         return Money.new( amount, options )
