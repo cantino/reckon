@@ -4,7 +4,7 @@ require 'pp'
 module Reckon
   class Money
     include Comparable
-    attr_accessor :amount, :currency, :suffixed, :original_prefix, :original_postfix
+    attr_accessor :amount, :currency, :suffixed
     def initialize( amount, options = {} )
       if options[:inverse]
         @amount = -1*amount.to_f
@@ -52,13 +52,7 @@ module Reckon
         if (m[1].match( /^-/ ) || m[1].match( /-$/  ))
           amount *= -1
         end
-        money = Money.new( amount, options )
-        money.original_prefix = m[1]
-        if (amount < 0)
-          money.original_prefix.sub!('-','')
-        end
-        money.original_postfix = m[3]
-        return money
+        return Money.new( amount, options )
       else
         return nil
       end
@@ -93,16 +87,12 @@ module Reckon
       invert = true if self.positive? && other_column.positive?
       self.each_with_index do |mon, i|
         other = other_column[i]
-        if (mon && other &&
-            (mon.original_postfix != other.original_postfix ||
-                mon.original_prefix != other.original_prefix))
-          return nil
-        end
-        if mon && (!other || other.amount == 0.0)
+        return nil if (!mon || !other)
+        if mon != 0.00 && other == 0.0
           if invert
             self[i]= -mon
           end
-        elsif (!mon || mon.amount == 0.0) && other
+        elsif mon == 0.00 && other != 0.00
           self[i] = other
         else
           return nil

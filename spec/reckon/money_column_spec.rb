@@ -49,8 +49,6 @@ describe Reckon::MoneyColumn do
     it "should return nil if columns cannot be merged" do
       Reckon::MoneyColumn.new( ["1.00", ""] ).merge!( 
         Reckon::MoneyColumn.new( ["1.00", "-2.00"] ) ).should == nil
-      Reckon::MoneyColumn.new( ["AB1.00C", "AB0C"] ).merge!( 
-          Reckon::MoneyColumn.new( ["AB0C", "AB-2.00D"] ) ).should == nil
 
       Reckon::MoneyColumn.new( ["From1", "Names"] ).merge!( 
           Reckon::MoneyColumn.new( ["Acc", "NL28 INGB 1200 3244 16,21817"] ) ).should == nil

@@ -40,16 +40,6 @@ describe Reckon::Money do
     it "should return nil if no numbers are found" do
       Reckon::Money::from_s( "BAC" ).should == nil
     end
-
-    it "should store original prefix and postfix" do
-      Reckon::Money::from_s( "2A1B" ).amount.should == 1.00 
-      Reckon::Money::from_s( "2A1B" ).original_prefix.should == "2A" 
-      Reckon::Money::from_s( "2A1B" ).original_postfix.should == "B" 
-      Reckon::Money::from_s( "2A-1B" ).amount.should == -1.00 
-      Reckon::Money::from_s( "2A-1B" ).original_prefix.should == "2A" 
-      Reckon::Money::from_s( "2A-1B" ).original_postfix.should == "B" 
-    end
-
   end
 
   describe "pretty" do
