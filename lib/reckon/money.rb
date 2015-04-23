@@ -45,7 +45,14 @@ module Reckon
     def Money::from_s( value, options = {} )
       return nil if value.empty?
       value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
-      amount = value.gsub(/[^\d\.]/, '').to_f
+      value = value.gsub(/,/, '')
+      if m = value.match( /\d+\.\d\d/ )
+        amount = m[-1].to_f
+      elsif m = value.match(/[\d\.]+/)
+        amount = m[-1].to_f
+      else
+        return nil
+      end
       amount *= -1 if value =~ /[\(\-]/
       Money.new( amount, options )
     end

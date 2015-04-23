@@ -28,6 +28,20 @@ describe Reckon::Money do
       Reckon::Money::from_s( "$2.000,00", :comma_separates_cents => true ).should == 2000.00
       Reckon::Money::from_s( "-$1,025.67" ).should == -1025.67 
     end
+
+    it "should keep numbers together" do
+      Reckon::Money::from_s( "1A1" ).should == 1
+    end
+
+    it "should prefer numbers with precision of two" do
+      Reckon::Money::from_s( "1A2.00" ).should == 2
+      Reckon::Money::from_s( "2.00A1" ).should == 2
+    end
+
+    it "should return nil if no numbers are found" do
+      Reckon::Money::from_s( "BAC" ).should == nil
+    end
+
   end
 
   describe "pretty" do
