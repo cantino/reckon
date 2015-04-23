@@ -35,6 +35,9 @@ describe Reckon::MoneyColumn do
       Reckon::MoneyColumn.new( ["1.00", ""] ).merge!( 
         Reckon::MoneyColumn.new( ["", "-2.00"] ) ).should == [ 
           Reckon::Money.new( 1.00 ), Reckon::Money.new( -2.00 ) ]
+      Reckon::MoneyColumn.new( ["1.00", "0"] ).merge!( 
+        Reckon::MoneyColumn.new( ["0", "-2.00"] ) ).should == [ 
+          Reckon::Money.new( 1.00 ), Reckon::Money.new( -2.00 ) ]
     end
 
     it "should return nil if columns cannot be merged" do

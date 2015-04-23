@@ -79,11 +79,11 @@ module Reckon
       invert = true if self.positive? && other_column.positive?
       self.each_with_index do |mon, i|
         other = other_column[i]
-        if mon && !other
+        if mon && (!other || other.amount == 0.0)
           if invert
             self[i]= -mon
           end
-        elsif !mon && other
+        elsif (!mon || mon.amount == 0.0) && other
           self[i] = other
         else
           return nil
