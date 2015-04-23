@@ -49,9 +49,14 @@ module Reckon
       m = value.match( /(\D*)(\d+\.\d\d)(\D*)/ ) || value.match(/^(.*?)([\d\.]+)(\D*)$/)
       if m 
         amount = m[2].to_f
-        amount *= -1 if value =~ /[\(\-]/
+        if (m[1].match( /^-/ ) || m[1].match( /-$/  ))
+          amount *= -1
+        end
         money = Money.new( amount, options )
         money.original_prefix = m[1]
+        if (amount < 0)
+          money.original_prefix.sub!('-','')
+        end
         money.original_postfix = m[3]
         return money
       else
@@ -88,6 +93,11 @@ module Reckon
       invert = true if self.positive? && other_column.positive?
       self.each_with_index do |mon, i|
         other = other_column[i]
+        if (mon && other &&
+            (mon.original_postfix != other.original_postfix ||
+                mon.original_prefix != other.original_prefix))
+          return nil
+        end
         if mon && (!other || other.amount == 0.0)
           if invert
             self[i]= -mon
