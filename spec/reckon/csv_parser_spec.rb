@@ -30,7 +30,7 @@ describe Reckon::CSVParser do
     @chase.settings[:testing].should be_true
     Reckon::CSVParser.settings[:testing].should be_true
   end
-  
+
   describe "parse" do
     it "should work with foreign character encodings" do
       app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
@@ -48,7 +48,7 @@ describe Reckon::CSVParser do
       @simple_csv.columns.should == [["entry1", "entry4"], ["entry2", "entry5"], ["entry3", "entry6"]]
       @chase.columns.length.should == 4
     end
-    
+
     it "should be ok with empty lines" do
       lambda {
         Reckon::CSVParser.new(:string => "one,two\nthree,four\n\n\n\n\n").columns.should == [['one', 'three'], ['two', 'four']]
@@ -60,7 +60,7 @@ describe Reckon::CSVParser do
     before do
       @harder_date_example_csv = Reckon::CSVParser.new(:string => HARDER_DATE_EXAMPLE)
     end
-    
+
     it "should detect the money column" do
       @chase.money_column_indices.should == [3]
       @some_other_bank.money_column_indices.should == [3]
@@ -86,6 +86,7 @@ describe Reckon::CSVParser do
       @french_csv.date_column_index.should == 2
       @broker_canada.date_column_index.should == 0
       @intuit_mint.date_column_index.should == 0
+      Reckon::CSVParser.new(:string => '2014-01-13,"22211100000",-10').date_column_index.should == 0
     end
 
     it "should consider all other columns to be description columns" do
@@ -121,7 +122,7 @@ describe Reckon::CSVParser do
       @danish_kroner_nordea.money_for(5).should == -655.00
       @yyyymmdd_date.money_for(0).should == -123.45
       @ing_csv.money_for(0).should == -136.13
-      @ing_csv.money_for(1).should == 375.00 
+      @ing_csv.money_for(1).should == 375.00
       @austrian_csv.money_for(0).should == -18.00
       @austrian_csv.money_for(2).should == 120.00
       @french_csv.money_for(0).should == -10.00
@@ -294,8 +295,8 @@ describe Reckon::CSVParser do
 
   ING_CSV = (<<-CSV).strip
     20121115,From1,Acc,T1,IC,Af,"136,13",Incasso,SEPA Incasso, Opm1
-    20121112,Names,NL28 INGB 1200 3244 16,21817,GT,Bij,"375,00", Opm2       
-    20091117,Names,NL28 INGB 1200 3244 16,21817,GT,Af,"257,50", Opm3      
+    20121112,Names,NL28 INGB 1200 3244 16,21817,GT,Bij,"375,00", Opm2
+    20091117,Names,NL28 INGB 1200 3244 16,21817,GT,Af,"257,50", Opm3
   CSV
 
   HARDER_DATE_EXAMPLE = (<<-CSV).strip
@@ -377,7 +378,7 @@ describe Reckon::CSVParser do
     2013-06-27,2013-06-27,Dividend,ICICI BK SPONSORED ADR,IBN,100,,,66.70,USD
     2013-06-19,2013-06-24,Buy,ISHARES S&P/TSX CAPPED REIT IN,XRE,300,15.90,CDN,-4779.95,CAD
     2013-06-17,2013-06-17,Contribution,CONTRIBUTION,,,,,600.00,CAD
-    2013-05-22,2013-05-22,Dividend,NATBK,NA,70,,,58.10,CAD 
+    2013-05-22,2013-05-22,Dividend,NATBK,NA,70,,,58.10,CAD
   CSV
 
   INTUIT_MINT_EXAMPLE = (<<-CSV).strip
@@ -389,5 +390,6 @@ describe Reckon::CSVParser do
 "1/30/2014","Transfer to CBT (Savings)","[CW] TF 0004#3409-797","500.00","debit","Transfer","Chequing","",""
 "1/30/2014","Costco","[PR]COSTCO WHOLESAL","559.96","debit","Business Services","Chequing","",""
   CSV
+
 
 end
