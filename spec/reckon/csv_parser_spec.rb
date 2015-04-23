@@ -12,6 +12,7 @@ describe Reckon::CSVParser do
     @chase = Reckon::CSVParser.new(:string => CHASE_CSV)
     @some_other_bank = Reckon::CSVParser.new(:string => SOME_OTHER_CSV)
     @two_money_columns = Reckon::CSVParser.new(:string => TWO_MONEY_COLUMNS_BANK)
+    @suntrust_csv = Reckon::CSVParser.new(:string => SUNTRUST_CSV)
     @simple_csv = Reckon::CSVParser.new(:string => SIMPLE_CSV)
     @nationwide = Reckon::CSVParser.new( :string => NATIONWIDE_CSV, :csv_separator => ',', :suffixed => true, :currency => "POUND" )
     @german_date = Reckon::CSVParser.new(:string => GERMAN_DATE_EXAMPLE)
@@ -65,6 +66,7 @@ describe Reckon::CSVParser do
       @chase.money_column_indices.should == [3]
       @some_other_bank.money_column_indices.should == [3]
       @two_money_columns.money_column_indices.should == [3, 4]
+      @suntrust_csv.money_column_indices.should == [3, 4]
       @nationwide.money_column_indices.should == [3, 4]
       @harder_date_example_csv.money_column_indices.should == [1]
       @danish_kroner_nordea.money_column_indices.should == [3]
@@ -283,6 +285,16 @@ describe Reckon::CSVParser do
     3/27/2008,Check - 0000000112,112,-$800.00,"","$1,498.57"
     3/26/2008,Check - 0000000251,251,-$88.55,"","$1,298.57"
     3/26/2008,Check - 0000000251,251,"","+$88.55","$1,298.57"
+  CSV
+
+  SUNTRUST_CSV = (<<-CSV).strip
+    11/01/2014,0, Deposit,0,500.00,500.00
+    11/02/2014,101,Check,100.00,0,400.00
+    11/03/2014,102,Check,100.00,0,300.00
+    11/04/2014,103,Check,100.00,0,200.00
+    11/05/2014,104,Check,100.00,0,100.00
+    11/06/2014,105,Check,100.00,0,0.00
+    11/17/2014,0, Deposit,0,700.00,700.00
   CSV
 
   NATIONWIDE_CSV = (<<-CSV).strip
