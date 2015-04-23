@@ -19,9 +19,8 @@ describe Reckon::Money do
       Reckon::Money::from_s( "$-1025,67", :comma_separates_cents => true ).should == -1025.67 
     end
 
-    it "should return nil for an empty string" do
-      Reckon::Money::from_s( "" ).should == nil
-      Reckon::Money::from_s( "" ).should_not == 0
+    it "should return 0 for an empty string" do
+      Reckon::Money::from_s( "" ).should == 0
     end
 
     it "should handle 1000 indicators correctly" do
