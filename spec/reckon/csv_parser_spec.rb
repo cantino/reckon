@@ -222,16 +222,6 @@ describe Reckon::CSVParser do
     end
   end
 
-  describe "merge_columns" do
-    it "should work on adjacent columns" do
-      @simple_csv.merge_columns(0,1).should == [["entry1 entry2", "entry4 entry5"], ["entry3", "entry6"]]
-    end
-
-    it "should work on non-adjacent columns" do
-      @simple_csv.merge_columns(0,2).should == [["entry1 entry3", "entry4 entry6"], ["entry2", "entry5"]]
-    end
-  end
-
   # Data
 
   SIMPLE_CSV = "entry1,entry2,entry3\nentry4,entry5,entry6"
