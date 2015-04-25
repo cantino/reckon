@@ -37,6 +37,12 @@ describe Reckon::Money do
       Reckon::Money::from_s( "2.00A1" ).should == 2
     end
 
+    it "should handle arbitrary prefixes and postfixes" do
+      Reckon::Money::from_s( "AB1.00C" ).should == 1
+      Reckon::Money::from_s( "AB0C" ).should == 0
+      Reckon::Money::from_s( "AB-2.00C" ).should == -2
+    end
+
     it "should return nil if no numbers are found" do
       Reckon::Money::from_s( "BAC" ).should == nil
     end
