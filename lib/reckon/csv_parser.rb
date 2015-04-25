@@ -2,7 +2,7 @@
 require 'pp'
 
 module Reckon
-  class CSVParser 
+  class CSVParser
     attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column, :date_column
 
     def initialize(options = {})
@@ -63,7 +63,7 @@ module Reckon
           date_score += 5 if entry =~ /^[\-\/\.\d:\[\]]+$/
           date_score += entry.gsub(/[^\-\/\.\d:\[\]]/, '').length if entry.gsub(/[^\-\/\.\d:\[\]]/, '').length > 3
           date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length
-          date_score += 30 if entry =~ /^\d+[:\/\.]\d+[:\/\.]\d+([ :]\d+[:\/\.]\d+)?$/
+          date_score += 30 if entry =~ /^\d+[:\/\.-]\d+[:\/\.-]\d+([ :]\d+[:\/\.]\d+)?$/
           date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
 
           # Try to determine if this is a balance column
@@ -132,7 +132,7 @@ module Reckon
         puts "please report this issue to us so we can take a look!\n"
       end
     end
-    
+
     # Some csv files negative/positive amounts are indicated in separate account
     def detect_sign_column
       return if columns[0].length <= 2 # This test needs requires more than two rows otherwise will lead to false positives
@@ -141,13 +141,13 @@ module Reckon
         column = columns[ @money_column_indices[0] - 1 ]
         signs = column.uniq
       end
-      if (signs.length != 2 && 
+      if (signs.length != 2 &&
           (@money_column_indices[0] + 1 < columns.length))
         column = columns[ @money_column_indices[0] + 1 ]
         signs = column.uniq
       end
       if signs.length == 2
-        negative_first = true 
+        negative_first = true
         negative_first = false if signs[0] == "Bij" || signs[0].downcase =~ /^cr/ # look for known debit indicators
         @money_column.each_with_index do |money, i|
           if negative_first && column[i] == signs[0]

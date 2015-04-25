@@ -39,7 +39,7 @@ module Reckon
         (@amount >= 0 ? " " : "") + sprintf("%0.2f #{@currency}", @amount * (negate ? -1 : 1))
       else
         (@amount >= 0 ? " " : "") + sprintf("%0.2f", @amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, "\\1#{@currency}")
-      end      
+      end
     end
 
     def Money::from_s( value, options = {} )
@@ -108,11 +108,13 @@ module Reckon
           value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})\d+\[\d+\:GMT\]$/ # chase format
           value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\.(\d{2})\.(\d{4})$/            # german format
           value = [$3, $2, $1].join("/") if value =~ /^(\d{2})\-(\d{2})\-(\d{4})$/            # nordea format
+          value = [$1, $2, $3].join("/") if value =~ /^(\d{4})\-(\d{2})\-(\d{2})$/            # yyyy-mm-dd format
           value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
+
 
           unless @endian_precedence # Try to detect endian_precedence
             reg_match = value.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
-            # If first one is not \d\d/\d\d/\d\d\d?\d set it to default 
+            # If first one is not \d\d/\d\d/\d\d\d?\d set it to default
             if !reg_match
               @endian_precedence = [:middle, :little]
             elsif reg_match[1].to_i > 12
@@ -122,7 +124,7 @@ module Reckon
             end
           end
         end
-        self.push( value ) 
+        self.push( value )
       end
       # if endian_precedence still nil, raise error
       unless @endian_precedence || options[:date_format]
@@ -132,10 +134,10 @@ module Reckon
 
     def for( index )
       value = self.at( index )
-      guess = Chronic.parse(value, :context => :past, 
+      guess = Chronic.parse(value, :context => :past,
                             :endian_precedence => @endian_precedence )
       if guess.to_i < 953236800 && value =~ /\//
-        guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past, 
+        guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past,
                               :endian_precedence => @endian_precedence)
       end
       guess
