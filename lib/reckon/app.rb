@@ -71,8 +71,10 @@ module Reckon
 
         ledger = if row[:money] > 0
           out_of_account = ask("Which account provided this income? ([account]/[q]uit/[s]kip) ") { |q|
+            possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
+            q.completion = possible_answers
             q.readline = true
-            q.default = guess_account(row)
+            q.default = possible_answers.first 
           }
           finish if out_of_account == "quit" || out_of_account == "q"
           if out_of_account == "skip" || out_of_account == "s"
@@ -85,8 +87,10 @@ module Reckon
                          [out_of_account, row[:pretty_money_negated]] )
         else
           into_account = ask("To which account did this money go? ([account]/[q]uit/[s]kip) ") { |q|
+            possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
+            q.completion = possible_answers
             q.readline = true
-            q.default = guess_account(row)
+            q.default = possible_answers.first 
           }
           finish if into_account == "quit" || into_account == 'q'
           if into_account == "skip" || into_account == 's'
@@ -115,7 +119,8 @@ module Reckon
       options[:output_file].flush
     end
 
-    def guess_account(row)
+    # Weigh accounts by how well they match the row
+    def weighted_account_match( row )
       query_tokens = tokenize(row[:description])
 
       search_vector = []
@@ -139,8 +144,12 @@ module Reckon
         { :cosine => (0...account_vector.length).to_a.inject(0) { |m, i| m + search_vector[i] * account_vector[i] },
           :account => account }
       end
-
       account_vectors.sort! {|a, b| b[:cosine] <=> a[:cosine] }
+      return account_vectors
+    end
+
+    def guess_account( row )
+      account_vectors = weighted_account_match( row )
       account_vectors.first && account_vectors.first[:account]
     end
 
