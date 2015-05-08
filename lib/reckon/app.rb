@@ -18,6 +18,11 @@ module Reckon
       learn!
     end
 
+    def interactive_output(str)
+      return if options[:unattended]
+      puts str
+    end
+
     def learn_from(ledger)
       LedgerParser.new(ledger).entries.each do |entry|
         entry[:accounts].each do |account|
@@ -44,7 +49,6 @@ module Reckon
 
     def learn!
       if options[:account_tokens_file]
-        puts options[:account_tokens_file].inspect
         extract_account_tokens(YAML.load_file(options[:account_tokens_file])).each do |account, tokens|
           tokens.each { |t| learn_about_account(account, t) }
         end
@@ -72,12 +76,12 @@ module Reckon
     def walk_backwards
       seen_anything_new = false
       each_row_backwards do |row|
-        puts Terminal::Table.new(:rows => [ [ row[:pretty_date], row[:pretty_money], row[:description] ] ])
+        interactive_output Terminal::Table.new(:rows => [ [ row[:pretty_date], row[:pretty_money], row[:description] ] ])
 
         if already_seen?(row)
-          puts "NOTE: This row is very similar to a previous one!"
+          interactive_output "NOTE: This row is very similar to a previous one!"
           if !seen_anything_new
-            puts "Skipping..."
+            interactive_output "Skipping..."
             next
           end
         else
@@ -99,7 +103,7 @@ module Reckon
 
           finish if out_of_account == "quit" || out_of_account == "q"
           if out_of_account == "skip" || out_of_account == "s"
-            puts "Skipping"
+            interactive_output "Skipping"
             next
           end
 
@@ -119,7 +123,7 @@ module Reckon
           end
           finish if into_account == "quit" || into_account == 'q'
           if into_account == "skip" || into_account == 's'
-            puts "Skipping"
+            interactive_output "Skipping"
             next
           end
 
@@ -135,7 +139,7 @@ module Reckon
 
     def finish
       options[:output_file].close unless options[:output_file] == STDOUT
-      puts "Exiting."
+      interactive_output "Exiting."
       exit
     end
 
@@ -195,7 +199,7 @@ module Reckon
           t << [ row[:pretty_date], row[:pretty_money], row[:description] ]
         end
       end
-      puts output
+      interactive_output output
     end
 
     def each_row_backwards
