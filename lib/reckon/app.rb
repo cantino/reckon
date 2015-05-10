@@ -1,5 +1,6 @@
 #coding: utf-8
 require 'pp'
+require 'yaml'
 
 module Reckon
   class App
@@ -17,6 +18,11 @@ module Reckon
       learn!
     end
 
+    def interactive_output(str)
+      return if options[:unattended]
+      puts str
+    end
+
     def learn_from(ledger)
       LedgerParser.new(ledger).entries.each do |entry|
         entry[:accounts].each do |account|
@@ -32,12 +38,26 @@ module Reckon
       seen[row[:pretty_date]] && seen[row[:pretty_date]][row[:pretty_money]]
     end
 
-    def learn!
-      if options[:existing_ledger_file]
-        fail "#{options[:existing_ledger_file]} doesn't exist!" unless File.exists?(options[:existing_ledger_file])
-        ledger_data = File.read(options[:existing_ledger_file])
-        learn_from(ledger_data)
+    def extract_account_tokens(subtree, account = nil)
+      if subtree.is_a?(Array)
+        { account => subtree }
+      else
+        at = subtree.map { |k, v| extract_account_tokens(v, [account, k].compact.join(':')) }
+        at.inject({}) { |k, v| k = k.merge(v)}
       end
+    end
+
+    def learn!
+      if options[:account_tokens_file]
+        fail "#{options[:account_tokens_file]} doesn't exist!" unless File.exists?(options[:account_tokens_file])
+        extract_account_tokens(YAML.load_file(options[:account_tokens_file])).each do |account, tokens|
+          tokens.each { |t| learn_about_account(account, t) }
+        end
+      end
+      return unless options[:existing_ledger_file]
+      fail "#{options[:existing_ledger_file]} doesn't exist!" unless File.exists?(options[:existing_ledger_file])
+      ledger_data = File.read(options[:existing_ledger_file])
+      learn_from(ledger_data)
     end
 
     def learn_about_account(account, data)
@@ -57,28 +77,34 @@ module Reckon
     def walk_backwards
       seen_anything_new = false
       each_row_backwards do |row|
-        puts Terminal::Table.new(:rows => [ [ row[:pretty_date], row[:pretty_money], row[:description] ] ])
+        interactive_output Terminal::Table.new(:rows => [ [ row[:pretty_date], row[:pretty_money], row[:description] ] ])
 
         if already_seen?(row)
-          puts "NOTE: This row is very similar to a previous one!"
+          interactive_output "NOTE: This row is very similar to a previous one!"
           if !seen_anything_new
-            puts "Skipping..."
+            interactive_output "Skipping..."
             next
           end
         else
           seen_anything_new = true
         end
 
+        possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
+
         ledger = if row[:money] > 0
-          out_of_account = ask("Which account provided this income? ([account]/[q]uit/[s]kip) ") { |q|
-            possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
-            q.completion = possible_answers
-            q.readline = true
-            q.default = possible_answers.first 
-          }
+          if options[:unattended]
+            out_of_account = possible_answers.first || options[:default_outof_account] || 'Income:Unknown'
+          else
+            out_of_account = ask("Which account provided this income? ([account]/[q]uit/[s]kip) ") { |q|
+              q.completion = possible_answers
+              q.readline = true
+              q.default = possible_answers.first
+            }
+          end
+
           finish if out_of_account == "quit" || out_of_account == "q"
           if out_of_account == "skip" || out_of_account == "s"
-            puts "Skipping"
+            interactive_output "Skipping"
             next
           end
 
@@ -86,15 +112,18 @@ module Reckon
                          [options[:bank_account], row[:pretty_money]],
                          [out_of_account, row[:pretty_money_negated]] )
         else
-          into_account = ask("To which account did this money go? ([account]/[q]uit/[s]kip) ") { |q|
-            possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
-            q.completion = possible_answers
-            q.readline = true
-            q.default = possible_answers.first 
-          }
+          if options[:unattended]
+            into_account = possible_answers.first || options[:default_into_account] || 'Expenses:Unknown'
+          else
+            into_account = ask("To which account did this money go? ([account]/[q]uit/[s]kip) ") { |q|
+              q.completion = possible_answers
+              q.readline = true
+              q.default = possible_answers.first
+            }
+          end
           finish if into_account == "quit" || into_account == 'q'
           if into_account == "skip" || into_account == 's'
-            puts "Skipping"
+            interactive_output "Skipping"
             next
           end
 
@@ -103,14 +132,14 @@ module Reckon
                          [options[:bank_account], row[:pretty_money]] )
         end
 
-        learn_from(ledger)
+        learn_from(ledger) unless options[:account_tokens_file]
         output(ledger)
       end
     end
 
     def finish
       options[:output_file].close unless options[:output_file] == STDOUT
-      puts "Exiting."
+      interactive_output "Exiting."
       exit
     end
 
@@ -145,12 +174,15 @@ module Reckon
           :account => account }
       end
       account_vectors.sort! {|a, b| b[:cosine] <=> a[:cosine] }
-      return account_vectors
-    end
 
-    def guess_account( row )
-      account_vectors = weighted_account_match( row )
-      account_vectors.first && account_vectors.first[:account]
+      # Return empty set if no accounts matched so that we can fallback to the defaults in the unattended mode
+      if options[:unattended]
+        if account_vectors.first && account_vectors.first[:account]
+          account_vectors = [] if account_vectors.first[:cosine] == 0
+        end
+      end
+
+      return account_vectors
     end
 
     def ledger_format(row, line1, line2)
@@ -167,15 +199,15 @@ module Reckon
           t << [ row[:pretty_date], row[:pretty_money], row[:description] ]
         end
       end
-      puts output
+      interactive_output output
     end
 
     def each_row_backwards
       rows = []
       (0...@csv_parser.columns.first.length).to_a.each do |index|
-        rows << { :date => @csv_parser.date_for(index), 
+        rows << { :date => @csv_parser.date_for(index),
           :pretty_date => @csv_parser.pretty_date_for(index),
-          :pretty_money => @csv_parser.pretty_money_for(index), 
+          :pretty_money => @csv_parser.pretty_money_for(index),
           :pretty_money_negated => @csv_parser.pretty_money_for(index, :negate),
           :money => @csv_parser.money_for(index),
           :description => @csv_parser.description_for(index) }
@@ -248,6 +280,22 @@ module Reckon
           options[:date_format] = d
         end
 
+        opts.on("-u", "--unattended", "Don't ask questions and guess all the accounts automatically. Used with --learn-from or --account-tokens options.") do |n|
+          options[:unattended] = n
+        end
+
+        opts.on("-t", "--account-tokens FILE", "YAML file with manually-assigned tokens for each account (see README)") do |a|
+          options[:account_tokens_file] = a
+        end
+
+        opts.on("", "--default-into-account name", "Default into account") do |a|
+          options[:default_into_account] = a
+        end
+
+        opts.on("", "--default-outof-account name", "Default 'out of' account") do |a|
+          options[:default_outof_account] = a
+        end
+
         opts.on("", "--suffixed", "If --currency should be used as a suffix. Defaults to false.") do |e|
           options[:suffixed] = e
         end
@@ -275,6 +323,9 @@ module Reckon
       end
 
       unless options[:bank_account]
+
+        fail "Please specify --account for the unattended mode" if options[:unattended]
+
         options[:bank_account] = ask("What is the account name of this bank account in Ledger? ") do |q|
           q.readline = true
           q.validate = /^.{2,}$/

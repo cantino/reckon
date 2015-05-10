@@ -6,30 +6,73 @@ require 'rubygems'
 require 'reckon'
 
 describe Reckon::App do
-  before do
-    @chase = Reckon::App.new(:string => BANK_CSV)
-    @chase.learn_from( BANK_LEDGER )
-    @rows = []
-    @chase.each_row_backwards { |row| @rows.push( row ) }
-  end
+  context 'with chase csv input' do
+    before do
+      @chase = Reckon::App.new(:string => BANK_CSV)
+      @chase.learn_from( BANK_LEDGER )
+      @rows = []
+      @chase.each_row_backwards { |row| @rows.push( row ) }
+    end
 
-  describe "each_row_backwards" do
-    it "should return rows with hashes" do
-      @rows[0][:pretty_date].should == "2009/12/10"
-      @rows[0][:pretty_money].should == " $2105.00"
-      @rows[0][:description].should == "CREDIT; Some Company vendorpymt PPD ID: 5KL3832735"
-      @rows[1][:pretty_date].should == "2009/12/11"
-      @rows[1][:pretty_money].should == "-$116.22"
-      @rows[1][:description].should == "CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL"
+    describe "each_row_backwards" do
+      it "should return rows with hashes" do
+        @rows[0][:pretty_date].should == "2009/12/10"
+        @rows[0][:pretty_money].should == " $2105.00"
+        @rows[0][:description].should == "CREDIT; Some Company vendorpymt PPD ID: 5KL3832735"
+        @rows[1][:pretty_date].should == "2009/12/11"
+        @rows[1][:pretty_money].should == "-$116.22"
+        @rows[1][:description].should == "CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL"
+      end
+    end
+
+    describe "weighted_account_match" do
+      it "should guess the correct account" do
+        @chase.weighted_account_match( @rows[7] ).first[:account].should == "Expenses:Books"
+      end
     end
   end
 
-  describe "guess_account" do
-    it "should guess the correct account" do
-      @chase.guess_account( @rows[7] ).should == "Expenses:Books"
+  context 'unattended mode with chase csv input' do
+    before do
+      @output_file = StringIO.new
+      @chase = Reckon::App.new(:string => BANK_CSV, :unattended => true, :output_file => @output_file)
+    end
+
+    describe 'walk backwards' do
+      it 'should assign Income:Unknown and Expenses:Unknown by default' do
+        @chase.walk_backwards
+        @output_file.string.scan('Expenses:Unknown').count.should == 6
+        @output_file.string.scan('Income:Unknown').count.should == 3
+      end
+
+      it 'should change default account names' do
+        @chase = Reckon::App.new(:string => BANK_CSV,
+                                 :unattended => true,
+                                 :output_file => @output_file,
+                                 :default_into_account => 'Expenses:Default',
+                                 :default_outof_account => 'Income:Default')
+        @chase.walk_backwards
+        @output_file.string.scan('Expenses:Default').count.should == 6
+        @output_file.string.scan('Income:Default').count.should == 3
+      end
+
+      it 'should learn from a ledger file' do
+        @chase.learn_from( BANK_LEDGER )
+        @chase.walk_backwards
+        @output_file.string.scan('Expenses:Books').count.should == 1
+      end
+
+      it 'should learn from an account tokens file' do
+        @chase = Reckon::App.new(:string => BANK_CSV,
+                                 :unattended => true,
+                                 :output_file => @output_file,
+                                 :account_tokens_file => 'spec/data_fixtures/tokens.yaml')
+        @chase.walk_backwards
+        @output_file.string.scan('Expenses:Books').count.should == 1
+      end
     end
   end
-  
+
   #DATA
   BANK_CSV = (<<-CSV).strip
     DEBIT,20091224120000[0:GMT],"HOST 037196321563 MO        12/22SLICEHOST",-85.00
