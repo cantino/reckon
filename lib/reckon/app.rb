@@ -49,6 +49,7 @@ module Reckon
 
     def learn!
       if options[:account_tokens_file]
+        fail "#{options[:account_tokens_file]} doesn't exist!" unless File.exists?(options[:account_tokens_file])
         extract_account_tokens(YAML.load_file(options[:account_tokens_file])).each do |account, tokens|
           tokens.each { |t| learn_about_account(account, t) }
         end
@@ -88,7 +89,7 @@ module Reckon
           seen_anything_new = true
         end
 
-        possible_answers = weighted_account_match( row ).map { |a| a[:account] }
+        possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
 
         ledger = if row[:money] > 0
           if options[:unattended]
@@ -115,7 +116,6 @@ module Reckon
             into_account = possible_answers.first || options[:default_into_account] || 'Expenses:Unknown'
           else
             into_account = ask("To which account did this money go? ([account]/[q]uit/[s]kip) ") { |q|
-              possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
               q.completion = possible_answers
               q.readline = true
               q.default = possible_answers.first
@@ -284,15 +284,15 @@ module Reckon
           options[:unattended] = n
         end
 
-        opts.on("-t", "--account-tokens FILE", "File with account tokens") do |a|
+        opts.on("-t", "--account-tokens FILE", "YAML file with manually-assigned tokens for each account (see README)") do |a|
           options[:account_tokens_file] = a
         end
 
-        opts.on("", "--default_into_account name", "Default into account") do |a|
+        opts.on("", "--default-into-account name", "Default into account") do |a|
           options[:default_into_account] = a
         end
 
-        opts.on("", "--default_outof_account name", "Default 'out of' account") do |a|
+        opts.on("", "--default-outof-account name", "Default 'out of' account") do |a|
           options[:default_outof_account] = a
         end
 

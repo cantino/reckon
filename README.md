@@ -56,10 +56,10 @@ Learn more:
         --date-format '%d/%m/%Y'
                                      Force the date format (see Ruby DateTime strftime)
     -u, --unattended                 Don't ask questions and guess all the accounts automatically. Used with --learn-from or --account-tokens options.
-    -t, --account-tokens FILE        File with account tokens
-        --default_into_account name
+    -t, --account-tokens FILE        YAML file with manually-assigned tokens for each account (see README)
+        --default-into-account name
                                      Default into account
-        --default_outof_account name
+        --default-outof-account name
                                      Default 'out of' account
         --suffixed
                                      If --currency should be used as a suffix. Defaults to false.
