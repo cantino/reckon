@@ -95,10 +95,9 @@ module Reckon
       output_columns = []
       columns.each_with_index do |column, index|
         if index == a
-          new_column = []
-          column.each_with_index do |row, row_index|
-            new_column << row + " " + (columns[b][row_index] || '')
-          end
+          new_column = MoneyColumn.new( column )
+            .merge!( MoneyColumn.new( columns[b] ) )
+            .map { |m| m.amount.to_s }
           output_columns << new_column
         elsif index == b
           # skip

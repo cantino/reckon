@@ -43,11 +43,30 @@ module Reckon
     end
 
     def Money::from_s( value, options = {} )
-      return nil if value.empty?
+      # Empty string is treated as money with value 0
+      return Money.new( 0.00, options ) if value.empty?
+
+      # Remove 1000 separaters and replace , with . if comma_separates_cents
+      # 1.000,00 -> 1000.00
       value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
-      amount = value.gsub(/[^\d\.]/, '').to_f
-      amount *= -1 if value =~ /[\(\-]/
-      Money.new( amount, options )
+      value = value.gsub(/,/, '')
+
+      money_format_regex = /^(.*?)(\d+\.\d\d)/ # Money has two decimal precision
+      any_number_regex = /^(.*?)([\d\.]+)/
+
+      # Prefer matching the money_format, match any number otherwise
+      m = value.match( money_format_regex ) || 
+        value.match( any_number_regex )
+      if m 
+        amount = m[2].to_f
+        # Check whether the money had a - or (, which indicates negative amounts
+        if (m[1].match( /^[\(-]/ ) || m[1].match( /-$/  ))
+          amount *= -1
+        end
+        return Money.new( amount, options )
+      else
+        return nil
+      end
     end
 
     def Money::likelihood( entry )
@@ -79,11 +98,12 @@ module Reckon
       invert = true if self.positive? && other_column.positive?
       self.each_with_index do |mon, i|
         other = other_column[i]
-        if mon && !other
+        return nil if (!mon || !other)
+        if mon != 0.00 && other == 0.0
           if invert
             self[i]= -mon
           end
-        elsif !mon && other
+        elsif mon == 0.00 && other != 0.00
           self[i] = other
         else
           return nil
