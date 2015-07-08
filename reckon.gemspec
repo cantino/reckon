@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name = %q{reckon}
-  s.version = "0.4.0"
+  s.version = "0.4.1"
   s.authors = ["Andrew Cantino", "BlackEdder"]
   s.email = %q{andrew@iterationlabs.com}
   s.homepage = %q{https://github.com/cantino/reckon}
