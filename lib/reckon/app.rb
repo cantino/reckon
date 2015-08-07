@@ -39,7 +39,10 @@ module Reckon
     end
 
     def extract_account_tokens(subtree, account = nil)
-      if subtree.is_a?(Array)
+      if subtree.nil?
+        puts "Warning: empty #{account} tree"
+        {}
+      elsif subtree.is_a?(Array)
         { account => subtree }
       else
         at = subtree.map { |k, v| extract_account_tokens(v, [account, k].compact.join(':')) }
