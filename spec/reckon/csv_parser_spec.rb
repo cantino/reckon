@@ -188,6 +188,12 @@ describe Reckon::CSVParser do
       @chase.description_for(1).should == "CHECK; CHECK 2656"
       @chase.description_for(7).should == "CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL"
     end
+
+    it "should not append empty description column" do
+      parser = Reckon::CSVParser.new(:string => '01/09/2015,05354 SUBWAY,8.19,,',:date_format => '%d/%m/%Y')
+      parser.description_column_indices.should == [1, 4]
+      parser.description_for(0).should == '05354 SUBWAY'
+    end
   end
 
   describe "pretty_money_for" do
