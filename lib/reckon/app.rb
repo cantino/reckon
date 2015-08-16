@@ -4,7 +4,7 @@ require 'yaml'
 
 module Reckon
   class App
-    VERSION = "Reckon 0.3.10"
+    VERSION = "Reckon 0.4.3"
     attr_accessor :options, :accounts, :tokens, :seen, :csv_parser
 
     def initialize(options = {})
