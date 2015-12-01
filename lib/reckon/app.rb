@@ -5,11 +5,12 @@ require 'yaml'
 module Reckon
   class App
     VERSION = "Reckon 0.4.3"
-    attr_accessor :options, :accounts, :tokens, :seen, :csv_parser
+    attr_accessor :options, :accounts, :tokens, :seen, :csv_parser, :regexps
 
     def initialize(options = {})
       self.options = options
       self.tokens = {}
+      self.regexps = {}
       self.accounts = {}
       self.seen = {}
       self.options[:currency] ||= '$'
@@ -54,7 +55,7 @@ module Reckon
       if options[:account_tokens_file]
         fail "#{options[:account_tokens_file]} doesn't exist!" unless File.exists?(options[:account_tokens_file])
         extract_account_tokens(YAML.load_file(options[:account_tokens_file])).each do |account, tokens|
-          tokens.each { |t| learn_about_account(account, t) }
+          tokens.each { |t| learn_about_account(account, t, true) }
         end
       end
       return unless options[:existing_ledger_file]
@@ -63,13 +64,27 @@ module Reckon
       learn_from(ledger_data)
     end
 
-    def learn_about_account(account, data)
+    def learn_about_account(account, data, parse_regexps = false)
       accounts[account] ||= 0
-      tokenize(data).each do |token|
-        tokens[token] ||= {}
-        tokens[token][account] ||= 0
-        tokens[token][account] += 1
-        accounts[account] += 1
+      if parse_regexps && data.start_with?('/')
+        # https://github.com/tenderlove/psych/blob/master/lib/psych/visitors/to_ruby.rb
+        match = data.match(/^\/(.*)\/([ix]*)$/m)
+        fail "failed to parse regexp #{data}" unless match
+        options = 0
+        (match[2] || '').split('').each do |option|
+          case option
+          when 'x' then options |= Regexp::EXTENDED
+          when 'i' then options |= Regexp::IGNORECASE
+          end
+        end
+        regexps[Regexp.new(match[1], options)] = account
+      else
+        tokenize(data).each do |token|
+          tokens[token] ||= {}
+          tokens[token][account] ||= 0
+          tokens[token][account] += 1
+          accounts[account] += 1
+        end
       end
     end
 
@@ -92,7 +107,8 @@ module Reckon
           seen_anything_new = true
         end
 
-        possible_answers = weighted_account_match( row ).map! { |a| a[:account] }
+        possible_answers = most_specific_regexp_match(row)
+        possible_answers = weighted_account_match( row ).map! { |a| a[:account] } if possible_answers.empty?
 
         ledger = if row[:money] > 0
           if options[:unattended]
@@ -149,6 +165,15 @@ module Reckon
     def output(ledger_line)
       options[:output_file].puts ledger_line
       options[:output_file].flush
+    end
+
+    def most_specific_regexp_match( row )
+      matches = regexps.map { |regexp, account|
+        if match = regexp.match(row[:description])
+          [account, match[0]]
+        end
+      }.compact
+      matches.sort_by! { |account, matched_text| matched_text.length }.map(&:first)
     end
 
     # Weigh accounts by how well they match the row

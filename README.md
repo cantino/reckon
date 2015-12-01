@@ -90,6 +90,8 @@ Expenses:
     - 'MasterCard'
   Rent:
     - '0011223344' # Landlord bank number
+  Hosting:
+    - /hosting/i # This regexp will catch descriptions such as WebHosting or filehosting
 '[Internal:Transfer]': # Virtual account
   - '4433221100' # Your own account number
 ```
