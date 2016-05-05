@@ -68,16 +68,9 @@ module Reckon
       accounts[account] ||= 0
       if parse_regexps && data.start_with?('/')
         # https://github.com/tenderlove/psych/blob/master/lib/psych/visitors/to_ruby.rb
-        match = data.match(/^\/(.*)\/([ix]*)$/m)
-        fail "failed to parse regexp #{data}" unless match
-        options = 0
-        (match[2] || '').split('').each do |option|
-          case option
-          when 'x' then options |= Regexp::EXTENDED
-          when 'i' then options |= Regexp::IGNORECASE
-          end
-        end
-        regexps[Regexp.new(match[1], options)] = account
+        regexp = try_regexp(data)
+        fail "failed to parse regexp #{data}" if regexp.nil?
+        regexps[regexp] = account
       else
         tokenize(data).each do |token|
           tokens[token] ||= {}
@@ -86,6 +79,22 @@ module Reckon
           accounts[account] += 1
         end
       end
+    end
+
+    def try_regexp(data)
+      return nil if data.nil?
+      # https://github.com/tenderlove/psych/blob/master/lib/psych/visitors/to_ruby.rb
+      match = data.match(/^\/(.*)\/([ix]*)$/m)
+      return nil unless match
+      options = 0
+      (match[2] || '').split('').each do |option|
+        case option
+        when 'x' then options |= Regexp::EXTENDED
+        when 'i' then options |= Regexp::IGNORECASE
+        end
+      end
+
+      Regexp.new(match[1], options)
     end
 
     def tokenize(str)
