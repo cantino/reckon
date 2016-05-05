@@ -5,11 +5,12 @@ require 'yaml'
 module Reckon
   class App
     VERSION = "Reckon 0.4.4"
-    attr_accessor :options, :accounts, :tokens, :seen, :csv_parser, :regexps
+    attr_accessor :options, :accounts, :tokens, :complex_tokens, :seen, :csv_parser, :regexps
 
     def initialize(options = {})
       self.options = options
       self.tokens = {}
+      self.complex_tokens = []
       self.regexps = {}
       self.accounts = {}
       self.seen = {}
@@ -66,7 +67,17 @@ module Reckon
 
     def learn_about_account(account, data, parse_regexps = false)
       accounts[account] ||= 0
-      if parse_regexps && data.start_with?('/')
+      if data.respond_to?(:to_h)
+        pattern = (parse_regexps ? try_regexp(data["Pattern"]) : nil) || data["Pattern"]
+        return if pattern.nil?
+        counterpart = (parse_regexps ? try_regexp(data["Account"]) : nil) || data["Account"]
+        complex_tokens << {
+          pattern: pattern,
+          counterpart: counterpart,
+          account: account,
+          skip: data["Skip"] == true
+        }
+      elsif parse_regexps && data.start_with?('/')
         # https://github.com/tenderlove/psych/blob/master/lib/psych/visitors/to_ruby.rb
         regexp = try_regexp(data)
         fail "failed to parse regexp #{data}" if regexp.nil?
@@ -116,7 +127,13 @@ module Reckon
           seen_anything_new = true
         end
 
-        possible_answers = most_specific_regexp_match(row)
+        row_complex_tokens = fetch_complex_tokens_for_row(row)
+        should_skip = false
+        row_complex_tokens.each { |h| should_skip = true if h[:skip] }
+        next if should_skip
+
+        possible_answers = most_specific_complex_token_match(row, complex_tokens=row_complex_tokens)
+        possible_answers = most_specific_regexp_match(row) if possible_answers.empty?
         possible_answers = weighted_account_match( row ).map! { |a| a[:account] } if possible_answers.empty?
 
         ledger = if row[:money] > 0
@@ -174,6 +191,29 @@ module Reckon
     def output(ledger_line)
       options[:output_file].puts ledger_line
       options[:output_file].flush
+    end
+
+    def most_specific_complex_token_match( row, complex_tokens=nil )
+      complex_tokens ||= fetch_complex_tokens_for_row(row)
+      matches = complex_tokens.map { |h| [h[:account], h[:pattern]] }
+      matches.map(&:first)
+    end
+
+    def fetch_complex_tokens_for_row( row )
+      complex_tokens.reject { |hash|
+        if hash[:counterpart].respond_to?(:~)
+          next true if hash[:counterpart].match(options[:bank_account]).nil?
+        elsif hash[:counterpart].respond_to?(:to_s)
+          next true unless options[:bank_account].include?(hash[:counterpart])
+        end
+
+        if hash[:pattern].respond_to?(:~)
+          match = hash[:pattern].match(row[:description])
+          match.nil?
+        else
+          !row[:description].include?(hash[:pattern])
+        end
+      }
     end
 
     def most_specific_regexp_match( row )

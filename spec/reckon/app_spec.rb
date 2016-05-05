@@ -71,6 +71,21 @@ describe Reckon::App do
         @output_file.string.scan('Expenses:Books').count.should == 1
         @output_file.string.scan('Expenses:Websites').count.should == 2
       end
+
+      it 'should support complex tokens' do
+        @chase = Reckon::App.new(
+          :string => BANK_CSV,
+          :unattended => true,
+          :output_file => @output_file,
+          :account_tokens_file => 'spec/data_fixtures/complex_tokens.yaml',
+          :bank_account => 'Assets:Bank:Checking'
+        )
+
+        @chase.walk_backwards
+        @output_file.string.scan('Expenses:Books').count.should == 1
+        @output_file.string.scan('Expenses:Paypal').count.should == 0
+      end
+
     end
   end
 

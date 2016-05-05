@@ -88,6 +88,13 @@ Expenses:
   Bank:
     - 'Comission'
     - 'MasterCard'
+    # The following will guess `Expenses:Bank` if the account of the
+    # CSV (set with `--account`) matches the given regexp.
+    - Pattern: 'Visa'
+      Account: /^Liabilities:Visa/i
+    # The following will skip all guesses for the given pattern.
+    - Pattern: 'Mastercard'
+      Skip: true
   Rent:
     - '0011223344' # Landlord bank number
   Hosting:

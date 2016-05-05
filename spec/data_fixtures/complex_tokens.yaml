@@ -1,0 +1,18 @@
+Income:
+  Salary:
+    - 'LÖN'
+    - 'Salary'
+Expenses:
+  Paypal:
+    - 'HELLO'
+    - /BLAHBLAH/
+    - Pattern: 'PAYPAL'
+      Account: /^Liabilities:/
+  Books:
+    - Pattern: /Book Store/
+      Account: /^Assets:Bank/
+    - Pattern: /Book Store/
+      Account: /^Assets:Another/
+    - Pattern: /Blarg/
+      Account: /^Assets:Bank/
+      Skip: true
