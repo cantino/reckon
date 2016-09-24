@@ -114,6 +114,3 @@ You can override them with `--default_outof_account` and `--default_into_account
 Copyright (c) 2013 Andrew Cantino. See LICENSE for details.
 
 Thanks to @BlackEdder for many contributions!
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/cantino/reckon/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
