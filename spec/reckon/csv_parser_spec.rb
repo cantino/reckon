@@ -27,8 +27,8 @@ describe Reckon::CSVParser do
   end
 
   it "should be in testing mode" do
-    @chase.settings[:testing].should be_true
-    Reckon::CSVParser.settings[:testing].should be_true
+    @chase.settings[:testing].should be true
+    Reckon::CSVParser.settings[:testing].should be true
   end
   
   describe "parse" do
