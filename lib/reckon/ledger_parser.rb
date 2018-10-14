@@ -5,6 +5,9 @@ require 'rubygems'
 module Reckon
   class LedgerParser
 
+    @@date_desc_re = /^([\d\/-]+)(\=[\d\/-]+)?(\s+[\*!]?\s*.*?)$/
+    @@entry_re = /^\s+([^;#%|*\s].+?)((\s{2,}[-+]?(([^\d\s]+?)\s*)?([-+]?\d+([,.]\d*)*)?(\s+([^\d]+))?\s*)|\s*)$/i
+
     attr_accessor :entries
 
     def initialize(ledger, options = {})
@@ -18,13 +21,13 @@ module Reckon
       accounts = []
       ledger.strip.split("\n").each do |entry|
         next if entry =~ /^\s*$/ || entry =~ /^[^ \t\d]/
-        if entry =~ /^([\d\/-]+)(\=[\d\/-]+)?(\s+[\*!]?\s*.*?)$/
+        if entry =~ @@date_desc_re
           @entries << { :date => date.strip, :desc => desc.strip, :accounts => balance(accounts) } if date
           date = $1
           desc = $3
           accounts = []
-        elsif date && entry =~ /^\s+([a-z\s:_\-]+)(\s*$|(\s+[\$\.,\-\d\+]+)($|\s+($|[^\$\.,\-\d\+])))/i
-          accounts << { :name => $1.strip, :amount => clean_money($3) }
+        elsif date && entry =~ @@entry_re
+          accounts << { :name => $1.strip, :amount => clean_money($3), :currency => ($5 || $9) }
         else
           @entries << { :date => date.strip, :desc => desc.strip, :accounts => balance(accounts) } if date
           date = desc = nil
