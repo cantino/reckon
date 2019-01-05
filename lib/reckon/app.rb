@@ -24,11 +24,17 @@ module Reckon
       puts str
     end
 
+    def query_string(description, amount, currency)
+      return [description, amount, currency].join(" ")
+    end
+
     def learn_from(ledger)
       LedgerParser.new(ledger).entries.each do |entry|
         entry[:accounts].each do |account|
-          learn_about_account( account[:name],
-                              [entry[:desc], account[:amount]].join(" ") ) unless account[:name] == options[:bank_account]
+          learn_about_account(
+            account[:name],
+            query_string(entry[:desc], account[:amount], account[:currency])
+          ) unless account[:name] == options[:bank_account]
           seen[entry[:date]] ||= {}
           seen[entry[:date]][@csv_parser.pretty_money(account[:amount])] = true
         end
@@ -178,7 +184,7 @@ module Reckon
 
     # Weigh accounts by how well they match the row
     def weighted_account_match( row )
-      query_tokens = tokenize(row[:description])
+      query_tokens = tokenize(query_string(row[:description], row[:money].to_f, self.options[:currency]))
 
       search_vector = []
       account_vectors = {}
