@@ -16,10 +16,10 @@ describe Reckon::App do
 
     describe "each_row_backwards" do
       it "should return rows with hashes" do
-        @rows[0][:pretty_date].should == "2009/12/10"
+        @rows[0][:pretty_date].should == "2009-12-10"
         @rows[0][:pretty_money].should == " $2105.00"
         @rows[0][:description].should == "CREDIT; Some Company vendorpymt PPD ID: 5KL3832735"
-        @rows[1][:pretty_date].should == "2009/12/11"
+        @rows[1][:pretty_date].should == "2009-12-11"
         @rows[1][:pretty_money].should == "-$116.22"
         @rows[1][:description].should == "CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL"
       end
