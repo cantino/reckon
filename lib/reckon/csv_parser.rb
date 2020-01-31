@@ -1,5 +1,4 @@
 #coding: utf-8
-require 'pp'
 
 module Reckon
   class CSVParser
@@ -227,20 +226,14 @@ module Reckon
 
     def parse
       data = options[:string] || File.read(options[:file])
-
-      if RUBY_VERSION =~ /^1\.9/ || RUBY_VERSION =~ /^2/
-        data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
-        csv_engine = CSV
-      else
-        csv_engine = FasterCSV
-      end
-
-      @csv_data = csv_engine.parse data.strip, :col_sep => options[:csv_separator] || ','
+      data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
+      @csv_data = CSV.parse data.strip, :col_sep => options[:csv_separator] || ','
       if options[:contains_header]
         options[:contains_header].times { csv_data.shift }
       end
       csv_data
     end
+
 
     @settings = { :testing => false }
 
