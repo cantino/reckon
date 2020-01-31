@@ -55,9 +55,9 @@ module Reckon
       any_number_regex = /^(.*?)([\d\.]+)/
 
       # Prefer matching the money_format, match any number otherwise
-      m = value.match( money_format_regex ) || 
+      m = value.match( money_format_regex ) ||
         value.match( any_number_regex )
-      if m 
+      if m
         amount = m[2].to_f
         # Check whether the money had a - or (, which indicates negative amounts
         if (m[1].match( /^[\(-]/ ) || m[1].match( /-$/  ))
@@ -164,9 +164,8 @@ module Reckon
     end
 
     def pretty_for(index)
-      self.for(index).strftime("%Y/%m/%d")
+      self.for(index).to_date.iso8601
     end
 
   end
 end
-
