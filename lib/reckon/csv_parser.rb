@@ -192,20 +192,17 @@ module Reckon
         end
       end
 
-      results.reject! {|i| money_column_indices.include?(i[:index]) }
-      self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
-      results.reject! {|i| i[:index] == date_column_index }
-      @date_column = DateColumn.new( columns[ self.date_column_index ], @options )
+      results.reject! { |i| money_column_indices.include?(i[:index]) }
+      # sort by highest score followed by lowest index
+      @date_column_index = results.max_by { |n| [n[:date_score], -n[:index]] }[:index]
+      results.reject! { |i| i[:index] == date_column_index }
+      @date_column = DateColumn.new(columns[date_column_index], @options)
 
-      if ( money_column_indices.length == 1 )
-        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
-                                        @options )
+      @money_column = MoneyColumn.new(columns[money_column_indices[0]], @options)
+      if money_column_indices.length == 1
         detect_sign_column if @money_column.positive?
       else
-        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
-                                        @options )
-        @money_column.merge!(
-          MoneyColumn.new( columns[money_column_indices[1]], @options ) )
+        @money_column.merge! MoneyColumn.new(columns[money_column_indices[1]], @options)
       end
 
       self.description_column_indices = results.map { |i| i[:index] }
