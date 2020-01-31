@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
+require 'rchardet'
 require 'chronic'
 require 'csv'
 require 'highline/import'

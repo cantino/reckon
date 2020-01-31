@@ -7,7 +7,7 @@ module Reckon
     def initialize(options = {})
       self.options = options
       self.options[:currency] ||= '$'
-      parse
+      @csv_data = parse(options[:string] || File.read(options[:file]))
       filter_csv
       detect_columns
     end
@@ -224,16 +224,25 @@ module Reckon
       end
     end
 
-    def parse
+    def parse(data)
+      # Use force_encoding to convert the string to utf-8 with as few invalid characters
+      # as possible.
+      data.force_encoding(try_encoding(data))
+      data = data.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+      data.sub!("\xEF\xBB\xBF", '') # strip byte order marker, if it exists
+
       rows = []
-      data = options[:string] || File.read(options[:file])
-      data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
       data.each_line.with_index do |line, i|
         next if i < (options[:contains_header] || 0)
         rows << CSV.parse_line(line, col_sep: options[:csv_separator] || ',')
       end
 
-      @csv_data = rows
+      rows
+    end
+
+    def try_encoding(data)
+      cd = CharDet.detect(data)
+      options[:encoding] || cd['encoding'] || 'BINARY'
     end
 
     @settings = { :testing => false }

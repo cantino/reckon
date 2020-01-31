@@ -33,14 +33,29 @@ describe Reckon::CSVParser do
   end
 
   describe "parse" do
+    it "should use binary encoding if none specified and chardet fails" do
+      allow(CharDet).to receive(:detect).and_return({'encoding' => nil})
+      app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
+      expect(app.try_encoding("foobarbaz")).to eq("BINARY")
+    end
     it "should work with foreign character encodings" do
       app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
       app.columns[0][0..2].should == ["Data", "10/31/2012", "11/01/2012"]
-      app.columns[2].first.should == "Hist?rico"
+      app.columns[2].first.should == "Histórico"
     end
 
     it "should work with other separators" do
       Reckon::CSVParser.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
+    end
+
+    it 'should parse quoted lines' do
+      file = %q("30.03.2015";"29.03.2015";"09.04.2015";"BARAUSZAHLUNGSENTGELT";"5266 xxxx xxxx 9454";"";"0";"EUR";"0,00";"EUR";"-3,50";"0")
+      Reckon::CSVParser.new(string: file, csv_separator: ';', comma_separates_cents: true).columns.length.should == 12
+    end
+
+    it 'should parse csv with BOM' do
+      file = File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "bom_utf8_file.csv"))
+      Reckon::CSVParser.new(file: file).columns.length.should == 41
     end
 
     describe 'file with invalid csv in header' do

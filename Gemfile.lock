@@ -4,6 +4,7 @@ PATH
     reckon (0.4.4)
       chronic (>= 0.3.0)
       highline (>= 1.5.2)
+      rchardet (>= 1.8.0)
       terminal-table (>= 1.4.2)
 
 GEM
@@ -18,6 +19,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
     rake (12.3.3)
+    rchardet (1.8.0)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
