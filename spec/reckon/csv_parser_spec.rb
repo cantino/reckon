@@ -42,6 +42,24 @@ describe Reckon::CSVParser do
     it "should work with other separators" do
       Reckon::CSVParser.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
     end
+
+    describe 'file with invalid csv in header' do
+      file = %q(
+
+="0234500012345678";21/11/2015;19/02/2016;36;19/02/2016;1234,37 EUR
+
+Date de l'opération;Libellé;Détail de l'écriture;Montant de l'opération;Devise
+19/02/2016;VIR RECU 508160;VIR RECU 1234567834S DE: Francois REF: 123457891234567894561231 PROVENANCE: DE Allemagne ;50,00;EUR
+18/02/2016;COTISATION JAZZ;COTISATION JAZZ ;-8,10;EUR
+)
+      it 'should ignore invalid header lines' do
+        Reckon::CSVParser.new(string: file, contains_header: 4)
+      end
+
+      it 'should fail' do
+        expect { Reckon::CSVParser.new(string: file, contains_header: 1) }.to raise_error(CSV::MalformedCSVError)
+      end
+    end
   end
 
   describe "columns" do

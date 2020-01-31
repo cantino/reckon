@@ -225,15 +225,16 @@ module Reckon
     end
 
     def parse
+      rows = []
       data = options[:string] || File.read(options[:file])
       data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
-      @csv_data = CSV.parse data.strip, :col_sep => options[:csv_separator] || ','
-      if options[:contains_header]
-        options[:contains_header].times { csv_data.shift }
+      data.each_line.with_index do |line, i|
+        next if i < (options[:contains_header] || 0)
+        rows << CSV.parse_line(line, col_sep: options[:csv_separator] || ',')
       end
-      csv_data
-    end
 
+      @csv_data = rows
+    end
 
     @settings = { :testing => false }
 
