@@ -1,6 +1,11 @@
 language: ruby
 rvm:
-  - 2.0.0
-  - 2.3.3
-  - 2.4.0
+  # Mac High Sierra
+  - 2.0.0-p648
+  # Mac Mojave
+  - 2.3.7
+  # Ubuntu 19.10
+  - 2.5
+  # Mac Catalina
+  - 2.6
 script: "bundle exec rake"
