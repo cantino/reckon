@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
-# encoding: utf-8
+# coding: utf-8
 
-require "spec_helper"
+require_relative "../spec_helper"
 require 'rubygems'
-require 'reckon'
+require_relative '../../lib/reckon'
 
 Reckon::CSVParser.settings[:testing] = true
 

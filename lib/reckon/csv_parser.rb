@@ -159,7 +159,7 @@ module Reckon
 
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
-      self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
+      self.money_column_indices = [ results.max_by { |n| n[:money_score] }[:index] ]
 
       if !found_likely_money_column
         found_likely_double_money_columns = false
