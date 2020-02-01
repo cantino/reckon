@@ -1,5 +1,4 @@
 #coding: utf-8
-require 'pp'
 
 module Reckon
   class CSVParser
@@ -8,7 +7,7 @@ module Reckon
     def initialize(options = {})
       self.options = options
       self.options[:currency] ||= '$'
-      parse
+      @csv_data = parse(options[:string] || File.read(options[:file]))
       filter_csv
       detect_columns
     end
@@ -160,7 +159,7 @@ module Reckon
 
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
-      self.money_column_indices = [ results.sort { |a, b| b[:money_score] <=> a[:money_score] }.first[:index] ]
+      self.money_column_indices = [ results.max_by { |n| n[:money_score] }[:index] ]
 
       if !found_likely_money_column
         found_likely_double_money_columns = false
@@ -192,20 +191,17 @@ module Reckon
         end
       end
 
-      results.reject! {|i| money_column_indices.include?(i[:index]) }
-      self.date_column_index = results.sort { |a, b| b[:date_score] <=> a[:date_score] }.first[:index]
-      results.reject! {|i| i[:index] == date_column_index }
-      @date_column = DateColumn.new( columns[ self.date_column_index ], @options )
+      results.reject! { |i| money_column_indices.include?(i[:index]) }
+      # sort by highest score followed by lowest index
+      @date_column_index = results.max_by { |n| [n[:date_score], -n[:index]] }[:index]
+      results.reject! { |i| i[:index] == date_column_index }
+      @date_column = DateColumn.new(columns[date_column_index], @options)
 
-      if ( money_column_indices.length == 1 )
-        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
-                                        @options )
+      @money_column = MoneyColumn.new(columns[money_column_indices[0]], @options)
+      if money_column_indices.length == 1
         detect_sign_column if @money_column.positive?
       else
-        @money_column = MoneyColumn.new( columns[money_column_indices[0]],
-                                        @options )
-        @money_column.merge!(
-          MoneyColumn.new( columns[money_column_indices[1]], @options ) )
+        @money_column.merge! MoneyColumn.new(columns[money_column_indices[1]], @options)
       end
 
       self.description_column_indices = results.map { |i| i[:index] }
@@ -228,21 +224,25 @@ module Reckon
       end
     end
 
-    def parse
-      data = options[:string] || File.read(options[:file])
+    def parse(data)
+      # Use force_encoding to convert the string to utf-8 with as few invalid characters
+      # as possible.
+      data.force_encoding(try_encoding(data))
+      data = data.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+      data.sub!("\xEF\xBB\xBF", '') # strip byte order marker, if it exists
 
-      if RUBY_VERSION =~ /^1\.9/ || RUBY_VERSION =~ /^2/
-        data = data.force_encoding(options[:encoding] || 'BINARY').encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '?')
-        csv_engine = CSV
-      else
-        csv_engine = FasterCSV
+      rows = []
+      data.each_line.with_index do |line, i|
+        next if i < (options[:contains_header] || 0)
+        rows << CSV.parse_line(line, col_sep: options[:csv_separator] || ',')
       end
 
-      @csv_data = csv_engine.parse data.strip, :col_sep => options[:csv_separator] || ','
-      if options[:contains_header]
-        options[:contains_header].times { csv_data.shift }
-      end
-      csv_data
+      rows
+    end
+
+    def try_encoding(data)
+      cd = CharDet.detect(data)
+      options[:encoding] || cd['encoding'] || 'BINARY'
     end
 
     @settings = { :testing => false }

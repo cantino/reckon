@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
-# encoding: utf-8
+# coding: utf-8
 
-require "spec_helper"
+require_relative "../spec_helper"
 require 'rubygems'
-require 'reckon'
+require_relative '../../lib/reckon'
 
 Reckon::CSVParser.settings[:testing] = true
 
@@ -33,14 +33,47 @@ describe Reckon::CSVParser do
   end
 
   describe "parse" do
+    it "should use binary encoding if none specified and chardet fails" do
+      allow(CharDet).to receive(:detect).and_return({'encoding' => nil})
+      app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
+      expect(app.try_encoding("foobarbaz")).to eq("BINARY")
+    end
     it "should work with foreign character encodings" do
       app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
       app.columns[0][0..2].should == ["Data", "10/31/2012", "11/01/2012"]
-      app.columns[2].first.should == "Hist?rico"
+      app.columns[2].first.should == "Histórico"
     end
 
     it "should work with other separators" do
       Reckon::CSVParser.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
+    end
+
+    it 'should parse quoted lines' do
+      file = %q("30.03.2015";"29.03.2015";"09.04.2015";"BARAUSZAHLUNGSENTGELT";"5266 xxxx xxxx 9454";"";"0";"EUR";"0,00";"EUR";"-3,50";"0")
+      Reckon::CSVParser.new(string: file, csv_separator: ';', comma_separates_cents: true).columns.length.should == 12
+    end
+
+    it 'should parse csv with BOM' do
+      file = File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "bom_utf8_file.csv"))
+      Reckon::CSVParser.new(file: file).columns.length.should == 41
+    end
+
+    describe 'file with invalid csv in header' do
+      file = %q(
+
+="0234500012345678";21/11/2015;19/02/2016;36;19/02/2016;1234,37 EUR
+
+Date de l'opération;Libellé;Détail de l'écriture;Montant de l'opération;Devise
+19/02/2016;VIR RECU 508160;VIR RECU 1234567834S DE: Francois REF: 123457891234567894561231 PROVENANCE: DE Allemagne ;50,00;EUR
+18/02/2016;COTISATION JAZZ;COTISATION JAZZ ;-8,10;EUR
+)
+      it 'should ignore invalid header lines' do
+        Reckon::CSVParser.new(string: file, contains_header: 4)
+      end
+
+      it 'should fail' do
+        expect { Reckon::CSVParser.new(string: file, contains_header: 1) }.to raise_error(CSV::MalformedCSVError)
+      end
     end
   end
 

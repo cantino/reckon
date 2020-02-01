@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
@@ -16,9 +15,9 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_development_dependency "rspec", ">= 1.2.9"
-  s.add_runtime_dependency "fastercsv", ">= 1.5.1"
+  s.add_development_dependency "pry", ">= 0.12.2"
   s.add_runtime_dependency "chronic", ">= 0.3.0"
   s.add_runtime_dependency "highline", ">= 1.5.2"
   s.add_runtime_dependency "terminal-table", ">= 1.4.2"
+  s.add_runtime_dependency "rchardet", ">= 1.8.0"
 end
-

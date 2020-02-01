@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# encoding: utf-8
 
 require "spec_helper"
 require 'rubygems'
@@ -8,10 +7,10 @@ require 'reckon'
 describe Reckon::App do
   context 'with chase csv input' do
     before do
-      @chase = Reckon::App.new(:string => BANK_CSV)
-      @chase.learn_from( BANK_LEDGER )
+      @chase = Reckon::App.new(string: BANK_CSV)
+      @chase.learn_from(BANK_LEDGER)
       @rows = []
-      @chase.each_row_backwards { |row| @rows.push( row ) }
+      @chase.each_row_backwards { |row| @rows.push(row) }
     end
 
     describe "each_row_backwards" do
@@ -27,7 +26,11 @@ describe Reckon::App do
 
     describe "weighted_account_match" do
       it "should guess the correct account" do
-        @chase.weighted_account_match( @rows[7] ).first[:account].should == "Expenses:Books"
+        row = @rows.find { |n| n[:description] =~ /Book Store/ }
+
+        result = @chase.weighted_account_match(row).first
+        result[:account].should == "Expenses:Books"
+        result[:cosine].should > 0.0
       end
     end
   end
@@ -95,6 +98,5 @@ describe Reckon::App do
 2004/05/27 Book Store
   Expenses:Books                 $20.00
   Liabilities:MasterCard
-  LEDGER
-
+LEDGER
 end
