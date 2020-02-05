@@ -35,11 +35,11 @@ describe Reckon::CSVParser do
   describe "parse" do
     it "should use binary encoding if none specified and chardet fails" do
       allow(CharDet).to receive(:detect).and_return({'encoding' => nil})
-      app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
+      app = Reckon::CSVParser.new(file: fixture_path("extratofake.csv"))
       expect(app.try_encoding("foobarbaz")).to eq("BINARY")
     end
     it "should work with foreign character encodings" do
-      app = Reckon::CSVParser.new(:file => File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "extratofake.csv")))
+      app = Reckon::CSVParser.new(file: fixture_path("extratofake.csv"))
       app.columns[0][0..2].should == ["Data", "10/31/2012", "11/01/2012"]
       app.columns[2].first.should == "Histórico"
     end
@@ -54,7 +54,7 @@ describe Reckon::CSVParser do
     end
 
     it 'should parse csv with BOM' do
-      file = File.expand_path(File.join(File.dirname(__FILE__), "..", "data_fixtures", "bom_utf8_file.csv"))
+      file = File.expand_path(fixture_path("bom_utf8_file.csv"))
       Reckon::CSVParser.new(file: file).columns.length.should == 41
     end
 

@@ -28,52 +28,82 @@ describe Reckon::App do
       it "should guess the correct account" do
         row = @rows.find { |n| n[:description] =~ /Book Store/ }
 
-        result = @chase.weighted_account_match(row).first
-        result[:account].should == "Expenses:Books"
-        result[:cosine].should > 0.0
+        result = @chase.matcher.find_similar(row[:description]).first
+        expect(result[:account]).to eq("Expenses:Books")
+        expect(result[:similarity]).to be > 0.0
       end
     end
   end
 
   context 'unattended mode with chase csv input' do
-    before do
-      @output_file = StringIO.new
-      @chase = Reckon::App.new(:string => BANK_CSV, :unattended => true, :output_file => @output_file)
-    end
+    let(:output_file) { StringIO.new }
+    let(:chase) {
+      Reckon::App.new(
+        string: BANK_CSV,
+        unattended: true,
+        output_file: output_file,
+        bank_account: 'Assets:Bank:Checking'
+      )
+    }
 
     describe 'walk backwards' do
       it 'should assign Income:Unknown and Expenses:Unknown by default' do
-        @chase.walk_backwards
-        @output_file.string.scan('Expenses:Unknown').count.should == 6
-        @output_file.string.scan('Income:Unknown').count.should == 3
+        chase.walk_backwards
+        expect(output_file.string.scan('Expenses:Unknown').count).to eq(5)
+        expect(output_file.string.scan('Income:Unknown').count).to eq(4)
       end
 
       it 'should change default account names' do
-        @chase = Reckon::App.new(:string => BANK_CSV,
-                                 :unattended => true,
-                                 :output_file => @output_file,
-                                 :default_into_account => 'Expenses:Default',
-                                 :default_outof_account => 'Income:Default')
-        @chase.walk_backwards
-        @output_file.string.scan('Expenses:Default').count.should == 6
-        @output_file.string.scan('Income:Default').count.should == 3
+        chase = Reckon::App.new(
+          string: BANK_CSV,
+          unattended: true,
+          output_file: output_file,
+          default_into_account: 'Expenses:Default',
+          default_outof_account: 'Income:Default',
+          bank_account: 'Assets:Bank:Checking',
+        )
+        chase.walk_backwards
+        expect(output_file.string.scan('Expenses:Default').count).to eq(5)
+        expect(output_file.string.scan('Income:Default').count).to eq(4)
       end
 
       it 'should learn from a ledger file' do
-        @chase.learn_from( BANK_LEDGER )
-        @chase.walk_backwards
-        @output_file.string.scan('Expenses:Books').count.should == 1
+        chase.learn_from( BANK_LEDGER )
+        chase.walk_backwards
+        output_file.string.scan('Expenses:Books').count.should == 1
       end
 
       it 'should learn from an account tokens file and parse regexps' do
-        @chase = Reckon::App.new(:string => BANK_CSV,
-                                 :unattended => true,
-                                 :output_file => @output_file,
-                                 :account_tokens_file => 'spec/data_fixtures/tokens.yaml')
-        @chase.walk_backwards
-        @output_file.string.scan('Expenses:Books').count.should == 1
-        @output_file.string.scan('Expenses:Websites').count.should == 2
+        chase = Reckon::App.new(
+          string: BANK_CSV,
+          unattended: true,
+          output_file: output_file,
+          account_tokens_file: fixture_path('tokens.yaml'),
+          bank_account: 'Assets:Bank:Checking',
+        )
+        chase.walk_backwards
+        expect(output_file.string.scan('Expenses:Books').count).to eq(1)
+        expect(output_file.string.scan('Expenses:Websites').count).to eq(2)
       end
+    end
+  end
+
+  context "Issue #73 - regression test" do
+    it "should categorize transaction correctly" do
+      output = StringIO.new
+      app = Reckon::App.new(
+        file: fixture_path('73-sample.csv'),
+        unattended: true,
+        account_tokens_file: fixture_path('73-tokens.yml'),
+        bank_account: "Liabilities:Credit Cards:Visa",
+        contains_header: 1,
+        ignore_column: [4],
+        date_format: '%m/%d/%Y',
+        output_file: output
+      )
+      app.walk_backwards
+
+      expect(output.string).to include('Expenses:Automotive:Car Wash')
     end
   end
 
