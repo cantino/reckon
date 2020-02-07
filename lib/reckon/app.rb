@@ -1,21 +1,21 @@
-#coding: utf-8
+# coding: utf-8
 require 'pp'
 require 'yaml'
 
 module Reckon
   class App
     VERSION = "Reckon 0.4.4"
-    attr_accessor :options, :accounts, :tokens, :seen, :csv_parser, :regexps
+    attr_accessor :options, :seen, :csv_parser, :regexps, :matcher
 
     def initialize(options = {})
+      LOGGER.level = Logger::INFO if options[:verbose]
       self.options = options
-      self.tokens = {}
       self.regexps = {}
-      self.accounts = {}
       self.seen = {}
       self.options[:currency] ||= '$'
       options[:string] = File.read(options[:file]) unless options[:string]
       @csv_parser = CSVParser.new( options )
+      @matcher = CosineSimilarity.new(options)
       learn!
     end
 
@@ -24,21 +24,43 @@ module Reckon
       puts str
     end
 
+    def learn!
+      learn_from_account_tokens(options[:account_tokens_file])
+
+      ledger_file = options[:existing_ledger_file]
+      return unless ledger_file
+      fail "#{ledger_file} doesn't exist!" unless File.exists?(ledger_file)
+      learn_from(File.read(ledger_file))
+    end
+
+    def learn_from_account_tokens(filename)
+      return unless filename
+
+      fail "#{filename} doesn't exist!" unless File.exists?(filename)
+
+      extract_account_tokens(YAML.load_file(filename)).each do |account, tokens|
+        tokens.each do |t|
+          if t.start_with?('/')
+            add_regexp(account, t)
+          else
+            @matcher.add_document(account, t)
+          end
+        end
+      end
+    end
+
     def learn_from(ledger)
       LedgerParser.new(ledger).entries.each do |entry|
         entry[:accounts].each do |account|
-          learn_about_account( account[:name],
-                              [entry[:desc], account[:amount]].join(" ") ) unless account[:name] == options[:bank_account]
+          str = [entry[:desc], account[:amount]].join(" ")
+          @matcher.add_document(account[:name], str) unless account[:name] == options[:bank_account]
           seen[entry[:date]] ||= {}
           seen[entry[:date]][@csv_parser.pretty_money(account[:amount])] = true
         end
       end
     end
 
-    def already_seen?(row)
-      seen[row[:pretty_date]] && seen[row[:pretty_date]][row[:pretty_money]]
-    end
-
+    # Add tokens from account_tokens_file to accounts
     def extract_account_tokens(subtree, account = nil)
       if subtree.nil?
         puts "Warning: empty #{account} tree"
@@ -46,50 +68,26 @@ module Reckon
       elsif subtree.is_a?(Array)
         { account => subtree }
       else
-        at = subtree.map { |k, v| extract_account_tokens(v, [account, k].compact.join(':')) }
-        at.inject({}) { |k, v| k = k.merge(v)}
+        at = subtree.map do |k, v|
+          merged_acct = [account, k].compact.join(':')
+          extract_account_tokens(v, merged_acct)
+        end
+        at.inject({}) { |memo, e| memo.merge!(e)}
       end
     end
 
-    def learn!
-      if options[:account_tokens_file]
-        fail "#{options[:account_tokens_file]} doesn't exist!" unless File.exists?(options[:account_tokens_file])
-        extract_account_tokens(YAML.load_file(options[:account_tokens_file])).each do |account, tokens|
-          tokens.each { |t| learn_about_account(account, t, true) }
+    def add_regexp(account, regex_str)
+      # https://github.com/tenderlove/psych/blob/master/lib/psych/visitors/to_ruby.rb
+      match = regex_str.match(/^\/(.*)\/([ix]*)$/m)
+      fail "failed to parse regexp #{regex_str}" unless match
+      options = 0
+      (match[2] || '').split('').each do |option|
+        case option
+        when 'x' then options |= Regexp::EXTENDED
+        when 'i' then options |= Regexp::IGNORECASE
         end
       end
-      return unless options[:existing_ledger_file]
-      fail "#{options[:existing_ledger_file]} doesn't exist!" unless File.exists?(options[:existing_ledger_file])
-      ledger_data = File.read(options[:existing_ledger_file])
-      learn_from(ledger_data)
-    end
-
-    def learn_about_account(account, data, parse_regexps = false)
-      accounts[account] ||= 0
-      if parse_regexps && data.start_with?('/')
-        # https://github.com/tenderlove/psych/blob/master/lib/psych/visitors/to_ruby.rb
-        match = data.match(/^\/(.*)\/([ix]*)$/m)
-        fail "failed to parse regexp #{data}" unless match
-        options = 0
-        (match[2] || '').split('').each do |option|
-          case option
-          when 'x' then options |= Regexp::EXTENDED
-          when 'i' then options |= Regexp::IGNORECASE
-          end
-        end
-        regexps[Regexp.new(match[1], options)] = account
-      else
-        tokenize(data).each do |token|
-          tokens[token] ||= {}
-          tokens[token][account] ||= 0
-          tokens[token][account] += 1
-          accounts[account] += 1
-        end
-      end
-    end
-
-    def tokenize(str)
-      str.downcase.split(/[\s\-]/)
+      regexps[Regexp.new(match[1], options)] = account
     end
 
     def walk_backwards
@@ -107,8 +105,7 @@ module Reckon
           seen_anything_new = true
         end
 
-        possible_answers = most_specific_regexp_match(row)
-        possible_answers = weighted_account_match( row ).map! { |a| a[:account] } if possible_answers.empty?
+        possible_answers = suggest(row)
 
         ledger = if row[:money] > 0
           if options[:unattended]
@@ -156,15 +153,19 @@ module Reckon
       end
     end
 
-    def finish
-      options[:output_file].close unless options[:output_file] == STDOUT
-      interactive_output "Exiting."
-      exit
-    end
-
-    def output(ledger_line)
-      options[:output_file].puts ledger_line
-      options[:output_file].flush
+    def each_row_backwards
+      rows = []
+      (0...@csv_parser.columns.first.length).to_a.each do |index|
+        rows << { :date => @csv_parser.date_for(index),
+                  :pretty_date => @csv_parser.pretty_date_for(index),
+                  :pretty_money => @csv_parser.pretty_money_for(index),
+                  :pretty_money_negated => @csv_parser.pretty_money_for(index, :negate),
+                  :money => @csv_parser.money_for(index),
+                  :description => @csv_parser.description_for(index) }
+      end
+      rows.sort { |a, b| a[:date] <=> b[:date] }.each do |row|
+        yield row
+      end
     end
 
     def most_specific_regexp_match( row )
@@ -176,41 +177,9 @@ module Reckon
       matches.sort_by! { |account, matched_text| matched_text.length }.map(&:first)
     end
 
-    # Weigh accounts by how well they match the row
-    def weighted_account_match( row )
-      query_tokens = tokenize(row[:description])
-
-      search_vector = []
-      account_vectors = {}
-
-      query_tokens.each do |token|
-        idf = Math.log((accounts.keys.length + 1) / ((tokens[token] || {}).keys.length.to_f + 1))
-        tf = 1.0 / query_tokens.length.to_f
-        search_vector << tf*idf
-
-        accounts.each do |account, total_terms|
-          tf = (tokens[token] && tokens[token][account]) ? tokens[token][account] / total_terms.to_f : 0
-          account_vectors[account] ||= []
-          account_vectors[account] << tf*idf
-        end
-      end
-
-      # Should I normalize the vectors?  Probably unnecessary due to tf-idf and short documents.
-
-      account_vectors = account_vectors.to_a.map do |account, account_vector|
-        { :cosine => (0...account_vector.length).to_a.inject(0) { |m, i| m + search_vector[i] * account_vector[i] },
-          :account => account }
-      end
-      account_vectors.sort! {|a, b| b[:cosine] <=> a[:cosine] }
-
-      # Return empty set if no accounts matched so that we can fallback to the defaults in the unattended mode
-      if options[:unattended]
-        if account_vectors.first && account_vectors.first[:account]
-          account_vectors = [] if account_vectors.first[:cosine] == 0
-        end
-      end
-
-      return account_vectors
+    def suggest(row)
+      most_specific_regexp_match(row) +
+        @matcher.find_similar(row[:description]).map { |n| n[:account] }
     end
 
     def ledger_format(row, line1, line2)
@@ -218,6 +187,21 @@ module Reckon
       out += "\t#{line1.first}\t\t\t\t\t#{line1.last}\n"
       out += "\t#{line2.first}\t\t\t\t\t#{line2.last}\n\n"
       out
+    end
+
+    def output(ledger_line)
+      options[:output_file].puts ledger_line
+      options[:output_file].flush
+    end
+
+    def already_seen?(row)
+      seen[row[:pretty_date]] && seen[row[:pretty_date]][row[:pretty_money]]
+    end
+
+    def finish
+      options[:output_file].close unless options[:output_file] == STDOUT
+      interactive_output "Exiting."
+      exit
     end
 
     def output_table
@@ -230,21 +214,6 @@ module Reckon
       interactive_output output
     end
 
-    def each_row_backwards
-      rows = []
-      (0...@csv_parser.columns.first.length).to_a.each do |index|
-        rows << { :date => @csv_parser.date_for(index),
-          :pretty_date => @csv_parser.pretty_date_for(index),
-          :pretty_money => @csv_parser.pretty_money_for(index),
-          :pretty_money_negated => @csv_parser.pretty_money_for(index, :negate),
-          :money => @csv_parser.money_for(index),
-          :description => @csv_parser.description_for(index) }
-      end
-      rows.sort { |a, b| a[:date] <=> b[:date] }.each do |row|
-        yield row
-      end
-    end
-
     def self.parse_opts(args = ARGV)
       options = { :output_file => STDOUT }
       parser = OptionParser.new do |opts|
@@ -255,7 +224,7 @@ module Reckon
           options[:file] = file
         end
 
-        opts.on("-a", "--account name", "The Ledger Account this file is for") do |a|
+        opts.on("-a", "--account NAME", "The Ledger Account this file is for") do |a|
           options[:bank_account] = a
         end
 
@@ -316,11 +285,11 @@ module Reckon
           options[:account_tokens_file] = a
         end
 
-        opts.on("", "--default-into-account name", "Default into account") do |a|
+        opts.on("", "--default-into-account NAME", "Default into account") do |a|
           options[:default_into_account] = a
         end
 
-        opts.on("", "--default-outof-account name", "Default 'out of' account") do |a|
+        opts.on("", "--default-outof-account NAME", "Default 'out of' account") do |a|
           options[:default_outof_account] = a
         end
 
@@ -351,7 +320,6 @@ module Reckon
       end
 
       unless options[:bank_account]
-
         fail "Please specify --account for the unattended mode" if options[:unattended]
 
         options[:bank_account] = ask("What is the account name of this bank account in Ledger? ") do |q|
