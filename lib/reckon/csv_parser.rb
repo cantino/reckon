@@ -7,7 +7,7 @@ module Reckon
     def initialize(options = {})
       self.options = options
       self.options[:currency] ||= '$'
-      @csv_data = parse(options[:string] || File.read(options[:file]))
+      @csv_data = parse(options[:string] || File.read(options[:file]), options[:file])
       filter_csv
       detect_columns
     end
@@ -43,7 +43,7 @@ module Reckon
     end
 
     def description_for(index)
-      description_column_indices.map { |i| columns[i][index] }.reject { |a| a.empty? }.join("; ").squeeze(" ").gsub(/(;\s+){2,}/, '').strip
+      description_column_indices.map { |i| columns[i][index] }.reject(&:empty?).join("; ").squeeze(" ").gsub(/(;\s+){2,}/, '').strip
     end
 
     def evaluate_columns(cols)
@@ -224,10 +224,10 @@ module Reckon
       end
     end
 
-    def parse(data)
+    def parse(data, filename=nil)
       # Use force_encoding to convert the string to utf-8 with as few invalid characters
       # as possible.
-      data.force_encoding(try_encoding(data))
+      data.force_encoding(try_encoding(data, filename))
       data = data.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
       data.sub!("\xEF\xBB\xBF", '') # strip byte order marker, if it exists
 
@@ -240,9 +240,30 @@ module Reckon
       rows
     end
 
-    def try_encoding(data)
+    def try_encoding(data, filename = nil)
+      encoding = try_encoding_from_file(filename)
+
       cd = CharDet.detect(data)
-      options[:encoding] || cd['encoding'] || 'BINARY'
+      encoding ||= cd['encoding']
+
+      encoding ||= 'BINARY'
+
+      LOGGER.info("suggested file encoding: #{encoding}")
+
+      options[:encoding] || encoding
+    end
+
+    def try_encoding_from_file(filename = nil)
+      return unless filename
+
+      m = nil
+      os = Gem::Platform.local.os
+      if os == 'linux'
+        m = `file -i #{filename}`.match(/charset=(\S+)/)
+      elsif os == 'darwin'
+        m = `file -I #{filename}`.match(/charset=(\S+)/)
+      end
+      m && m[1]
     end
 
     @settings = { :testing => false }
