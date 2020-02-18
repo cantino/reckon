@@ -252,12 +252,12 @@ module Reckon
           options[:ignore_columns] = ignore.split(",").map { |i| i.to_i }
         end
 
-        opts.on("", "--money-column 2", "Specify the money column instead of letting Reckon guess - the first column is column 1") do |column_number|
-          options[:money_column] = column_number.to_i if column_number && column_number.length > 0
+        opts.on("", "--money-column 2", Integer, "Specify the money column instead of letting Reckon guess - the first column is column 1") do |column_number|
+          options[:money_column] = column_number
         end
 
-        opts.on("", "--date-column 3", "Specify the date column instead of letting Reckon guess - the first column is column 1") do |column_number|
-          options[:date_column] = column_number.to_i if column_number && column_number.length > 0
+        opts.on("", "--date-column 3", Integer, "Specify the date column instead of letting Reckon guess - the first column is column 1") do |column_number|
+          options[:date_column] = column_number
         end
 
         opts.on("", "--contains-header [N]", "The first row of the CSV is a header and should be skipped. Optionally add the number of rows to skip.") do |contains_header|

@@ -131,6 +131,16 @@ describe Reckon::CSVParser do
     end
   end
 
+  describe "money_column_indicies" do
+    it "should prefer the option over the heuristic" do
+      chase = Reckon::CSVParser.new(file: fixture_path('chase.csv'))
+      expect(chase.money_column_indices).to eq([3])
+
+      chase = Reckon::CSVParser.new(file: fixture_path('chase.csv'), money_column: 2)
+      expect(chase.money_column_indices).to eq([1])
+    end
+  end
+
   describe "money_for" do
     it "should return the appropriate fields" do
       @chase.money_for(1).should == -20
@@ -175,6 +185,16 @@ describe Reckon::CSVParser do
       inversed_csv = Reckon::CSVParser.new(file: fixture_path('inversed_credit_card.csv'), inverse: true)
       inversed_csv.money_for(0).should == -30.00
       inversed_csv.money_for(3).should == 500.00
+    end
+  end
+
+  describe "date_column_index" do
+    it "should prefer the option over the heuristic" do
+      chase = Reckon::CSVParser.new(file: fixture_path('chase.csv'))
+      expect(chase.date_column_index).to eq(1)
+
+      chase = Reckon::CSVParser.new(file: fixture_path('chase.csv'), date_column: 3)
+      expect(chase.date_column_index).to eq(2)
     end
   end
 
