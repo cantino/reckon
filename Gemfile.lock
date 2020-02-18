@@ -19,6 +19,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
     rake (12.3.3)
+    rantly (1.2.0)
     rchardet (1.8.0)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
@@ -43,6 +44,7 @@ PLATFORMS
 DEPENDENCIES
   pry (>= 0.12.2)
   rake
+  rantly (= 1.2.0)
   reckon!
   rspec (>= 1.2.9)
 

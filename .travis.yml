@@ -9,3 +9,5 @@ rvm:
   # Mac Catalina
   - 2.6
 script: "bundle exec rake"
+before_install:
+  - sudo apt-get -y install ledger

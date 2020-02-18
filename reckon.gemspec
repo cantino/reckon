@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rspec", ">= 1.2.9"
   s.add_development_dependency "pry", ">= 0.12.2"
+  s.add_development_dependency "rantly", "= 1.2.0"
   s.add_runtime_dependency "chronic", ">= 0.3.0"
   s.add_runtime_dependency "highline", ">= 1.5.2"
   s.add_runtime_dependency "terminal-table", ">= 1.4.2"
