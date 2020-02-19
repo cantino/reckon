@@ -54,8 +54,9 @@ module Reckon
         entry[:accounts].each do |account|
           str = [entry[:desc], account[:amount]].join(" ")
           @matcher.add_document(account[:name], str) unless account[:name] == options[:bank_account]
-          seen[entry[:date]] ||= {}
-          seen[entry[:date]][@csv_parser.pretty_money(account[:amount])] = true
+          pretty_date = entry[:date].iso8601
+          seen[pretty_date] ||= {}
+          seen[pretty_date][@csv_parser.pretty_money(account[:amount])] = true
         end
       end
     end

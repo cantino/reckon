@@ -1,31 +1,84 @@
 #!/usr/bin/env ruby
 #encoding: utf-8
 
-require "spec_helper"
+require_relative "../spec_helper"
 require 'rubygems'
 require 'reckon'
 require 'pp'
+require 'rantly'
+require 'rantly/rspec_extensions'
+require 'shellwords'
 
 describe Reckon::LedgerParser do
   before do
-    @ledger = Reckon::LedgerParser.new(EXAMPLE_LEDGER)
+    @ledger = Reckon::LedgerParser.new(EXAMPLE_LEDGER, date_format: '%Y/%m/%d')
   end
 
   describe "parse" do
+    it "should match ledger csv output" do
+      # ledger only parses dates with - or / as separator, and separator is required
+      formats = ["%Y/%m/%d", "%Y-%m-%d"]
+      types = [' ! ', ' * ', ' ']
+      delimiters = ["  ", "\t", "\t\t"]
+      currency_delimiters = delimiters + ['']
+      currencies = ['', '$', '£']
+      property_of do
+        Rantly do
+          description = Proc.new do
+            sized(15){string}.tr(%q{'`:*\\},'').gsub(/\s+/, ' ').gsub(/^[!;<\[( ]+/, '')
+          end
+          currency = choose(*currencies) # to be consistent within the transaction
+          comments = ['', ';   ', "\t;#{call(description)}", "  ; #{call(description)}"]
+          date = Time.at(range(0, 1_581_389_644)).strftime(choose(*formats))
+          codes = [' ', " (#{string(:alnum).tr('()', '')}) "]
+          account = Proc.new { choose(*delimiters) + call(description) }
+          account_money = Proc.new do
+              sprintf("%.02f", (float * range(5,10) + 1) * choose(1, -1))
+          end
+          account_line = Proc.new do
+            call(account) + \
+            choose(*delimiters) + \
+            currency + \
+            choose(*currency_delimiters) + \
+            call(account_money) + \
+            choose(*comments)
+          end
+          ledger = "#{date}#{choose(*types)}#{choose(*codes)}#{call(description)}\n"
+          range(1,5).times do
+            ledger += "#{call(account_line)}\n"
+          end
+          ledger += "#{call(account)}\n"
+          ledger
+        end
+      end.check(1000) do |s|
+        filter_format = lambda { |n| [n['date'], n['desc'], n['name'], sprintf("%.02f", n['amount'])] }
+        headers = %w[date code desc name currency amount type commend]
+        safe_s = Shellwords.escape(s)
+        ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y-%m-%d' -f - `
+        ledger_parser_csv = Reckon::LedgerParser.new(s, date_format: '%Y/%m/%d').to_csv.join("\n")
+
+        expected = CSV.parse(ledger_csv.gsub('\"', '""'), headers: headers).map &filter_format
+        actual = CSV.parse(ledger_parser_csv, headers: headers).map &filter_format
+        expected.length.times do |i|
+          expect(actual[i]).to eq(expected[i])
+        end
+      end
+    end
+
     it "should ignore non-standard entries" do
       @ledger.entries.length.should == 7
     end
 
     it "should parse entries correctly" do
-      @ledger.entries.first[:desc].should == "* Checking balance"
-      @ledger.entries.first[:date].should == "2004-05-01"
+      @ledger.entries.first[:desc].should == "Checking balance"
+      @ledger.entries.first[:date].should == Date.parse("2004-05-01")
       @ledger.entries.first[:accounts].first[:name].should == "Assets:Bank:Checking"
       @ledger.entries.first[:accounts].first[:amount].should == 1000
       @ledger.entries.first[:accounts].last[:name].should == "Equity:Opening Balances"
       @ledger.entries.first[:accounts].last[:amount].should == -1000
 
-      @ledger.entries.last[:desc].should == "(100) Credit card company"
-      @ledger.entries.last[:date].should == "2004/05/27"
+      @ledger.entries.last[:desc].should == "Credit card company"
+      @ledger.entries.last[:date].should == Date.parse("2004/05/27")
       @ledger.entries.last[:accounts].first[:name].should == "Liabilities:MasterCard"
       @ledger.entries.last[:accounts].first[:amount].should == 20.24
       @ledger.entries.last[:accounts].last[:name].should == "Assets:Bank:Checking"
@@ -35,14 +88,14 @@ describe Reckon::LedgerParser do
 
   describe "balance" do
     it "it should balance out missing account values" do
-      @ledger.balance([
+      @ledger.send(:balance, [
           { :name => "Account1", :amount => 1000 },
           { :name => "Account2", :amount => nil }
       ]).should == [ { :name => "Account1", :amount => 1000 }, { :name => "Account2", :amount => -1000 } ]
     end
 
     it "it should balance out missing account values" do
-      @ledger.balance([
+      @ledger.send(:balance, [
           { :name => "Account1", :amount => 1000 },
           { :name => "Account2", :amount => 100 },
           { :name => "Account3", :amount => -200 },
@@ -56,7 +109,7 @@ describe Reckon::LedgerParser do
     end
 
     it "it should work on normal values too" do
-      @ledger.balance([
+      @ledger.send(:balance, [
           { :name => "Account1", :amount => 1000 },
           { :name => "Account2", :amount => -1000 }
       ]).should == [ { :name => "Account1", :amount => 1000 }, { :name => "Account2", :amount => -1000 } ]
