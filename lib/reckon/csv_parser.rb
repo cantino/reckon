@@ -159,7 +159,12 @@ module Reckon
 
     def detect_columns
       results, found_likely_money_column = evaluate_columns(columns)
-      self.money_column_indices = [ results.max_by { |n| n[:money_score] }[:index] ]
+      if options[:money_column]
+        found_likely_money_column = true
+        self.money_column_indices = [ options[:money_column] - 1 ]
+      else
+        self.money_column_indices = [ results.max_by { |n| n[:money_score] }[:index] ]
+      end
 
       if !found_likely_money_column
         found_likely_double_money_columns = false
@@ -192,8 +197,12 @@ module Reckon
       end
 
       results.reject! { |i| money_column_indices.include?(i[:index]) }
-      # sort by highest score followed by lowest index
-      @date_column_index = results.max_by { |n| [n[:date_score], -n[:index]] }[:index]
+      if options[:date_column]
+        @date_column_index = options[:date_column] - 1
+      else
+        # sort by highest score followed by lowest index
+        @date_column_index = results.max_by { |n| [n[:date_score], -n[:index]] }[:index]
+      end
       results.reject! { |i| i[:index] == date_column_index }
       @date_column = DateColumn.new(columns[date_column_index], @options)
 
