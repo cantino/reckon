@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/cantino/reckon/tree/HEAD)
+## [v0.5.0](https://github.com/cantino/reckon/tree/v0.5.0) (2020-02-19)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.4.4...HEAD)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.4.4...v0.5.0)
 
 **Closed issues:**
 
