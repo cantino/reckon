@@ -25,3 +25,6 @@ pkg
 .idea
 reckon_local
 private_tests
+
+## Bundler
+vendor
