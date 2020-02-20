@@ -10,12 +10,13 @@ require 'terminal-table'
 require 'time'
 require 'logger'
 
-LOGGER = Logger.new(STDOUT)
-LOGGER.level = Logger::ERROR
+LOGGER = Logger.new(STDERR)
+LOGGER.level = Logger::WARN
 
 require_relative 'reckon/version'
 require_relative 'reckon/cosine_similarity'
-require File.expand_path(File.join(File.dirname(__FILE__), "reckon", "app"))
-require File.expand_path(File.join(File.dirname(__FILE__), "reckon", "ledger_parser"))
-require File.expand_path(File.join(File.dirname(__FILE__), "reckon", "csv_parser"))
-require File.expand_path(File.join(File.dirname(__FILE__), "reckon", "money"))
+require_relative 'reckon/date_column'
+require_relative 'reckon/money'
+require_relative 'reckon/ledger_parser'
+require_relative 'reckon/csv_parser'
+require_relative 'reckon/app'
