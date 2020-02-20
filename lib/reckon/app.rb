@@ -156,6 +156,10 @@ module Reckon
     def each_row_backwards
       rows = []
       (0...@csv_parser.columns.first.length).to_a.each do |index|
+        if @csv_parser.date_for(index).nil?
+          LOGGER.warn("Skipping row: '#{@csv_parser.row(index)}' that doesn't have a valid date")
+          next
+        end
         rows << { :date => @csv_parser.date_for(index),
                   :pretty_date => @csv_parser.pretty_date_for(index),
                   :pretty_money => @csv_parser.pretty_money_for(index),
@@ -163,9 +167,7 @@ module Reckon
                   :money => @csv_parser.money_for(index),
                   :description => @csv_parser.description_for(index) }
       end
-      rows.sort { |a, b| a[:date] <=> b[:date] }.each do |row|
-        yield row
-      end
+      rows.sort_by { |n| n[:date] }.each {|row| yield row }
     end
 
     def most_specific_regexp_match( row )

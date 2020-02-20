@@ -8,7 +8,7 @@ Reckon automagically converts CSV files for use with the command-line accounting
 
 Assuming you have Ruby and [Rubygems](http://rubygems.org/pages/download) installed on your system, simply run
 
-    (sudo) gem install reckon
+    gem install --user reckon
 
 ## Example Usage
 
