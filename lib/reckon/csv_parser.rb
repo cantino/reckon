@@ -12,6 +12,10 @@ module Reckon
       detect_columns
     end
 
+    def row(index)
+      csv_data[index].join(", ")
+    end
+
     def filter_csv
       if options[:ignore_columns]
         new_columns = []
@@ -27,7 +31,10 @@ module Reckon
     end
 
     def pretty_money_for(index, negate = false)
-      money_for( index ).pretty( negate )
+      money = money_for(index)
+      return 0 if money.nil?
+
+      money.pretty(negate)
     end
 
     def pretty_money(amount, negate = false)
@@ -35,7 +42,7 @@ module Reckon
     end
 
     def date_for(index)
-      @date_column.for( index )
+      @date_column.for(index)
     end
 
     def pretty_date_for(index)

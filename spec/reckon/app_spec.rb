@@ -107,6 +107,20 @@ describe Reckon::App do
     end
   end
 
+  context "Issue #64 - regression test" do
+    it 'should work for simple file' do
+      rows = []
+      app =  Reckon::App.new(file: fixture_path('test_money_column.csv'))
+      expect { app.each_row_backwards { |n| rows << n } }
+        .to output(/Skipping row: 'Date, Note, Amount'/).to_stderr_from_any_process
+      expect(rows.length).to eq(2)
+      expect(rows[0][:pretty_date]).to eq('2012-03-22')
+      expect(rows[0][:pretty_money]).to eq(' $50.00')
+      expect(rows[1][:pretty_date]).to eq('2012-03-23')
+      expect(rows[1][:pretty_money]).to eq('-$10.00')
+    end
+  end
+
   #DATA
   BANK_CSV = (<<-CSV).strip
     DEBIT,20091224120000[0:GMT],"HOST 037196321563 MO        12/22SLICEHOST",-85.00

@@ -20,23 +20,22 @@ describe Reckon::DateColumn do
   end
   describe "for" do
     it "should detect the date" do
-      Reckon::DateColumn.new( ["13/12/2013"] ).for( 0 ).should ==
-        Time.new( 2013, 12, 13, 12 )
-      Reckon::DateColumn.new( ["01/14/2013"] ).for( 0 ).should ==
-        Time.new( 2013, 01, 14, 12 )
-      Reckon::DateColumn.new( ["13/12/2013", "21/11/2013"] ).for( 1 ).should ==
-        Time.new( 2013, 11, 21, 12 )
-      Reckon::DateColumn.new( ["2013-11-21"] ).for( 0 ).should ==
-        Time.new( 2013, 11, 21, 12 )
+      expect(Reckon::DateColumn.new(%w[13/12/2013]).for(0))
+        .to eq(Date.new(2013, 12, 13))
+      expect(Reckon::DateColumn.new(%w[01/14/2013]).for(0))
+        .to eq(Date.new(2013, 1, 14))
+      expect(Reckon::DateColumn.new(%w[13/12/2013 21/11/2013]).for(1))
+        .to eq(Date.new(2013, 11, 21))
+      expect(Reckon::DateColumn.new( ["2013-11-21"] ).for( 0 ))
+        .to eq(Date.new(2013, 11, 21))
 
     end
 
     it "should correctly use endian_precedence" do
-      Reckon::DateColumn.new( ["01/02/2013", "01/14/2013"] ).for(0).should ==
-        Time.new( 2013, 01, 02, 12 )
-      Reckon::DateColumn.new( ["01/02/2013", "14/01/2013"] ).for(0).should ==
-        Time.new( 2013, 02, 01, 12 )
+      expect(Reckon::DateColumn.new(%w[01/02/2013 01/14/2013]).for(0))
+        .to eq(Date.new(2013, 1, 2))
+      expect(Reckon::DateColumn.new(%w[01/02/2013 14/01/2013]).for(0))
+        .to eq(Date.new(2013, 2, 1))
     end
   end
 end
-
