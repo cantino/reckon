@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.5.1](https://github.com/cantino/reckon/tree/v0.5.1) (2020-02-25)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.0...v0.5.1)
+
+**Closed issues:**
+
+- Error Importing [\#64](https://github.com/cantino/reckon/issues/64)
+
+**Merged pull requests:**
+
+- guard against rows that don't parse dates [\#82](https://github.com/cantino/reckon/pull/82) ([benprew](https://github.com/benprew))
+
 ## [v0.5.0](https://github.com/cantino/reckon/tree/v0.5.0) (2020-02-19)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.4.4...v0.5.0)
@@ -81,7 +93,6 @@
 
 **Merged pull requests:**
 
-- Better ISO 8601 dates support [\#49](https://github.com/cantino/reckon/pull/49) ([vzctl](https://github.com/vzctl))
 - Unattended mode and custom tokens support [\#47](https://github.com/cantino/reckon/pull/47) ([vzctl](https://github.com/vzctl))
 - \[RFC\] Implement issue \#40: Tab completion [\#46](https://github.com/cantino/reckon/pull/46) ([BlackEdder](https://github.com/BlackEdder))
 - set readline to allow for backspace in ask dialog [\#44](https://github.com/cantino/reckon/pull/44) ([mrtazz](https://github.com/mrtazz))
@@ -106,6 +117,7 @@
 
 **Merged pull requests:**
 
+- Better ISO 8601 dates support [\#49](https://github.com/cantino/reckon/pull/49) ([vzctl](https://github.com/vzctl))
 - Added spec for csv files from Broker Canada [\#36](https://github.com/cantino/reckon/pull/36) ([BlackEdder](https://github.com/BlackEdder))
 - Date format [\#35](https://github.com/cantino/reckon/pull/35) ([BlackEdder](https://github.com/BlackEdder))
 - Added example from a french bank [\#34](https://github.com/cantino/reckon/pull/34) ([BlackEdder](https://github.com/BlackEdder))
