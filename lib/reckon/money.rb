@@ -71,12 +71,13 @@ module Reckon
 
     def Money::likelihood( entry )
       money_score = 0
-      money_score += 20 if entry[/^[\-\+\(]{0,2}\$/]
+      # digits separated by , or . with no more than 2 trailing digits
+      money_score += 40 if entry.match(/\d+[,.]\d{2}[^\d]*$/)
       money_score += 10 if entry[/^\$?\-?\$?\d+[\.,\d]*?[\.,]\d\d$/]
       money_score += 10 if entry[/\d+[\.,\d]*?[\.,]\d\d$/]
       money_score += entry.gsub(/[^\d\.\-\+,\(\)]/, '').length if entry.length < 7
-      money_score -= entry.length if entry.length > 8
-      money_score -= 20 if entry !~ /^[\$\+\.\-,\d\(\)]+$/
+      money_score -= entry.length if entry.length > 12
+      money_score -= 20 if (entry !~ /^[\$\+\.\-,\d\(\)]+$/) && entry.length > 0
       money_score
     end
   end
