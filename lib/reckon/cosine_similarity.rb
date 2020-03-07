@@ -1,4 +1,5 @@
 require 'matrix'
+require 'set'
 
 # Implementation of consine similarity using TF-IDF for vectorization.
 # Used to suggest which account a transaction should be assigned to
