@@ -121,6 +121,22 @@ describe Reckon::App do
     end
   end
 
+  context 'Issue #51 - regression test' do
+    it 'should assign correct accounts with tokens' do
+      output = StringIO.new
+      Reckon::App.new(
+        file: fixture_path('51-sample.csv'),
+        unattended: true,
+        account_tokens_file: fixture_path('51-tokens.yml'),
+        ignore_columns: [5],
+        bank_account: 'Assets:Chequing',
+        output_file: output
+      ).walk_backwards
+      expect(output.string).not_to include('Income:Unknown')
+      expect(output.string.scan('Expenses:Dining:Resturant').size).to eq(8)
+    end
+  end
+
   #DATA
   BANK_CSV = (<<-CSV).strip
     DEBIT,20091224120000[0:GMT],"HOST 037196321563 MO        12/22SLICEHOST",-85.00

@@ -1,0 +1,9 @@
+Expenses:
+  Dining:
+    Coffee:
+      - 'STARBUCKS'
+      - 'TIM HORTON'
+    Resturant:
+      - 'WENDY''S'
+      - 'SUBWAY'
+      - 'BARAKAT'
