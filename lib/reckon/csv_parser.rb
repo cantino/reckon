@@ -12,33 +12,21 @@ module Reckon
       detect_columns
     end
 
-    def row(index)
-      csv_data[index].join(", ")
-    end
-
-    def filter_csv
-      if options[:ignore_columns]
-        new_columns = []
-        columns.each_with_index do |column, index|
-          new_columns << column unless options[:ignore_columns].include?(index + 1)
+    def columns
+      @columns ||=
+        begin
+          last_row_length = nil
+          csv_data.inject([]) do |memo, row|
+            unless row.all? { |i| i.nil? || i.length == 0 }
+              row.each_with_index do |entry, index|
+                memo[index] ||= []
+                memo[index] << (entry || '').strip
+              end
+              last_row_length = row.length
+            end
+            memo
+          end
         end
-        @columns = new_columns
-      end
-    end
-
-    def money_for(index)
-      @money_column[index]
-    end
-
-    def pretty_money_for(index, negate = false)
-      money = money_for(index)
-      return 0 if money.nil?
-
-      money.pretty(negate)
-    end
-
-    def pretty_money(amount, negate = false)
-      Money.new( amount, @options ).pretty( negate )
     end
 
     def date_for(index)
@@ -49,8 +37,39 @@ module Reckon
       @date_column.pretty_for( index )
     end
 
+    def money_for(index)
+      @money_column[index]
+    end
+
+    def pretty_money(amount, negate = false)
+      Money.new( amount, @options ).pretty( negate )
+    end
+
+    def pretty_money_for(index, negate = false)
+      money = money_for(index)
+      return 0 if money.nil?
+
+      money.pretty(negate)
+    end
+
     def description_for(index)
       description_column_indices.map { |i| columns[i][index] }.reject(&:empty?).join("; ").squeeze(" ").gsub(/(;\s+){2,}/, '').strip
+    end
+
+    def row(index)
+      csv_data[index].join(", ")
+    end
+
+    private
+
+    def filter_csv
+      if options[:ignore_columns]
+        new_columns = []
+        columns.each_with_index do |column, index|
+          new_columns << column unless options[:ignore_columns].include?(index + 1)
+        end
+        @columns = new_columns
+      end
     end
 
     def evaluate_columns(cols)
@@ -94,48 +113,24 @@ module Reckon
         results << { :index => index, :money_score => money_score, :date_score => date_score }
       end
 
-      return [results, found_likely_money_column]
+      results.sort_by! { |n| -n[:money_score] }
+
+      # check if it looks like a 2-column file with a balance field
+      if results.length >= 3 && results[1][:money_score] + results[2][:money_score] >= results[0][:money_score]
+        results[1][:is_money_column] = true
+        results[2][:is_money_column] = true
+      else
+        results[0][:is_money_column] = true
+      end
+
+      return results.sort_by { |n| n[:index] }
     end
 
-    def merge_columns(a, b)
-      output_columns = []
-      columns.each_with_index do |column, index|
-        if index == a
-          new_column = MoneyColumn.new( column )
-            .merge!( MoneyColumn.new( columns[b] ) )
-            .map { |m| m.amount.to_s }
-          output_columns << new_column
-        elsif index == b
-          # skip
-        else
-          output_columns << column
-        end
-      end
-      output_columns
-    end
-
-    def evaluate_two_money_columns( columns, id1, id2, unmerged_results )
-      merged_columns = merge_columns( id1, id2 )
-      results, found_likely_money_column = evaluate_columns( merged_columns )
-      if !found_likely_money_column
-        new_res = results.find { |el| el[:index] == id1 }
-        old_res1 = unmerged_results.find { |el| el[:index] == id1 }
-        old_res2 = unmerged_results.find { |el| el[:index] == id2 }
-        if new_res[:money_score] > old_res1[:money_score] &&
-          new_res[:money_score] > old_res2[:money_score]
-          found_likely_money_column = true
-        end
-      end
-      [results, found_likely_money_column]
-    end
-
-    def found_double_money_column( id1, id2 )
-      self.money_column_indices = [ id1, id2 ]
-      unless settings[:testing]
-        puts "It looks like this CSV has two seperate columns for money, one of which shows positive"
-        puts "changes and one of which shows negative changes.  If this is true, great.  Otherwise,"
-        puts "please report this issue to us so we can take a look!\n"
-      end
+    def found_double_money_column(id1, id2)
+      self.money_column_indices = [id1, id2]
+      puts "It looks like this CSV has two seperate columns for money, one of which shows positive"
+      puts "changes and one of which shows negative changes.  If this is true, great.  Otherwise,"
+      puts "please report this issue to us so we can take a look!\n"
     end
 
     # Some csv files negative/positive amounts are indicated in separate account
@@ -165,41 +160,18 @@ module Reckon
     end
 
     def detect_columns
-      results, found_likely_money_column = evaluate_columns(columns)
+      results = evaluate_columns(columns)
+
       if options[:money_column]
-        found_likely_money_column = true
         self.money_column_indices = [ options[:money_column] - 1 ]
       else
-        self.money_column_indices = [ results.max_by { |n| n[:money_score] }[:index] ]
-      end
-
-      if !found_likely_money_column
-        found_likely_double_money_columns = false
-        0.upto(columns.length - 2) do |i|
-          if MoneyColumn.new( columns[i] ).merge!( MoneyColumn.new( columns[i+1] ) )
-            _, found_likely_double_money_columns = evaluate_columns(merge_columns(i, i+1))
-            if found_likely_double_money_columns
-              found_double_money_column( i, i + 1 )
-              break
-            end
-          end
-        end
-
-        if !found_likely_double_money_columns
-          0.upto(columns.length - 2) do |i|
-            if MoneyColumn.new( columns[i] ).merge!( MoneyColumn.new( columns[i+1] ) )
-              # Try a more specific test
-              _, found_likely_double_money_columns = evaluate_two_money_columns( columns, i, i+1, results )
-              if found_likely_double_money_columns
-                found_double_money_column( i, i + 1 )
-                break
-              end
-            end
-          end
-        end
-
-        if !found_likely_double_money_columns && !settings[:testing]
-          puts "I didn't find a high-likelyhood money column, but I'm taking my best guess with column #{money_column_indices.first + 1}."
+        self.money_column_indices = results.select { |n| n[:is_money_column] }.map { |n| n[:index] }
+        if self.money_column_indices.length == 1
+          puts "Using column #{money_column_indices.first + 1} as the money column.  Use --money-colum to specify a different one."
+        elsif self.money_column_indices.length == 2
+          found_double_money_column(*self.money_column_indices)
+        else
+          puts "Unable to determine a money column, use --money-column to specify the column reckon should use."
         end
       end
 
@@ -221,23 +193,6 @@ module Reckon
       end
 
       self.description_column_indices = results.map { |i| i[:index] }
-    end
-
-    def columns
-      @columns ||= begin
-        last_row_length = nil
-        csv_data.inject([]) do |memo, row|
-          # fail "Input CSV must have consistent row lengths." if last_row_length && row.length != last_row_length
-          unless row.all? { |i| i.nil? || i.length == 0 }
-            row.each_with_index do |entry, index|
-              memo[index] ||= []
-              memo[index] << (entry || '').strip
-            end
-            last_row_length = row.length
-          end
-          memo
-        end
-      end
     end
 
     def parse(data, filename=nil)
@@ -280,16 +235,6 @@ module Reckon
         m = `file -I #{filename}`.match(/charset=(\S+)/)
       end
       m && m[1]
-    end
-
-    @settings = { :testing => false }
-
-    def self.settings
-      @settings
-    end
-
-    def settings
-      self.class.settings
     end
   end
 end
