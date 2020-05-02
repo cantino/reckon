@@ -10,10 +10,8 @@ require 'terminal-table'
 require 'time'
 require 'logger'
 
-LOGGER = Logger.new(STDERR)
-LOGGER.level = Logger::WARN
-
 require_relative 'reckon/version'
+require_relative 'reckon/logger'
 require_relative 'reckon/cosine_similarity'
 require_relative 'reckon/date_column'
 require_relative 'reckon/money'
