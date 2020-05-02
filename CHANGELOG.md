@@ -1,12 +1,20 @@
 # Changelog
 
+## [v0.5.3](https://github.com/cantino/reckon/tree/v0.5.3) (2020-05-01)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.2...v0.5.3)
+
+**Closed issues:**
+
+- Is reckon failing to handle comments when learning? [\#87](https://github.com/cantino/reckon/issues/87)
+- \[FEATURE REQUEST\] Ask for currency of Account and output in output file in standard format of xxxx TLA for currency [\#84](https://github.com/cantino/reckon/issues/84)
+
 ## [v0.5.2](https://github.com/cantino/reckon/tree/v0.5.2) (2020-03-07)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.5.1...v0.5.2)
 
 **Closed issues:**
 
-- \[BUG\] Reckon appears not to be parsing ISO standard date yyyy-mm-dd? [\#85](https://github.com/cantino/reckon/issues/85)
 - \[Bug\]? Reckon fails to run on ruby 2.7.0 on Catalina  [\#83](https://github.com/cantino/reckon/issues/83)
 - --account-tokens issue [\#51](https://github.com/cantino/reckon/issues/51)
 
@@ -204,15 +212,15 @@
 
 ## [v0.3.3](https://github.com/cantino/reckon/tree/v0.3.3) (2013-01-13)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.1...v0.3.3)
-
-## [v0.3.1](https://github.com/cantino/reckon/tree/v0.3.1) (2012-07-30)
-
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.2...v0.3.1)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.2...v0.3.3)
 
 ## [v0.3.2](https://github.com/cantino/reckon/tree/v0.3.2) (2012-07-30)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/5c07bea3fe63f9b909b4b76bd49f22fd8faf7a29...v0.3.2)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.1...v0.3.2)
+
+## [v0.3.1](https://github.com/cantino/reckon/tree/v0.3.1) (2012-07-30)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/5c07bea3fe63f9b909b4b76bd49f22fd8faf7a29...v0.3.1)
 
 
 
