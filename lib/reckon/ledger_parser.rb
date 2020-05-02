@@ -121,8 +121,13 @@ module Reckon
     def parse(ledger)
       @entries = []
       new_entry = {}
+      in_comment = false
       ledger.strip.split("\n").each do |entry|
-        next if entry =~ /^\s*$/ || entry =~ /^\s*;/
+        # strip comment lines
+        in_comment = true if entry == 'comment'
+        in_comment = false if entry == 'end comment'
+        next if in_comment
+        next if entry =~ /^\s*$/ || entry =~ /^[;#%|*]/
 
         # (date, type, code, description), type and code are optional
         if (m = entry.match(%r{^(\d+[\d/-]+)\s+([*!])?\s*(\([^)]+\))?\s*(.*)$}))
@@ -135,6 +140,7 @@ module Reckon
             accounts: []
           }
         elsif new_entry[:date] && entry =~ /^\s+/
+          LOGGER.info("Adding new account #{entry}")
           new_entry[:accounts] << parse_account_line(entry)
         else
           LOGGER.info("Unknown entry type: #{entry}")

@@ -28,6 +28,7 @@ describe Reckon::LedgerParser do
             sized(15){string}.tr(%q{'`:*\\},'').gsub(/\s+/, ' ').gsub(/^[!;<\[( ]+/, '')
           end
           currency = choose(*currencies) # to be consistent within the transaction
+          single_line_comments = ";#|%*".split('').map { |n| "#{n} #{call(description)}" }
           comments = ['', ';   ', "\t;#{call(description)}", "  ; #{call(description)}"]
           date = Time.at(range(0, 1_581_389_644)).strftime(choose(*formats))
           codes = [' ', " (#{string(:alnum).tr('()', '')}) "]
@@ -48,6 +49,7 @@ describe Reckon::LedgerParser do
             ledger += "#{call(account_line)}\n"
           end
           ledger += "#{call(account)}\n"
+          ledger += choose(*single_line_comments) + "\n"
           ledger
         end
       end.check(1000) do |s|
@@ -57,12 +59,32 @@ describe Reckon::LedgerParser do
         ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y-%m-%d' -f - `
         ledger_parser_csv = Reckon::LedgerParser.new(s, date_format: '%Y/%m/%d').to_csv.join("\n")
 
-        expected = CSV.parse(ledger_csv.gsub('\"', '""'), headers: headers).map &filter_format
-        actual = CSV.parse(ledger_parser_csv, headers: headers).map &filter_format
+        expected = CSV.parse(ledger_csv.gsub('\"', '""'), headers: headers).map(&filter_format)
+        actual = CSV.parse(ledger_parser_csv, headers: headers).map(&filter_format)
         expected.length.times do |i|
           expect(actual[i]).to eq(expected[i])
         end
       end
+    end
+
+    it 'should filter block comments' do
+      ledger = <<HERE
+1970/11/01 Dinner should show up
+  Assets:Checking  -123.00
+  Expenses:Restaurants
+
+comment
+
+1970/11/01 Lunch should NOT show up
+  Assets:Checking  -12.00
+  Expenses:Restaurants
+
+end comment
+HERE
+      l = Reckon::LedgerParser.new(ledger)
+      expect(l.entries.length).to eq(1)
+      expect(l.entries.first[:desc]).to eq('Dinner should show up')
+
     end
 
     it "should ignore non-standard entries" do
