@@ -53,7 +53,12 @@ module Reckon
     end
 
     def description_for(index)
-      description_column_indices.map { |i| columns[i][index] }.reject(&:empty?).join("; ").squeeze(" ").gsub(/(;\s+){2,}/, '').strip
+      description_column_indices.map { |i| columns[i][index].to_s.strip }
+        .reject(&:empty?)
+        .join("; ")
+        .squeeze(" ")
+        .gsub(/(;\s+){2,}/, '')
+        .strip
     end
 
     def row(index)

@@ -232,6 +232,11 @@ describe Reckon::CSVParser do
       parser = Reckon::CSVParser.new(:string => '01/09/2015,05354 SUBWAY,8.19,,',:date_format => '%d/%m/%Y')
       parser.description_for(0).should == '05354 SUBWAY'
     end
+
+    it "should handle nil description" do
+      parser = Reckon::CSVParser.new(string: '2015-09-01,test,3.99')
+      expect(parser.description_for(1)).to eq("")
+    end
   end
 
   describe "pretty_money_for" do
