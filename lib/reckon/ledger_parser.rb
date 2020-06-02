@@ -122,12 +122,13 @@ module Reckon
       @entries = []
       new_entry = {}
       in_comment = false
+      comment_chars = ';#%*|'
       ledger.strip.split("\n").each do |entry|
         # strip comment lines
         in_comment = true if entry == 'comment'
         in_comment = false if entry == 'end comment'
         next if in_comment
-        next if entry =~ /^\s*$/ || entry =~ /^[;#%|*]/
+        next if entry =~ /^\s*[#{comment_chars}]/
 
         # (date, type, code, description), type and code are optional
         if (m = entry.match(%r{^(\d+[\d/-]+)\s+([*!])?\s*(\([^)]+\))?\s*(.*)$}))
@@ -139,6 +140,9 @@ module Reckon
             desc: m[4].strip,
             accounts: []
           }
+        elsif entry =~ /^\s*$/ && new_entry[:date]
+          add_entry(new_entry)
+          new_entry = {}
         elsif new_entry[:date] && entry =~ /^\s+/
           LOGGER.info("Adding new account #{entry}")
           new_entry[:accounts] << parse_account_line(entry)

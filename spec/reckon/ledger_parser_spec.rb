@@ -20,12 +20,13 @@ describe Reckon::LedgerParser do
       formats = ["%Y/%m/%d", "%Y-%m-%d"]
       types = [' ! ', ' * ', ' ']
       delimiters = ["  ", "\t", "\t\t"]
+      comment_chars = ';#%*|'
       currency_delimiters = delimiters + ['']
       currencies = ['', '$', '£']
       property_of do
         Rantly do
           description = Proc.new do
-            sized(15){string}.tr(%q{'`:*\\},'').gsub(/\s+/, ' ').gsub(/^[!;<\[( ]+/, '')
+            sized(15){string}.tr(%q{'`:*\\},'').gsub(/\s+/, ' ').gsub(/^[!;<\[( #{comment_chars}]+/, '')
           end
           currency = choose(*currencies) # to be consistent within the transaction
           single_line_comments = ";#|%*".split('').map { |n| "#{n} #{call(description)}" }
@@ -56,11 +57,12 @@ describe Reckon::LedgerParser do
         filter_format = lambda { |n| [n['date'], n['desc'], n['name'], sprintf("%.02f", n['amount'])] }
         headers = %w[date code desc name currency amount type commend]
         safe_s = Shellwords.escape(s)
-        ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y-%m-%d' -f - `
-        ledger_parser_csv = Reckon::LedgerParser.new(s, date_format: '%Y/%m/%d').to_csv.join("\n")
 
+        lp_csv = Reckon::LedgerParser.new(s, date_format: '%Y-%m-%d').to_csv.join("\n")
+        actual = CSV.parse(lp_csv, headers: headers).map(&filter_format)
+
+        ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y-%m-%d' -f - `
         expected = CSV.parse(ledger_csv.gsub('\"', '""'), headers: headers).map(&filter_format)
-        actual = CSV.parse(ledger_parser_csv, headers: headers).map(&filter_format)
         expected.length.times do |i|
           expect(actual[i]).to eq(expected[i])
         end
@@ -85,6 +87,19 @@ HERE
       expect(l.entries.length).to eq(1)
       expect(l.entries.first[:desc]).to eq('Dinner should show up')
 
+    end
+
+    it 'should transaction comments' do
+      ledger = <<HERE
+2020-03-27      AMZN Mktp USX999H3203; Shopping; Sale
+    Expenses:Household                                      $82.77
+    Liabilities:ChaseSapphire                                       -$81.77
+    # END FINANCE SCRIPT OUTPUT Thu 02 Apr 2020 12:05:54 PM EDT
+HERE
+      l = Reckon::LedgerParser.new(ledger)
+      expect(l.entries.first[:accounts].map { |n| n[:name] }).to eq(['Expenses:Household', 'Liabilities:ChaseSapphire'])
+      expect(l.entries.first[:accounts].size).to eq(2)
+      expect(l.entries.length).to eq(1)
     end
 
     it "should ignore non-standard entries" do
