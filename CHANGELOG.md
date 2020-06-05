@@ -1,12 +1,20 @@
 # Changelog
 
-## [v0.5.3](https://github.com/cantino/reckon/tree/v0.5.3) (2020-05-01)
+## [0.5.4](https://github.com/cantino/reckon/tree/0.5.4) (2020-06-04)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.3...0.5.4)
+
+**Fixed bugs:**
+
+- order of transactions [\#88](https://github.com/cantino/reckon/issues/88)
+- Is reckon failing to handle comments when learning? [\#87](https://github.com/cantino/reckon/issues/87)
+
+## [v0.5.3](https://github.com/cantino/reckon/tree/v0.5.3) (2020-05-02)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.5.2...v0.5.3)
 
 **Closed issues:**
 
-- Is reckon failing to handle comments when learning? [\#87](https://github.com/cantino/reckon/issues/87)
 - \[FEATURE REQUEST\] Ask for currency of Account and output in output file in standard format of xxxx TLA for currency [\#84](https://github.com/cantino/reckon/issues/84)
 
 ## [v0.5.2](https://github.com/cantino/reckon/tree/v0.5.2) (2020-03-07)
@@ -28,7 +36,7 @@
 
 **Merged pull requests:**
 
-- guard against rows that don't parse dates [\#82](https://github.com/cantino/reckon/pull/82) ([benprew](https://github.com/benprew))
+- Fix bugs in ledger file parsing.  Fixes \#56. [\#81](https://github.com/cantino/reckon/pull/81) ([benprew](https://github.com/benprew))
 
 ## [v0.5.0](https://github.com/cantino/reckon/tree/v0.5.0) (2020-02-19)
 
@@ -55,7 +63,7 @@
 
 **Merged pull requests:**
 
-- Fix bugs in ledger file parsing.  Fixes \#56. [\#81](https://github.com/cantino/reckon/pull/81) ([benprew](https://github.com/benprew))
+- guard against rows that don't parse dates [\#82](https://github.com/cantino/reckon/pull/82) ([benprew](https://github.com/benprew))
 - Better file encoding suggestions [\#80](https://github.com/cantino/reckon/pull/80) ([benprew](https://github.com/benprew))
 - :bug: fix matching algorithm, add logging and a spec helper.  Fixes \#73 [\#79](https://github.com/cantino/reckon/pull/79) ([benprew](https://github.com/benprew))
 - bug: invalid header lines should be ignored, not parsed. [\#78](https://github.com/cantino/reckon/pull/78) ([benprew](https://github.com/benprew))
@@ -212,15 +220,15 @@
 
 ## [v0.3.3](https://github.com/cantino/reckon/tree/v0.3.3) (2013-01-13)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.2...v0.3.3)
-
-## [v0.3.2](https://github.com/cantino/reckon/tree/v0.3.2) (2012-07-30)
-
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.1...v0.3.2)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.1...v0.3.3)
 
 ## [v0.3.1](https://github.com/cantino/reckon/tree/v0.3.1) (2012-07-30)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/5c07bea3fe63f9b909b4b76bd49f22fd8faf7a29...v0.3.1)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.3.2...v0.3.1)
+
+## [v0.3.2](https://github.com/cantino/reckon/tree/v0.3.2) (2012-07-30)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/5c07bea3fe63f9b909b4b76bd49f22fd8faf7a29...v0.3.2)
 
 
 
