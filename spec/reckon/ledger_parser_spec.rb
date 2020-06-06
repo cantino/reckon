@@ -58,10 +58,10 @@ describe Reckon::LedgerParser do
         headers = %w[date code desc name currency amount type commend]
         safe_s = Shellwords.escape(s)
 
-        lp_csv = Reckon::LedgerParser.new(s, date_format: '%Y-%m-%d').to_csv.join("\n")
+        lp_csv = Reckon::LedgerParser.new(s, date_format: '%Y/%m/%d').to_csv.join("\n")
         actual = CSV.parse(lp_csv, headers: headers).map(&filter_format)
 
-        ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y-%m-%d' -f - `
+        ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y/%m/%d' -f - `
         expected = CSV.parse(ledger_csv.gsub('\"', '""'), headers: headers).map(&filter_format)
         expected.length.times do |i|
           expect(actual[i]).to eq(expected[i])
