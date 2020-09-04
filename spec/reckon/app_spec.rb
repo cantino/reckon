@@ -8,7 +8,7 @@ describe Reckon::App do
   context 'with chase csv input' do
     before do
       @chase = Reckon::App.new(string: BANK_CSV)
-      @chase.learn_from(BANK_LEDGER)
+      @chase.learn_from_ledger(BANK_LEDGER)
       @rows = []
       @chase.each_row_backwards { |row| @rows.push(row) }
     end
@@ -68,7 +68,7 @@ describe Reckon::App do
       end
 
       it 'should learn from a ledger file' do
-        chase.learn_from( BANK_LEDGER )
+        chase.learn_from_ledger(BANK_LEDGER)
         chase.walk_backwards
         output_file.string.scan('Expenses:Books').count.should == 1
       end
