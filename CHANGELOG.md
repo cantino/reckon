@@ -1,8 +1,24 @@
 # Changelog
 
-## [0.5.4](https://github.com/cantino/reckon/tree/0.5.4) (2020-06-04)
+## [0.6.0](https://github.com/cantino/reckon/tree/0.6.0) (2020-09-03)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.3...0.5.4)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.4...0.6.0)
+
+**Fixed bugs:**
+
+- \[BUG\] Reckon appears not to be parsing ISO standard date yyyy-mm-dd? [\#85](https://github.com/cantino/reckon/issues/85)
+
+**Closed issues:**
+
+- duplicate detection [\#16](https://github.com/cantino/reckon/issues/16)
+
+**Merged pull requests:**
+
+- Add ability to add note to transaction when entering it [\#89](https://github.com/cantino/reckon/pull/89) ([benprew](https://github.com/benprew))
+
+## [v0.5.4](https://github.com/cantino/reckon/tree/v0.5.4) (2020-06-05)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.3...v0.5.4)
 
 **Fixed bugs:**
 
@@ -36,7 +52,7 @@
 
 **Merged pull requests:**
 
-- Fix bugs in ledger file parsing.  Fixes \#56. [\#81](https://github.com/cantino/reckon/pull/81) ([benprew](https://github.com/benprew))
+- guard against rows that don't parse dates [\#82](https://github.com/cantino/reckon/pull/82) ([benprew](https://github.com/benprew))
 
 ## [v0.5.0](https://github.com/cantino/reckon/tree/v0.5.0) (2020-02-19)
 
@@ -63,7 +79,7 @@
 
 **Merged pull requests:**
 
-- guard against rows that don't parse dates [\#82](https://github.com/cantino/reckon/pull/82) ([benprew](https://github.com/benprew))
+- Fix bugs in ledger file parsing.  Fixes \#56. [\#81](https://github.com/cantino/reckon/pull/81) ([benprew](https://github.com/benprew))
 - Better file encoding suggestions [\#80](https://github.com/cantino/reckon/pull/80) ([benprew](https://github.com/benprew))
 - :bug: fix matching algorithm, add logging and a spec helper.  Fixes \#73 [\#79](https://github.com/cantino/reckon/pull/79) ([benprew](https://github.com/benprew))
 - bug: invalid header lines should be ignored, not parsed. [\#78](https://github.com/cantino/reckon/pull/78) ([benprew](https://github.com/benprew))
@@ -182,7 +198,6 @@
 
 **Merged pull requests:**
 
-- Updated the sources to allow for custom curreny [\#11](https://github.com/cantino/reckon/pull/11) ([ghost](https://github.com/ghost))
 - Add --account option on the commandline [\#10](https://github.com/cantino/reckon/pull/10) ([copiousfreetime](https://github.com/copiousfreetime))
 
 ## [v0.3.6](https://github.com/cantino/reckon/tree/v0.3.6) (2013-04-30)
@@ -216,6 +231,7 @@
 
 **Merged pull requests:**
 
+- Updated the sources to allow for custom curreny [\#11](https://github.com/cantino/reckon/pull/11) ([ghost](https://github.com/ghost))
 - adds support for Nordea csv files [\#1](https://github.com/cantino/reckon/pull/1) ([x2q](https://github.com/x2q))
 
 ## [v0.3.3](https://github.com/cantino/reckon/tree/v0.3.3) (2013-01-13)
