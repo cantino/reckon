@@ -1,5 +1,7 @@
 language: ruby
 rvm:
+  # Current stable version
+  - 3.0
   # Mac High Sierra
   - 2.0.0-p648
   # Mac Mojave
