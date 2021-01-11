@@ -89,12 +89,7 @@ module Reckon
           money_score += Money::likelihood( entry )
           possible_neg_money_count += 1 if entry =~ /^\$?[\-\(]\$?\d+/
           possible_pos_money_count += 1 if entry =~ /^\+?\$?\+?\d+/
-          date_score += 10 if entry =~ /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i
-          date_score += 5 if entry =~ /^[\-\/\.\d:\[\]]+$/
-          date_score += entry.gsub(/[^\-\/\.\d:\[\]]/, '').length if entry.gsub(/[^\-\/\.\d:\[\]]/, '').length > 3
-          date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length
-          date_score += 30 if entry =~ /^\d+[:\/\.-]\d+[:\/\.-]\d+([ :]\d+[:\/\.]\d+)?$/
-          date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
+          date_score += DateColumn.likelihood(entry)
 
           # Try to determine if this is a balance column
           entry_as_num = entry.gsub(/[^\-\d\.]/, '').to_f
@@ -168,7 +163,7 @@ module Reckon
       results = evaluate_columns(columns)
 
       if options[:money_column]
-        self.money_column_indices = [ options[:money_column] - 1 ]
+        self.money_column_indices = [options[:money_column] - 1]
       else
         self.money_column_indices = results.select { |n| n[:is_money_column] }.map { |n| n[:index] }
         if self.money_column_indices.length == 1
