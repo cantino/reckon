@@ -1,0 +1,8 @@
+2012-03-22	DEPOSIT
+	Assets:Bank:Checking			 $50.00
+	Income:Unknown			
+
+2012-03-23	TRANSFER TO SAVINGS
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$10.00
+

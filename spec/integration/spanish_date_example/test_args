@@ -1,0 +1,1 @@
+-f input.csv --unattended --account Assets:Bank:Checking --date-format '%d/%m/%Y'

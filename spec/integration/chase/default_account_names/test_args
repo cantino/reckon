@@ -1,0 +1,3 @@
+-f ../input.csv --unattended --account Assets:Bank:Checking \
+   --default-into-account Expenses:Default \
+   --default-outof-account Income:Default

@@ -1,0 +1,6 @@
+-f input.csv --unattended --account 'Liabilities:Credit Cards:Visa' \
+   --contains-header 1 \
+   --ignore-columns 4 \
+   --date-format %m/%d/%Y \
+   --account-tokens tokens.yml
+

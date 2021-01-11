@@ -1,0 +1,16 @@
+Income:
+  Salary:
+    - 'LÖN'
+    - 'Salary'
+Expenses:
+  Bank:
+    - 'Comission'
+    - /mastercard/i
+  Rent:
+    - '0011223344' # Landlord bank number
+  Websites:
+    - /web/i
+  Books:
+    - 'Book'
+'[Internal:Transfer]': # Virtual account
+  - '4433221100' # Your own account number

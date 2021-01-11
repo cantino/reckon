@@ -10,4 +10,4 @@ rvm:
   - 2.6
 script: "bundle exec rake"
 before_install:
-  - sudo apt-get -y install ledger
+  - sudo apt-get -y install ledger hledger

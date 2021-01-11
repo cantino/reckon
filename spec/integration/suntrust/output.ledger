@@ -1,0 +1,28 @@
+2014-11-01	0; Deposit; 500.00
+	Assets:Bank:Checking			 $500.00
+	Income:Unknown			
+
+2014-11-02	101; Check; 400.00
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$100.00
+
+2014-11-03	102; Check; 300.00
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$100.00
+
+2014-11-04	103; Check; 200.00
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$100.00
+
+2014-11-05	104; Check; 100.00
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$100.00
+
+2014-11-06	105; Check; 0.00
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$100.00
+
+2014-11-17	0; Deposit; 700.00
+	Assets:Bank:Checking			 $700.00
+	Income:Unknown			
+

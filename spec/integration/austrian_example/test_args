@@ -1,0 +1,2 @@
+-f input.csv --unattended --account Assets:Bank:Checking \
+  --comma_separates_cents --csv_separator ';'

@@ -104,15 +104,45 @@ Expenses:
 If reckon can not guess the accounts it will use `Income:Unknown` or `Expenses:Unknown` names.
 You can override them with `--default_outof_account` and `--default_into_account` options.
 
-## Note on Patches/Pull Requests
+## Contributing
 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+We encourage you to contribute to Reckon! Here is some information to help you.
+
+### Patches/Pull Requests Process
+
+1. Fork the project.
+2. Make your feature addition or bug fix.
+3. Add tests for it. This is important so I don't break it in a
+4. future version unintentionally.
+5. Commit, do not mess with rakefile, version, or history.
+   - (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
+6. Send me a pull request. Bonus points for topic branches.
+
+## Integration Tests
+
+Reckon has integration test located in `spec/integration`.  These are integration and regression tests for reckon.
+
+Run all the tests:
+
+    ./spec/integration/test.sh
+
+Run a single test
+
+    ./spec/integration/test.sh chase/account_tokens_and_regex
+
+### Add a new integration test
+
+Each test has it's own directory, which you can add any files you want, but the following files are required:
+
+- `test_args` - arguments to add to the reckon command to test against, can specify `--unattended`, `-f input.csv`, etc
+- `output.ledger` - the expected ledger file output
+
+If the result of running reckon with `test_args` does not match `output.ledger`, then the test fails.
+
+Most tests will specify `--unattended`, otherwise reckon prompts for keyboard input.
+
+The convention is to use `input.csv` as the input file, and `tokens.yml` as the tokens file, but it is not required.
+
 
 ## Copyright
 
