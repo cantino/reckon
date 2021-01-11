@@ -7,8 +7,8 @@ require 'English'
 RSpec::Core::RakeTask.new(:spec)
 
 task :default do
-  Rake::Task['app_tests'].invoke
   Rake::Task["spec"].invoke
+  Rake::Task["app_tests"].invoke
 end
 
 task :app_tests do
