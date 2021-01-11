@@ -146,6 +146,8 @@ The convention is to use `input.csv` as the input file, and `tokens.yml` as the 
 
 ## Copyright
 
-Copyright (c) 2013 Andrew Cantino. See LICENSE for details.
+Copyright (c) 2013 Andrew Cantino (@cantino). See LICENSE for details.
 
 Thanks to @BlackEdder for many contributions!
+
+Currently maintained by @benprew. Thank you!
