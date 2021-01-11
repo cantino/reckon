@@ -13,4 +13,4 @@ rvm:
 script: "bundle exec rake"
 before_install:
   - sudo apt-get -y install ledger hledger
-  - gem install -v 1.17.3 bundler --no-rdoc --no-ri
+  - gem install -v 1.17.3 bundler
