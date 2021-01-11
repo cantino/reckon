@@ -30,10 +30,6 @@
 	Income:Unknown			
 	Assets:Bank:Checking			-$54.72
 
-2014-01-16	2014-01-16; Reinvestment; ISHARES GLOBAL AGRICULTURE IND; COW; 3; CAD
-	Income:Unknown			
-	Assets:Bank:Checking			-$81.57
-
 2014-01-16	2014-01-16; Contribution; CONTRIBUTION; CAD
 	Assets:Bank:Checking			 $600.00
 	Income:Unknown			
@@ -41,6 +37,10 @@
 2014-01-16	2014-01-16; Interest; ISHARES GLOBAL AGRICULTURE IND; COW; 200; CAD
 	Assets:Bank:Checking			 $87.05
 	Income:Unknown			
+
+2014-01-16	2014-01-16; Reinvestment; ISHARES GLOBAL AGRICULTURE IND; COW; 3; CAD
+	Income:Unknown			
+	Assets:Bank:Checking			-$81.57
 
 2014-02-10	2014-02-10; Interest; ISHARES S&P/TSX CAPPED REIT IN; XRE; 179; CAD
 	Assets:Bank:Checking			 $12.55

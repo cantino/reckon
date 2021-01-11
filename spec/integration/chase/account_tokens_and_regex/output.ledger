@@ -22,15 +22,15 @@
 	Assets:Bank:Checking			 $1558.52
 	Income:Unknown			
 
-2009-12-24	DEBIT; HOST 037196321563 MO 12/22SLICEHOST
+2009-12-24	DEBIT; GITHUB 041287430274 CA 12/22GITHUB 04
 	Expenses:Unknown			
-	Assets:Bank:Checking			-$85.00
+	Assets:Bank:Checking			-$7.00
 
 2009-12-24	CHECK; Book Store
 	Expenses:Books			
 	Assets:Bank:Checking			-$20.00
 
-2009-12-24	DEBIT; GITHUB 041287430274 CA 12/22GITHUB 04
+2009-12-24	DEBIT; HOST 037196321563 MO 12/22SLICEHOST
 	Expenses:Unknown			
-	Assets:Bank:Checking			-$7.00
+	Assets:Bank:Checking			-$85.00
 
