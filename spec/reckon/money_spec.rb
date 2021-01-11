@@ -6,45 +6,26 @@ require 'rubygems'
 require 'reckon'
 
 describe Reckon::Money do
-  describe "from_s" do
+  describe "parse" do
     it "should handle currency indicators" do
-      expect(Reckon::Money::from_s( "$2.00" )).to eq(2.00)
-      expect(Reckon::Money::from_s("-$1025.67")).to eq(-1025.67)
-      expect(Reckon::Money::from_s("$-1025.67")).to eq(-1025.67)
+      expect(Reckon::Money.new( "$2.00" )).to eq(2.00)
+      expect(Reckon::Money.new("-$1025.67")).to eq(-1025.67)
+      expect(Reckon::Money.new("$-1025.67")).to eq(-1025.67)
     end
 
     it "should handle the comma_separates_cents option correctly" do
-      expect(Reckon::Money::from_s("$2,00", :comma_separates_cents => true)).to eq(2.00)
-      expect(Reckon::Money::from_s("-$1025,67", :comma_separates_cents => true )).to eq(-1025.67)
-      expect(Reckon::Money::from_s("$-1025,67", :comma_separates_cents => true )).to eq(-1025.67)
+      expect(Reckon::Money.new("$2,00", comma_separates_cents: true)).to eq(2.00)
+      expect(Reckon::Money.new("-$1025,67", comma_separates_cents: true)).to eq(-1025.67)
+      expect(Reckon::Money.new("$-1025,67", comma_separates_cents: true)).to eq(-1025.67)
     end
 
     it "should return 0 for an empty string" do
-      expect(Reckon::Money::from_s("")).to eq(0)
+      expect(Reckon::Money.new("")).to eq(0)
     end
 
     it "should handle 1000 indicators correctly" do
-      expect(Reckon::Money::from_s("$2.000,00", :comma_separates_cents => true)).to eq(2000.00)
-      expect(Reckon::Money::from_s("-$1,025.67")).to eq(-1025.67)
-    end
-
-    it "should keep numbers together" do
-      expect(Reckon::Money::from_s("1A1")).to eq(1)
-    end
-
-    it "should prefer numbers with precision of two" do
-      expect(Reckon::Money::from_s("1A2.00")).to eq(2)
-      expect(Reckon::Money::from_s("2.00A1")).to eq(2)
-    end
-
-    it "should handle arbitrary prefixes and postfixes" do
-      expect(Reckon::Money::from_s("AB1.00C")).to eq(1)
-      expect(Reckon::Money::from_s("AB0C")).to eq(0)
-      expect(Reckon::Money::from_s("AB-2.00C")).to eq(-2)
-    end
-
-    it "should return nil if no numbers are found" do
-      expect(Reckon::Money::from_s("BAC")).to be_nil()
+      expect(Reckon::Money.new("$2.000,00", comma_separates_cents: true)).to eq(2000.00)
+      expect(Reckon::Money.new("-$1,025.67")).to eq(-1025.67)
     end
   end
 
@@ -60,14 +41,14 @@ describe Reckon::Money do
     end
 
     it "work with suffixed currencies such as SEK" do
-      expect(Reckon::Money.new( -20.00, :currency => "SEK", :suffixed => true ).pretty).to eq("-20.00 SEK")
-      expect(Reckon::Money.new( 1558.52, :currency => "SEK", :suffixed => true ).pretty).to eq(" 1558.52 SEK")
+      expect(Reckon::Money.new(-20.00, currency: "SEK", suffixed: true).pretty).to eq("-20.00 SEK")
+      expect(Reckon::Money.new(1558.52, currency: "SEK", suffixed: true).pretty).to eq(" 1558.52 SEK")
     end
   end
 
   describe "likelihood" do
     it "should return the likelihood that a string represents money" do
-      expect(Reckon::Money::likelihood( "$20.00" )).to eq(65)
+      expect(Reckon::Money::likelihood("$20.00")).to eq(65)
     end
 
     it "should return neutral for empty string" do

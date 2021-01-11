@@ -5,12 +5,13 @@ module Reckon
   class Money
     include Comparable
     attr_accessor :amount, :currency, :suffixed
-    def initialize( amount, options = {} )
-      if options[:inverse]
-        @amount = -1*amount.to_f
-      else
-        @amount = amount.to_f
-      end
+    def initialize(amount, options = {})
+      @options = options
+      @amount_raw = amount
+      @raw = options[:raw]
+
+      @amount = parse(amount, options)
+      @amount = -@amount if options[:inverse]
       @currency = options[:currency] || "$"
       @suffixed = options[:suffixed]
     end
@@ -19,11 +20,19 @@ module Reckon
       return @amount
     end
 
-    def -@
-      Money.new( -@amount, :currency => @currency, :suffixed => @suffixed )
+    def to_s
+      return @options[:raw] ? "#{@amount_raw} | #{@amount}" : @amount
     end
 
-    def <=>( mon )
+    # unary minus
+    # ex
+    # m = Money.new
+    # -m
+    def -@
+      Money.new(-@amount, :currency => @currency, :suffixed => @suffixed)
+    end
+
+    def <=>(mon)
       other_amount = mon.to_f
       if @amount < other_amount
         -1
@@ -34,7 +43,13 @@ module Reckon
       end
     end
 
-    def pretty( negate = false )
+    def pretty(negate = false)
+      if @raw
+        return @amount_raw unless negate
+
+        return @amount_raw[0] == '-' ? @amount_raw[1..-1] : "-#{@amount_raw}"
+      end
+
       if @suffixed
         (@amount >= 0 ? " " : "") + sprintf("%0.2f #{@currency}", @amount * (negate ? -1 : 1))
       else
@@ -42,34 +57,20 @@ module Reckon
       end
     end
 
-    def Money::from_s( value, options = {} )
+    def parse(value, options = {})
+      value = value.to_s
       # Empty string is treated as money with value 0
-      return Money.new( 0.00, options ) if value.empty?
+      return value.to_f if value.to_s.empty?
 
-      # Remove 1000 separaters and replace , with . if comma_separates_cents
-      # 1.000,00 -> 1000.00
-      value = value.gsub(/\./, '').gsub(/,/, '.') if options[:comma_separates_cents]
-      value = value.gsub(/,/, '')
-
-      money_format_regex = /^(.*?)(\d+\.\d\d)/ # Money has two decimal precision
-      any_number_regex = /^(.*?)([\d\.]+)/
-
-      # Prefer matching the money_format, match any number otherwise
-      m = value.match( money_format_regex ) ||
-        value.match( any_number_regex )
-      if m
-        amount = m[2].to_f
-        # Check whether the money had a - or (, which indicates negative amounts
-        if (m[1].match( /^[\(-]/ ) || m[1].match( /-$/  ))
-          amount *= -1
-        end
-        return Money.new( amount, options )
-      else
-        return nil
-      end
+      invert = value.match(/^\(.*\)$/)
+      value = value.gsub(/[^0-9,.-]/, '')
+      value = value.tr('.', '').tr(',', '.') if options[:comma_separates_cents]
+      value = value.tr(',', '')
+      value = value.to_f
+      return invert ? -value : value
     end
 
-    def Money::likelihood( entry )
+    def Money::likelihood(entry)
       money_score = 0
       # digits separated by , or . with no more than 2 trailing digits
       money_score += 40 if entry.match(/\d+[,.]\d{2}[^\d]*$/)
@@ -83,31 +84,30 @@ module Reckon
   end
 
   class MoneyColumn < Array
-    def initialize( arr = [], options = {} )
-      arr.each { |str| self.push( Money.from_s( str, options ) ) }
+    def initialize(arr = [], options = {})
+      arr.each { |str| push(Money.new(str, options)) }
     end
 
     def positive?
-      self.each do |money|
-        return false if money < 0 if money
+      each do |money|
+        return false if money && money < 0
       end
       true
     end
 
-    def merge!( other_column )
+    def merge!(other_column)
       invert = false
-      invert = true if self.positive? && other_column.positive?
-      self.each_with_index do |mon, i|
+      invert = true if positive? && other_column.positive?
+      each_with_index do |mon, i|
         other = other_column[i]
-        return nil if (!mon || !other)
-        if mon != 0.00 && other == 0.0
-          if invert
-            self[i]= -mon
-          end
-        elsif mon == 0.00 && other != 0.00
+        return nil if !mon || !other
+
+        if mon != 0.0 && other == 0.0
+          self[i] = -mon if invert
+        elsif mon == 0.0 && other != 0.0
           self[i] = other
         else
-          return nil
+          self[i] = Money.new(0)
         end
       end
       self

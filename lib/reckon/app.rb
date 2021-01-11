@@ -327,6 +327,10 @@ module Reckon
           options[:money_column] = column_number
         end
 
+        opts.on("", "--raw-money", "Don't format money column (for stocks)") do |n|
+          options[:raw] = n
+        end
+
         opts.on("", "--date-column 3", Integer, "Specify the date column instead of letting Reckon guess - the first column is column 1") do |column_number|
           options[:date_column] = column_number
         end

@@ -34,9 +34,8 @@ Learn more:
 
     Usage: Reckon.rb [options]
 
-
     -f, --file FILE                  The CSV file to parse
-    -a, --account name               The Ledger Account this file is for
+    -a, --account NAME               The Ledger Account this file is for
     -v, --[no-]verbose               Run verbosely
     -i, --inverse                    Use the negative of each amount
     -p, --print-table                Print out the parsed CSV in table form
@@ -44,6 +43,12 @@ Learn more:
     -l, --learn-from FILE            An existing ledger file to learn accounts from
         --ignore-columns 1,2,5
                                      Columns to ignore in the CSV file - the first column is column 1
+        --money-column 2
+                                     Specify the money column instead of letting Reckon guess - the first column is column 1
+        --raw-money
+                                     Don't format money column (for stocks)
+        --date-column 3
+                                     Specify the date column instead of letting Reckon guess - the first column is column 1
         --contains-header [N]
                                      The first row of the CSV is a header and should be skipped. Optionally add the number of rows to skip.
         --csv-separator ','
@@ -57,9 +62,9 @@ Learn more:
                                      Force the date format (see Ruby DateTime strftime)
     -u, --unattended                 Don't ask questions and guess all the accounts automatically. Used with --learn-from or --account-tokens options.
     -t, --account-tokens FILE        YAML file with manually-assigned tokens for each account (see README)
-        --default-into-account name
+        --default-into-account NAME
                                      Default into account
-        --default-outof-account name
+        --default-outof-account NAME
                                      Default 'out of' account
         --suffixed
                                      If --currency should be used as a suffix. Defaults to false.
