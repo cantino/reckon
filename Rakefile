@@ -13,7 +13,7 @@ end
 
 task :app_tests do
   puts "Running integration tests..."
-  puts `./spec/app_tests/test.sh`
+  puts `./spec/integration/test.sh`
 
   raise 'Integration tests failed' if $CHILD_STATUS.exitstatus != 0
 end
