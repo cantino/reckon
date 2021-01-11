@@ -1,15 +1,17 @@
 language: ruby
 rvm:
-  # Current stable version
+  # Current ruby stable version
   - 3.0
-  # Mac High Sierra
-  - 2.0.0-p648
-  # Mac Mojave
-  - 2.3.7
+  # Ubuntu 20.10
+  - 2.7
   # Ubuntu 19.10
   - 2.5
-  # Mac Catalina
+  # Mac v11 Big Sur
+  # - 2.6?
+  # Mac v10.15 Catalina
   - 2.6
+  # Mac v10.14 Mojave
+  - 2.3.7
 script: "bundle exec rake"
 before_install:
   - sudo apt-get -y install ledger hledger
