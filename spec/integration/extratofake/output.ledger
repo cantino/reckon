@@ -2,7 +2,15 @@
 	Assets:Bank:Checking			 $100.00
 	Income:Unknown			
 
+2012-11-01	Proventos; 496774
+	Assets:Bank:Checking			 $1000.00
+	Income:Unknown			
+
 2012-11-01	0000-9; Transferência on line - 01/11 4885 256620-6 XXXXXXXXXXXXX; 224885000256620
+	Assets:Bank:Checking			 $100.00
+	Income:Unknown			
+
+2012-11-01	Benefício; 496775
 	Assets:Bank:Checking			 $100.00
 	Income:Unknown			
 
@@ -10,16 +18,12 @@
 	Assets:Bank:Checking			 $100.00
 	Income:Unknown			
 
-2012-11-01	Proventos; 496774
-	Assets:Bank:Checking			 $1000.00
-	Income:Unknown			
-
-2012-11-01	Benefício; 496775
-	Assets:Bank:Checking			 $100.00
-	Income:Unknown			
-
 2012-11-01	0000-0; Compra com Cartão - 01/11 09:45 XXXXXXXXXXX; 135102
 	Income:Unknown			
+	Assets:Bank:Checking			-$1.00
+
+2012-11-01	Cobrança de I.O.F.; 391100701
+	Expenses:Unknown			
 	Assets:Bank:Checking			-$1.00
 
 2012-11-01	0000-0; Compra com Cartão - 01/11 09:48 XXXXXXXXXXX; 235338
@@ -42,11 +46,23 @@
 	Expenses:Unknown			
 	Assets:Bank:Checking			-$100.00
 
-2012-11-01	Cobrança de I.O.F.; 391100701
-	Expenses:Unknown			
+2012-11-05	0000-0; Compra com Cartão - 02/11 17:18 XXXXXXXXXXXXX; 262318
+	Income:Unknown			
+	Assets:Bank:Checking			-$1.00
+
+2012-11-05	0000-0; Compra com Cartão - 02/11 23:19 XXXXXXXXXXX; 683985
+	Income:Unknown			
+	Assets:Bank:Checking			-$1.00
+
+2012-11-05	0000-0; Compra com Cartão - 03/11 11:08 XXXXXXXX; 840112
+	Income:Unknown			
 	Assets:Bank:Checking			-$1.00
 
 2012-11-05	0000-0; Compra com Cartão - 02/11 16:57 XXXXXXXXXXXX; 161057
+	Income:Unknown			
+	Assets:Bank:Checking			-$10.00
+
+2012-11-05	0000-0; Compra com Cartão - 03/11 01:19 XXXXXXXXXXXXXXXX; 704772
 	Income:Unknown			
 	Assets:Bank:Checking			-$10.00
 
@@ -58,29 +74,13 @@
 	Income:Unknown			
 	Assets:Bank:Checking			-$10.00
 
-2012-11-05	0000-0; Compra com Cartão - 02/11 17:18 XXXXXXXXXXXXX; 262318
+2012-11-05	0000-0; Saque com cartão - 05/11 19:24 XXXXXXXXXXXXXXXXX; 51924256267021
 	Income:Unknown			
-	Assets:Bank:Checking			-$1.00
+	Assets:Bank:Checking			-$10.00
 
 2012-11-05	0000-0; Compra com Cartão - 02/11 22:46 XXXXXXXXXXX; 382002
 	Income:Unknown			
 	Assets:Bank:Checking			-$100.00
-
-2012-11-05	0000-0; Compra com Cartão - 02/11 23:19 XXXXXXXXXXX; 683985
-	Income:Unknown			
-	Assets:Bank:Checking			-$1.00
-
-2012-11-05	0000-0; Compra com Cartão - 03/11 01:19 XXXXXXXXXXXXXXXX; 704772
-	Income:Unknown			
-	Assets:Bank:Checking			-$10.00
-
-2012-11-05	0000-0; Compra com Cartão - 03/11 11:08 XXXXXXXX; 840112
-	Income:Unknown			
-	Assets:Bank:Checking			-$1.00
-
-2012-11-05	0000-0; Saque com cartão - 05/11 19:24 XXXXXXXXXXXXXXXXX; 51924256267021
-	Income:Unknown			
-	Assets:Bank:Checking			-$10.00
 
 2012-11-05	0000-0; Transferência on line - 05/11 4885 256620-6 XXXXXXXXXXXXX; 224885000256620
 	Income:Unknown			

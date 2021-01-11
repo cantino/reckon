@@ -7,8 +7,9 @@ require 'English'
 RSpec::Core::RakeTask.new(:spec)
 
 task :default do
-  Rake::Task['app_tests'].invoke
+  puts "Running tests against #{`ledger --version |head -n1`}"
   Rake::Task["spec"].invoke
+  Rake::Task["app_tests"].invoke
 end
 
 task :app_tests do

@@ -157,7 +157,7 @@ module Reckon
                   :money => @csv_parser.money_for(index),
                   :description => @csv_parser.description_for(index) }
       end
-      rows.sort_by { |n| n[:date] }.each { |row| yield row }
+      rows.sort_by { |n| [n[:date], -n[:money], n[:description]] }.each { |row| yield row }
     end
 
     def print_transaction(rows)
