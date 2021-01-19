@@ -8,9 +8,10 @@ module Reckon
     attr_accessor :options, :seen, :csv_parser, :regexps, :matcher
     @@cli = HighLine.new
 
-    def initialize(options = {})
+    def initialize(opts = {})
+      self.options = opts
       LOGGER.level = Logger::INFO if options[:verbose]
-      self.options = options
+
       self.regexps = {}
       self.seen = Set.new
       self.options[:currency] ||= '$'
