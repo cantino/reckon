@@ -6,15 +6,17 @@ require 'English'
 
 RSpec::Core::RakeTask.new(:spec)
 
-task :default do
-  puts "Running tests against #{`ledger --version |head -n1`}"
+task default: :spec
+
+task :test_all do
+  puts "#{`ledger --version |head -n1`}"
+  puts "Running unit tests"
   Rake::Task["spec"].invoke
-  Rake::Task["app_tests"].invoke
+  puts "Running integration tests"
+  Rake::Task["integration_tests"].invoke
 end
 
-task :app_tests do
-  puts "Running integration tests..."
+task :integration_tests do
   puts `./spec/integration/test.sh`
-
   raise 'Integration tests failed' if $CHILD_STATUS.exitstatus != 0
 end
