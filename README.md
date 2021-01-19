@@ -118,7 +118,7 @@ We encourage you to contribute to Reckon! Here is some information to help you.
    - (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
 6. Send me a pull request. Bonus points for topic branches.
 
-## Integration Tests
+### Integration Tests
 
 Reckon has integration test located in `spec/integration`.  These are integration and regression tests for reckon.
 
@@ -130,7 +130,7 @@ Run a single test
 
     ./spec/integration/test.sh chase/account_tokens_and_regex
 
-### Add a new integration test
+#### Add a new integration test
 
 Each test has it's own directory, which you can add any files you want, but the following files are required:
 
