@@ -403,7 +403,7 @@ module Reckon
       end
 
       unless options[:bank_account]
-        fail "Please specify --account for the unattended mode" if options[:unattended]
+        fail "Please specify --account in unattended mode" if options[:unattended]
 
         options[:bank_account] = @@cli.ask("What is the account name of this bank account in Ledger? ") do |q|
           q.readline = true
