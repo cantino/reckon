@@ -3,7 +3,12 @@
 require 'rubygems'
 require 'reckon'
 
-options = Reckon::App.parse_opts
+begin
+  options = Reckon::App.parse_opts
+rescue RuntimeError => e
+  puts("ERROR: #{e}")
+  exit(1)
+end
 reckon = Reckon::App.new(options)
 
 if options[:print_table]
