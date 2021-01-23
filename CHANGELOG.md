@@ -1,8 +1,28 @@
 # Changelog
 
-## [0.6.0](https://github.com/cantino/reckon/tree/0.6.0) (2020-09-03)
+## [0.6.1](https://github.com/cantino/reckon/tree/0.6.1) (2021-01-23)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.4...0.6.0)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.6.0...0.6.1)
+
+**Implemented enhancements:**
+
+- \[Feature Request\] Note flag --add-notes in CLI to allow additional notes for each ledger entry [\#86](https://github.com/cantino/reckon/issues/86)
+
+**Closed issues:**
+
+- spaces in tokens [\#97](https://github.com/cantino/reckon/issues/97)
+- Migrate CI system from travis-ci.org [\#93](https://github.com/cantino/reckon/issues/93)
+- \[Feature Request\] Pipe ledger file input to the bayesian predictor \(instead of csv\) [\#91](https://github.com/cantino/reckon/issues/91)
+
+**Merged pull requests:**
+
+- Add github actions [\#100](https://github.com/cantino/reckon/pull/100) ([benprew](https://github.com/benprew))
+- Add documentation for doing a substring match.  Fixes \#97 [\#99](https://github.com/cantino/reckon/pull/99) ([benprew](https://github.com/benprew))
+- Test fixes [\#94](https://github.com/cantino/reckon/pull/94) ([benprew](https://github.com/benprew))
+
+## [v0.6.0](https://github.com/cantino/reckon/tree/v0.6.0) (2020-09-04)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.5.4...v0.6.0)
 
 **Fixed bugs:**
 
@@ -198,6 +218,7 @@
 
 **Merged pull requests:**
 
+- Updated the sources to allow for custom curreny [\#11](https://github.com/cantino/reckon/pull/11) ([ghost](https://github.com/ghost))
 - Add --account option on the commandline [\#10](https://github.com/cantino/reckon/pull/10) ([copiousfreetime](https://github.com/copiousfreetime))
 
 ## [v0.3.6](https://github.com/cantino/reckon/tree/v0.3.6) (2013-04-30)
@@ -231,7 +252,6 @@
 
 **Merged pull requests:**
 
-- Updated the sources to allow for custom curreny [\#11](https://github.com/cantino/reckon/pull/11) ([ghost](https://github.com/ghost))
 - adds support for Nordea csv files [\#1](https://github.com/cantino/reckon/pull/1) ([x2q](https://github.com/x2q))
 
 ## [v0.3.3](https://github.com/cantino/reckon/tree/v0.3.3) (2013-01-13)
