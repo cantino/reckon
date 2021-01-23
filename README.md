@@ -82,6 +82,16 @@ To guess the accounts reckon can use an existing ledger file or a token file wit
 
 `reckon --unattended --account-tokens tokens.yaml -f bank.csv -o ledger.dat`
 
+### Account Tokens
+
+The account tokens file provides a way to teach reckon about what tokens are associated with an account.  As an example, this `tokens.yaml` file:
+
+    Expenses:
+      Bank:
+        - 'ING Direct Deposit'
+
+Would tokenize to 'ING', 'Direct' and 'Deposit'.  The matcher would then suggest matches to transactions that included those tokens. (ex 'Chase Direct Deposit')
+
 Here's an example of `tokens.yaml`:
 
 ```
@@ -101,8 +111,17 @@ Expenses:
   - '4433221100' # Your own account number
 ```
 
-If reckon can not guess the accounts it will use `Income:Unknown` or `Expenses:Unknown` names.
-You can override them with `--default_outof_account` and `--default_into_account` options.
+Reckon will use `Income:Unknown` or `Expenses:Unknown` if it can't match a transaction to an account.
+
+You can override these names with the `--default_outof_account` and `--default_into_account` options.
+
+### Substring Match
+
+If, in the above example, you'd prefer to match any transaction that contains the string 'ING Direct Deposit' you have to use a regex:
+
+    Expenses:
+      Bank:
+        - /ING Direct Deposit/
 
 ## Contributing
 
