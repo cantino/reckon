@@ -82,6 +82,10 @@ To guess the accounts reckon can use an existing ledger file or a token file wit
 
 `reckon --unattended --account-tokens tokens.yaml -f bank.csv -o ledger.dat`
 
+In unattended mode, you can use STDIN to read your csv data, by specifying `-` as the argument to `-f`.
+
+`csv_file_generator | reckon --unattended -l 2010.dat -o ledger.dat -f -`
+
 ### Account Tokens
 
 The account tokens file provides a way to teach reckon about what tokens are associated with an account.  As an example, this `tokens.yaml` file:

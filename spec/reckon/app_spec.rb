@@ -86,6 +86,22 @@ describe Reckon::App do
         expect(output_file.string.scan('Expenses:Websites').count).to eq(2)
       end
     end
+
+    describe 'csv from STDIN' do
+      it 'should assign to :string option' do
+        options = Reckon::App.parse_opts(
+          %w[-f - --unattended --account bank],
+          StringIO.new('foo,bar,baz')
+        )
+        expect(options[:string]).to eq('foo,bar,baz')
+      end
+
+      it 'should require --unattended flag' do
+        expect {Reckon::App.parse_opts(%w[-f - --account bank])}.to(
+          raise_error(RuntimeError, "--unattended is required to use STDIN as CSV source.")
+        )
+      end
+    end
   end
 
   context "Issue #73 - regression test" do

@@ -286,9 +286,9 @@ module Reckon
       print_transaction(rows)
     end
 
-    def self.parse_opts(args = ARGV)
+    def self.parse_opts(args=ARGV, stdin=STDIN)
       options = { :output_file => STDOUT }
-      parser = OptionParser.new do |opts|
+      OptionParser.new do |opts|
         opts.banner = "Usage: Reckon.rb [options]"
         opts.separator ""
 
@@ -392,6 +392,15 @@ module Reckon
         end
 
         opts.parse!(args)
+      end
+
+      if options[:file] == '-'
+        unless options[:unattended]
+          raise "--unattended is required to use STDIN as CSV source."
+        end
+
+        puts "Reading csv from STDIN"
+        options[:string] = stdin.read
       end
 
       unless options[:file]
