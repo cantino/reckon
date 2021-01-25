@@ -1,8 +1,21 @@
 # Changelog
 
-## [0.6.1](https://github.com/cantino/reckon/tree/0.6.1) (2021-01-23)
+## [0.6.2](https://github.com/cantino/reckon/tree/0.6.2) (2021-01-24)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.6.0...0.6.1)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.6.1...0.6.2)
+
+**Closed issues:**
+
+- spaces in tokens [\#97](https://github.com/cantino/reckon/issues/97)
+- read from stdin [\#95](https://github.com/cantino/reckon/issues/95)
+
+**Merged pull requests:**
+
+- Allow using '-' as filename in -f to read csv from STDIN.  Fixes \#95 [\#98](https://github.com/cantino/reckon/pull/98) ([benprew](https://github.com/benprew))
+
+## [v0.6.1](https://github.com/cantino/reckon/tree/v0.6.1) (2021-01-23)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.6.0...v0.6.1)
 
 **Implemented enhancements:**
 
@@ -10,7 +23,6 @@
 
 **Closed issues:**
 
-- spaces in tokens [\#97](https://github.com/cantino/reckon/issues/97)
 - Migrate CI system from travis-ci.org [\#93](https://github.com/cantino/reckon/issues/93)
 - \[Feature Request\] Pipe ledger file input to the bayesian predictor \(instead of csv\) [\#91](https://github.com/cantino/reckon/issues/91)
 
@@ -166,7 +178,6 @@
 
 **Merged pull requests:**
 
-- Fix --encoding option [\#41](https://github.com/cantino/reckon/pull/41) ([mamciek](https://github.com/mamciek))
 - Bumped version number [\#37](https://github.com/cantino/reckon/pull/37) ([BlackEdder](https://github.com/BlackEdder))
 
 ## [v0.3.9](https://github.com/cantino/reckon/tree/v0.3.9) (2014-02-20)
@@ -180,6 +191,7 @@
 
 **Merged pull requests:**
 
+- Fix --encoding option [\#41](https://github.com/cantino/reckon/pull/41) ([mamciek](https://github.com/mamciek))
 - Added spec for csv files from Broker Canada [\#36](https://github.com/cantino/reckon/pull/36) ([BlackEdder](https://github.com/BlackEdder))
 - Date format [\#35](https://github.com/cantino/reckon/pull/35) ([BlackEdder](https://github.com/BlackEdder))
 - Added example from a french bank [\#34](https://github.com/cantino/reckon/pull/34) ([BlackEdder](https://github.com/BlackEdder))
