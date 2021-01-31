@@ -399,7 +399,6 @@ module Reckon
           raise "--unattended is required to use STDIN as CSV source."
         end
 
-        puts "Reading csv from STDIN"
         options[:string] = stdin.read
       end
 
