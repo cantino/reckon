@@ -1,1 +1,1 @@
--f input.csv --unattended --account Assets:Bank:Checking --contains-header 4o
+-f input.csv --unattended --account Assets:Bank:Checking --contains-header 4
