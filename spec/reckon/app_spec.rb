@@ -87,20 +87,20 @@ describe Reckon::App do
       end
     end
 
-    describe 'csv from STDIN' do
-      it 'should assign to :string option' do
-        options = Reckon::App.parse_opts(
-          %w[-f - --unattended --account bank],
-          StringIO.new('foo,bar,baz')
-        )
-        expect(options[:string]).to eq('foo,bar,baz')
-      end
+    it 'should fail-on-unknown-account' do
+      chase = Reckon::App.new(
+        string: BANK_CSV,
+        unattended: true,
+        output_file: output_file,
+        bank_account: 'Assets:Bank:Checking',
+        default_into_account: 'Expenses:Unknown',
+        default_outof_account: 'Income:Unknown',
+        fail_on_unknown_account: true
+      )
 
-      it 'should require --unattended flag' do
-        expect {Reckon::App.parse_opts(%w[-f - --account bank])}.to(
-          raise_error(RuntimeError, "--unattended is required to use STDIN as CSV source.")
-        )
-      end
+      expect { chase.walk_backwards }.to(
+        raise_error(RuntimeError, /Couldn't find any matches/)
+      )
     end
   end
 

@@ -193,11 +193,13 @@ module Reckon
       LOGGER.info "possible_answers===> #{possible_answers.inspect}"
 
       if options[:unattended]
-        default = if row[:pretty_money][0] == '-'
-                    options[:default_into_account] || 'Expenses:Unknown'
-                  else
-                    options[:default_outof_account] || 'Income:Unknown'
-                  end
+        if options[:fail_on_unknown_account] && possible_answers.empty?
+          raise %(Couldn't find any matches for '#{row[:description]}'
+            Try adding an account token with --account-tokens)
+        end
+
+        default = options[:default_outof_account]
+        default = options[:default_into_account] if row[:pretty_money][0] == '-'
         return possible_answers[0] || default
       end
 
