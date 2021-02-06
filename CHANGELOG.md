@@ -1,8 +1,21 @@
 # Changelog
 
-## [0.6.2](https://github.com/cantino/reckon/tree/0.6.2) (2021-01-24)
+## [0.7.0](https://github.com/cantino/reckon/tree/0.7.0) (2021-02-06)
 
-[Full Changelog](https://github.com/cantino/reckon/compare/v0.6.1...0.6.2)
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.6.2...0.7.0)
+
+**Closed issues:**
+
+- fail on unknown accounts [\#96](https://github.com/cantino/reckon/issues/96)
+
+**Merged pull requests:**
+
+- Fail on unknown account [\#102](https://github.com/cantino/reckon/pull/102) ([benprew](https://github.com/benprew))
+- Joined split sentence to one [\#101](https://github.com/cantino/reckon/pull/101) ([RidaAyed](https://github.com/RidaAyed))
+
+## [v0.6.2](https://github.com/cantino/reckon/tree/v0.6.2) (2021-01-25)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.6.1...v0.6.2)
 
 **Closed issues:**
 
@@ -168,7 +181,6 @@
 **Merged pull requests:**
 
 - Better ISO 8601 dates support [\#49](https://github.com/cantino/reckon/pull/49) ([vzctl](https://github.com/vzctl))
-- Unattended mode and custom tokens support [\#47](https://github.com/cantino/reckon/pull/47) ([vzctl](https://github.com/vzctl))
 - \[RFC\] Implement issue \#40: Tab completion [\#46](https://github.com/cantino/reckon/pull/46) ([BlackEdder](https://github.com/BlackEdder))
 - set readline to allow for backspace in ask dialog [\#44](https://github.com/cantino/reckon/pull/44) ([mrtazz](https://github.com/mrtazz))
 
@@ -178,6 +190,7 @@
 
 **Merged pull requests:**
 
+- Fix --encoding option [\#41](https://github.com/cantino/reckon/pull/41) ([mamciek](https://github.com/mamciek))
 - Bumped version number [\#37](https://github.com/cantino/reckon/pull/37) ([BlackEdder](https://github.com/BlackEdder))
 
 ## [v0.3.9](https://github.com/cantino/reckon/tree/v0.3.9) (2014-02-20)
@@ -191,7 +204,7 @@
 
 **Merged pull requests:**
 
-- Fix --encoding option [\#41](https://github.com/cantino/reckon/pull/41) ([mamciek](https://github.com/mamciek))
+- Unattended mode and custom tokens support [\#47](https://github.com/cantino/reckon/pull/47) ([vzctl](https://github.com/vzctl))
 - Added spec for csv files from Broker Canada [\#36](https://github.com/cantino/reckon/pull/36) ([BlackEdder](https://github.com/BlackEdder))
 - Date format [\#35](https://github.com/cantino/reckon/pull/35) ([BlackEdder](https://github.com/BlackEdder))
 - Added example from a french bank [\#34](https://github.com/cantino/reckon/pull/34) ([BlackEdder](https://github.com/BlackEdder))
