@@ -19,7 +19,7 @@ describe Reckon::App do
         @rows[0][:pretty_money].should == " $2105.00"
         @rows[0][:description].should == "CREDIT; Some Company vendorpymt PPD ID: 5KL3832735"
         @rows[1][:pretty_date].should == "2009-12-11"
-        @rows[1][:pretty_money].should == "-$116.22"
+        @rows[1][:pretty_money].should == " $116.22"
         @rows[1][:description].should == "CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL"
       end
     end
@@ -37,14 +37,16 @@ describe Reckon::App do
 
   context 'unattended mode with chase csv input' do
     let(:output_file) { StringIO.new }
-    let(:chase) {
+    let(:chase) do
       Reckon::App.new(
         string: BANK_CSV,
         unattended: true,
         output_file: output_file,
-        bank_account: 'Assets:Bank:Checking'
+        bank_account: 'Assets:Bank:Checking',
+        default_into_account: 'Expenses:Unknown',
+        default_outof_account: 'Income:Unknown',
       )
-    }
+    end
 
     describe 'walk backwards' do
       it 'should assign Income:Unknown and Expenses:Unknown by default' do
@@ -87,20 +89,20 @@ describe Reckon::App do
       end
     end
 
-    describe 'csv from STDIN' do
-      it 'should assign to :string option' do
-        options = Reckon::App.parse_opts(
-          %w[-f - --unattended --account bank],
-          StringIO.new('foo,bar,baz')
-        )
-        expect(options[:string]).to eq('foo,bar,baz')
-      end
+    it 'should fail-on-unknown-account' do
+      chase = Reckon::App.new(
+        string: BANK_CSV,
+        unattended: true,
+        output_file: output_file,
+        bank_account: 'Assets:Bank:Checking',
+        default_into_account: 'Expenses:Unknown',
+        default_outof_account: 'Income:Unknown',
+        fail_on_unknown_account: true
+      )
 
-      it 'should require --unattended flag' do
-        expect {Reckon::App.parse_opts(%w[-f - --account bank])}.to(
-          raise_error(RuntimeError, "--unattended is required to use STDIN as CSV source.")
-        )
-      end
+      expect { chase.walk_backwards }.to(
+        raise_error(RuntimeError, /Couldn't find any matches/)
+      )
     end
   end
 
@@ -162,7 +164,7 @@ describe Reckon::App do
     CREDIT,20091223120000[0:GMT],"Blarg BLARG REVENUE                  PPD ID: 00jah78563",1558.52
     DEBIT,20091221120000[0:GMT],"WEBSITE-BALANCE-17DEC09 12        12/17WEBSITE-BAL",-12.23
     DEBIT,20091214120000[0:GMT],"WEBSITE-BALANCE-10DEC09 12        12/10WEBSITE-BAL",-20.96
-    CREDIT,20091211120000[0:GMT],"PAYPAL           TRANSFER                   PPD ID: PAYPALSDSL",-116.22
+    CREDIT,20091211120000[0:GMT],"PAYPAL           TRANSFER                   PPD ID: PAYPALSDSL",116.22
     CREDIT,20091210120000[0:GMT],"Some Company vendorpymt                 PPD ID: 5KL3832735",2105.00
   CSV
 

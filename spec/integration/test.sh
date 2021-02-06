@@ -8,6 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TEST_DIFF=""
 OUTPUT=""
 RECKON_CMD="env RUBYLIB=$SCRIPT_DIR/../../lib:$RUBYLIB reckon -v"
+export PATH="$SCRIPT_DIR/../../bin:$PATH"
 
 main () {
     trap test_fail EXIT

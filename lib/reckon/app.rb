@@ -193,11 +193,13 @@ module Reckon
       LOGGER.info "possible_answers===> #{possible_answers.inspect}"
 
       if options[:unattended]
-        default = if row[:pretty_money][0] == '-'
-                    options[:default_into_account] || 'Expenses:Unknown'
-                  else
-                    options[:default_outof_account] || 'Income:Unknown'
-                  end
+        if options[:fail_on_unknown_account] && possible_answers.empty?
+          raise %(Couldn't find any matches for '#{row[:description]}'
+            Try adding an account token with --account-tokens)
+        end
+
+        default = options[:default_outof_account]
+        default = options[:default_into_account] if row[:pretty_money][0] == '-'
         return possible_answers[0] || default
       end
 
@@ -284,144 +286,6 @@ module Reckon
         rows << row
       end
       print_transaction(rows)
-    end
-
-    def self.parse_opts(args=ARGV, stdin=STDIN)
-      options = { :output_file => STDOUT }
-      OptionParser.new do |opts|
-        opts.banner = "Usage: Reckon.rb [options]"
-        opts.separator ""
-
-        opts.on("-f", "--file FILE", "The CSV file to parse") do |file|
-          options[:file] = file
-        end
-
-        opts.on("-a", "--account NAME", "The Ledger Account this file is for") do |a|
-          options[:bank_account] = a
-        end
-
-        opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
-          options[:verbose] = v
-        end
-
-        opts.on("-i", "--inverse", "Use the negative of each amount") do |v|
-          options[:inverse] = v
-        end
-
-        opts.on("-p", "--print-table", "Print out the parsed CSV in table form") do |p|
-          options[:print_table] = p
-        end
-
-        opts.on("-o", "--output-file FILE", "The ledger file to append to") do |o|
-          options[:output_file] = File.open(o, 'a')
-        end
-
-        opts.on("-l", "--learn-from FILE", "An existing ledger file to learn accounts from") do |l|
-          options[:existing_ledger_file] = l
-        end
-
-        opts.on("", "--ignore-columns 1,2,5", "Columns to ignore in the CSV file - the first column is column 1") do |ignore|
-          options[:ignore_columns] = ignore.split(",").map { |i| i.to_i }
-        end
-
-        opts.on("", "--money-column 2", Integer, "Specify the money column instead of letting Reckon guess - the first column is column 1") do |column_number|
-          options[:money_column] = column_number
-        end
-
-        opts.on("", "--raw-money", "Don't format money column (for stocks)") do |n|
-          options[:raw] = n
-        end
-
-        opts.on("", "--date-column 3", Integer, "Specify the date column instead of letting Reckon guess - the first column is column 1") do |column_number|
-          options[:date_column] = column_number
-        end
-
-        opts.on("", "--contains-header [N]", "The first row of the CSV is a header and should be skipped. Optionally add the number of rows to skip.") do |contains_header|
-          options[:contains_header] = 1
-          options[:contains_header] = contains_header.to_i if contains_header
-        end
-
-        opts.on("", "--csv-separator ','", "Separator for parsing the CSV - default is comma.") do |csv_separator|
-          options[:csv_separator] = csv_separator
-        end
-
-        opts.on("", "--comma-separates-cents", "Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)") do |c|
-          options[:comma_separates_cents] = c
-        end
-
-        opts.on("", "--encoding 'UTF-8'", "Specify an encoding for the CSV file; not usually needed") do |e|
-          options[:encoding] = e
-        end
-
-        opts.on("-c", "--currency '$'", "Currency symbol to use, defaults to $ (£, EUR)") do |e|
-          options[:currency] = e
-        end
-
-        opts.on("", "--date-format '%d/%m/%Y'", "Force the date format (see Ruby DateTime strftime)") do |d|
-          options[:date_format] = d
-        end
-
-        opts.on("-u", "--unattended", "Don't ask questions and guess all the accounts automatically. Used with --learn-from or --account-tokens options.") do |n|
-          options[:unattended] = n
-        end
-
-        opts.on("-t", "--account-tokens FILE", "YAML file with manually-assigned tokens for each account (see README)") do |a|
-          options[:account_tokens_file] = a
-        end
-
-        opts.on("", "--default-into-account NAME", "Default into account") do |a|
-          options[:default_into_account] = a
-        end
-
-        opts.on("", "--default-outof-account NAME", "Default 'out of' account") do |a|
-          options[:default_outof_account] = a
-        end
-
-        opts.on("", "--suffixed", "If --currency should be used as a suffix. Defaults to false.") do |e|
-          options[:suffixed] = e
-        end
-
-        opts.on_tail("-h", "--help", "Show this message") do
-          puts opts
-          exit
-        end
-
-        opts.on_tail("--version", "Show version") do
-          puts VERSION
-          exit
-        end
-
-        opts.parse!(args)
-      end
-
-      if options[:file] == '-'
-        unless options[:unattended]
-          raise "--unattended is required to use STDIN as CSV source."
-        end
-
-        options[:string] = stdin.read
-      end
-
-      unless options[:file]
-        options[:file] = @@cli.ask("What CSV file should I parse? ")
-        unless options[:file].length > 0
-          puts "\nYou must provide a CSV file to parse.\n"
-          puts parser
-          exit
-        end
-      end
-
-      unless options[:bank_account]
-        fail "Please specify --account in unattended mode" if options[:unattended]
-
-        options[:bank_account] = @@cli.ask("What is the account name of this bank account in Ledger? ") do |q|
-          q.readline = true
-          q.validate = /^.{2,}$/
-          q.default = "Assets:Bank:Checking"
-        end
-      end
-
-      options
     end
   end
 end

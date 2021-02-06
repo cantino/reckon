@@ -16,13 +16,18 @@ public
 def silence_output
   # Store the original stderr and stdout in order to restore them later
   @original_stdout = $stdout
+  @original_stderr = $stderr
 
   # Redirect stderr and stdout
-  $stdout = File.new(File.join(File.dirname(__FILE__), 'test_log.txt'), 'w')
+  $stderr = File.new(File.join(File.dirname(__FILE__), 'test_log.txt'), 'w')
+  $stdout = $stderr
+  Reckon::LOGGER.reopen $stderr
 end
 
 # Replace stderr and stdout so anything else is output correctly
 def enable_output
   $stdout = @original_stdout
   @original_stdout = nil
+  $stderr = @original_stderr
+  @original_stderr = nil
 end
