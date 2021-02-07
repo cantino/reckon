@@ -1,5 +1,7 @@
 module Reckon
   class Options
+    @@cli = HighLine.new
+
     def self.parse(args = ARGV, stdin = $stdin)
       options = { output_file: $stdout }
       OptionParser.new do |opts|
@@ -134,7 +136,7 @@ module Reckon
       unless options[:bank_account]
         raise "Must specify --account in unattended mode" if options[:unattended]
 
-        options[:bank_account] = @@cli.ask("What is this account named in Ledger? ") do |q|
+        options[:bank_account] = @@cli.ask("What is this account named in Ledger?\n") do |q|
           q.readline = true
           q.validate = /^.{2,}$/
           q.default = "Assets:Bank:Checking"
