@@ -42,32 +42,34 @@ Learn more:
     -o, --output-file FILE           The ledger file to append to
     -l, --learn-from FILE            An existing ledger file to learn accounts from
         --ignore-columns 1,2,5
-                                     Columns to ignore in the CSV file - the first column is column 1
+                                     Columns to ignore, starts from 1
         --money-column 2
-                                     Specify the money column instead of letting Reckon guess - the first column is column 1
+                                     Column number of the money column, starts from 1
         --raw-money
                                      Don't format money column (for stocks)
         --date-column 3
-                                     Specify the date column instead of letting Reckon guess - the first column is column 1
+                                     Column number of the date column, starts from 1
         --contains-header [N]
-                                     The first row of the CSV is a header and should be skipped. Optionally add the number of rows to skip.
+                                     Skip N header rows - default 1
         --csv-separator ','
-                                     Separator for parsing the CSV - default is comma.
+                                     CSV separator (default ',')
         --comma-separates-cents
-                                     Use comma instead of period to deliminate dollars from cents when parsing ($100,50 instead of $100.50)
+                                     Use comma to separate cents ($100,50 vs. $100.50)
         --encoding 'UTF-8'
-                                     Specify an encoding for the CSV file; not usually needed
-    -c, --currency '$'               Currency symbol to use, defaults to $ (£, EUR)
+                                     Specify an encoding for the CSV file
+    -c, --currency '$'               Currency symbol to use - default $ (ex £, EUR)
         --date-format '%d/%m/%Y'
                                      Force the date format (see Ruby DateTime strftime)
-    -u, --unattended                 Don't ask questions and guess all the accounts automatically. Used with --learn-from or --account-tokens options.
+    -u, --unattended                 Don't ask questions and guess all the accounts automatically. Use with --learn-from or --account-tokens options.
     -t, --account-tokens FILE        YAML file with manually-assigned tokens for each account (see README)
         --default-into-account NAME
                                      Default into account
         --default-outof-account NAME
                                      Default 'out of' account
+        --fail-on-unknown-account
+                                     Fail on unmatched transactions.
         --suffixed
-                                     If --currency should be used as a suffix. Defaults to false.
+                                     Append currency symbol as a suffix.
     -h, --help                       Show this message
         --version                    Show version
 
