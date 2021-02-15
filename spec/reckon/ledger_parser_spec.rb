@@ -110,7 +110,7 @@ HERE
       @ledger.entries.first[:desc].should == "Checking balance"
       @ledger.entries.first[:date].should == Date.parse("2004-05-01")
       @ledger.entries.first[:accounts].first[:name].should == "Assets:Bank:Checking"
-      @ledger.entries.first[:accounts].first[:amount].should == 1000
+      @ledger.entries.first[:accounts].first[:amount].should == 1000.00
       @ledger.entries.first[:accounts].last[:name].should == "Equity:Opening Balances"
       @ledger.entries.first[:accounts].last[:amount].should == -1000
 

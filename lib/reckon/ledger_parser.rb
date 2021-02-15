@@ -195,10 +195,12 @@ module Reckon
     def parse_account_line(entry)
       (account_name, rest) = entry.strip.split(/\s{2,}|\t+/, 2)
 
-      return {
-        name: account_name,
-        amount: clean_money("")
-      } if rest.nil? || rest.empty?
+      if rest.nil? || rest.empty?
+        return {
+          name: account_name,
+          amount: clean_money("")
+        }
+      end
 
       (value, _comment) = rest.split(/;/)
       return {
@@ -210,7 +212,7 @@ module Reckon
     def balance(accounts)
       return accounts unless accounts.any? { |i| i[:amount].nil? }
 
-      sum = accounts.reduce(0) { |m, n| m + (n[:amount] || 0) }
+      sum = accounts.reduce(0.0) { |m, n| m + (n[:amount].to_f || 0) }
       count = 0
       accounts.each do |account|
         next unless account[:amount].nil?
@@ -228,7 +230,11 @@ module Reckon
     end
 
     def clean_money(money)
+      c_money = Money.new(money, @options).pretty
+      LOGGER.info "cleaning ledger money: #{@options[:raw]} #{c_money}"
       return nil if money.nil? || money.empty?
+
+      return Money.new(money, @options)
 
       money.gsub(/[^0-9.-]/, '').to_f
     end

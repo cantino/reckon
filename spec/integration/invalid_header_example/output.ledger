@@ -1,8 +1,8 @@
-4016-02-18	
-	Assets:Bank:Checking			 $10.00
-	Income:Unknown			
+2016-02-18	COTISATION JAZZ; COTISATION JAZZ; EUR
+	Expenses:Unknown			
+	Assets:Bank:Checking			-8,10 EUR
 
-4016-02-19	
-	Income:Unknown			
-	Assets:Bank:Checking			 $0.00
+2016-02-19	VIR RECU 508160; VIR RECU 1234567834S DE: Francois REF: 123457891234567894561231 PROVENANCE: DE Allemagne; EUR
+	Assets:Bank:Checking			50,00 EUR
+	Expenses:Unknown			
 

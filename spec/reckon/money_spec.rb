@@ -24,25 +24,29 @@ describe Reckon::Money do
     end
 
     it "should handle 1000 indicators correctly" do
-      expect(Reckon::Money.new("$2.000,00", comma_separates_cents: true)).to eq(2000.00)
+      expect(Reckon::Money.new("$2.000,00", comma_separates_cents: true).to_f).to eq(2000.00)
       expect(Reckon::Money.new("-$1,025.67")).to eq(-1025.67)
     end
   end
 
   describe "pretty" do
     it "work with negative and positive numbers" do
-      expect(Reckon::Money.new(-20.00).pretty).to eq("-$20.00")
-      expect(Reckon::Money.new(1558.52).pretty).to eq(" $1558.52")
+      expect(Reckon::Money.new('-20.00').pretty).to eq("-20.00")
+      expect(Reckon::Money.new('1558.52').pretty).to eq("1558.52")
     end
 
     it "work with other currencies such as €" do
-      expect(Reckon::Money.new(-20.00, currency: "€", suffixed: false).pretty).to eq("-€20.00")
-      expect(Reckon::Money.new(1558.52, currency: "€", suffixed: false).pretty).to eq(" €1558.52")
+      expect(Reckon::Money.new('-20.00', currency: "€", suffixed: false).pretty).to eq("-€20.00")
+      expect(Reckon::Money.new('1558.52', currency: "€", suffixed: false).pretty).to eq("€1558.52")
     end
 
     it "work with suffixed currencies such as SEK" do
-      expect(Reckon::Money.new(-20.00, currency: "SEK", suffixed: true).pretty).to eq("-20.00 SEK")
-      expect(Reckon::Money.new(1558.52, currency: "SEK", suffixed: true).pretty).to eq(" 1558.52 SEK")
+      expect(Reckon::Money.new('-20.00', currency: "SEK", suffixed: true).pretty).to(
+        eq("-20.00 SEK")
+      )
+      expect(Reckon::Money.new('1558.52', currency: "SEK", suffixed: true).pretty).to(
+        eq("1558.52 SEK")
+      )
     end
   end
 
@@ -67,14 +71,34 @@ describe Reckon::Money do
 
   describe "equality" do
     it "should be comparable to other money" do
-      expect(Reckon::Money.new(2.0)).to eq(Reckon::Money.new(2.0))
-      expect(Reckon::Money.new(1.0)).to be <= Reckon::Money.new(2.0)
-      expect(Reckon::Money.new(3.0)).to be > Reckon::Money.new(2.0)
+      expect(Reckon::Money.new('2.0')).to eq(Reckon::Money.new('2.0'))
+      expect(Reckon::Money.new('1.0')).to be <= Reckon::Money.new('2.0')
+      expect(Reckon::Money.new('3.0')).to be > Reckon::Money.new('2.0')
     end
     it "should be comparable to other float" do
-      expect(Reckon::Money.new(2.0)).to eq(2.0)
-      expect(Reckon::Money.new(1.0)).to be <= 2.0
-      expect(Reckon::Money.new(3.0)).to be > 2.0
+      expect(Reckon::Money.new('2.0')).to eq(2.0)
+      expect(Reckon::Money.new('1.0')).to be <= 2.0
+      expect(Reckon::Money.new('3.0')).to be > 2.0
+    end
+  end
+
+  describe 'parsing' do
+    it 'should parse securities' do
+      money = {
+        '0.360 VFIAX @297.39' => {
+          amount: '0.360 VFIAX @297.39', currency: '', value: 107.06039999999999
+        },
+        '$100.00' => { amount: '100.00', currency: '$', value: 100.0 },
+        '-$100.00' => { amount: '-100.00', currency: '$', value: -100.0 },
+        '$ 100.00' => { amount: '100.00', currency: '$', value: 100.0 },
+        '$-100.00' => { amount: '-100.00', currency: '$', value: -100.0 },
+        '100.00 USD' => { amount: '100.00', currency: 'USD', value: 100.0 },
+        'USD 100.00' => {amount: '100.00', currency: 'USD', value: 100.0 }
+      }
+
+      money.each do |raw, m_attrs|
+        expect(Reckon::Money.new(raw).to_h).to eq m_attrs
+      end
     end
   end
 end

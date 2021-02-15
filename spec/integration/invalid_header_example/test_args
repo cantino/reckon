@@ -1,1 +1,1 @@
--f input.csv --unattended --account Assets:Bank:Checking --contains-header 4
+-f input.csv --unattended --account Assets:Bank:Checking --contains-header 4 --dat-format '%d/%m/%Y' --csv-separator ';' --currency 'EUR' --suffixed

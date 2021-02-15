@@ -242,32 +242,32 @@ describe Reckon::CSVParser do
   describe "pretty_money_for" do
     it "work with negative and positive numbers" do
       some_other_bank.pretty_money_for(1).should == "-$20.00"
-      some_other_bank.pretty_money_for(4).should == " $1558.52"
+      some_other_bank.pretty_money_for(4).should == "$1558.52"
       some_other_bank.pretty_money_for(7).should == "-$116.22"
-      some_other_bank.pretty_money_for(5).should == " $0.23"
+      some_other_bank.pretty_money_for(5).should == "$0.23"
       some_other_bank.pretty_money_for(6).should == "-$0.96"
     end
 
     it "work with other currencies such as €" do
       euro_bank = Reckon::CSVParser.new(file: fixture_path('some_other.csv'), currency: "€", suffixed: false )
       euro_bank.pretty_money_for(1).should == "-€20.00"
-      euro_bank.pretty_money_for(4).should == " €1558.52"
+      euro_bank.pretty_money_for(4).should == "€1558.52"
       euro_bank.pretty_money_for(7).should == "-€116.22"
-      euro_bank.pretty_money_for(5).should == " €0.23"
+      euro_bank.pretty_money_for(5).should == "€0.23"
       euro_bank.pretty_money_for(6).should == "-€0.96"
     end
 
     it "work with suffixed currencies such as SEK" do
       swedish_bank = Reckon::CSVParser.new(file: fixture_path('some_other.csv'), currency: 'SEK', suffixed: true )
       swedish_bank.pretty_money_for(1).should == "-20.00 SEK"
-      swedish_bank.pretty_money_for(4).should == " 1558.52 SEK"
+      swedish_bank.pretty_money_for(4).should == "1558.52 SEK"
       swedish_bank.pretty_money_for(7).should == "-116.22 SEK"
-      swedish_bank.pretty_money_for(5).should == " 0.23 SEK"
+      swedish_bank.pretty_money_for(5).should == "0.23 SEK"
       swedish_bank.pretty_money_for(6).should == "-0.96 SEK"
     end
 
     it "should work with merge columns" do
-      nationwide.pretty_money_for(0).should == " 500.00 POUND"
+      nationwide.pretty_money_for(0).should == "500.00 POUND"
       nationwide.pretty_money_for(1).should == "-20.00 POUND"
     end
   end
