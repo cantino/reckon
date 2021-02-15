@@ -35,7 +35,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install packages
-      run: sudo apt-get -y install ledger hledger
+      run: sudo apt-get -y install ledger hledger expect
     - name: Install bundler
       run: sudo gem install -v 1.17.3 bundler
     - name: Set up Ruby
