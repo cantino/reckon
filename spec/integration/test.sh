@@ -4,10 +4,12 @@
 
 set -Euo pipefail
 
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TEST_DIFF=""
 OUTPUT=""
-RECKON_CMD="env RUBYLIB=$SCRIPT_DIR/../../lib:$RUBYLIB reckon -v"
+RECKON_CMD="reckon -v"
+export RUBYLIB=$SCRIPT_DIR/../../lib:${RUBYLIB:-}
 export PATH="$SCRIPT_DIR/../../bin:$PATH"
 
 main () {
@@ -22,15 +24,14 @@ main () {
     echo > test.log
 
     for t in $TESTS; do
-        OUTPUT_FILE=$(mktemp)
         TEST_DIR=$(dirname "$t")
         pushd "$TEST_DIR" >/dev/null || exit 1
         echo "$TEST_DIR Running..."
-        TEST_CMD="$RECKON_CMD -o $OUTPUT_FILE $(cat test_args)"
-        TEST_LOG=$(eval "$TEST_CMD" 2>&1)
-        ERROR=0
-
-        compare_output "$OUTPUT_FILE"
+        if [[ -e "cli_input.exp" ]]; then
+            cli_test
+        else
+            unattended_test
+        fi
 
         popd >/dev/null || exit 1
         # have to save output after popd
@@ -41,6 +42,33 @@ main () {
             exit 1
         fi
     done
+}
+
+cli_test () {
+    OUTPUT_FILE=$(mktemp)
+    TEST_CMD="$RECKON_CMD --table-output-file $OUTPUT_FILE $(cat test_args)"
+    TEST_CMD="expect -d -c 'spawn $TEST_CMD' cli_input.exp"
+    TEST_LOG=$(eval "$TEST_CMD" 2>&1)
+    ERROR=0
+    TEST_DIFF=$(diff -u "$OUTPUT_FILE" "expected_output")
+
+    # ${#} is character length, test that there was no output from diff
+    if [ ${#TEST_DIFF} -eq 0 ]; then
+        echo "SUCCESS!"
+        ERROR=0
+    else
+        echo "SUCCESS!"
+        ERROR=1
+    fi
+}
+
+unattended_test() {
+    OUTPUT_FILE=$(mktemp)
+    TEST_CMD="$RECKON_CMD -o $OUTPUT_FILE $(cat test_args)"
+    TEST_LOG=$(eval "$TEST_CMD" 2>&1)
+    ERROR=0
+
+    compare_output "$OUTPUT_FILE"
 }
 
 test_fail () {

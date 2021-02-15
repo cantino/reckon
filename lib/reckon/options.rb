@@ -85,6 +85,10 @@ module Reckon
           options[:account_tokens_file] = a
         end
 
+        opts.on("", "--table-output-file FILE") do |n|
+          options[:table_output_file] = n
+        end
+
         options[:default_into_account] = 'Expenses:Unknown'
         opts.on("", "--default-into-account NAME", "Default into account") do |a|
           options[:default_into_account] = a

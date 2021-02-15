@@ -20,10 +20,10 @@ module Reckon
       learn!
     end
 
-    def interactive_output(str)
+    def interactive_output(str, fh = $stdout)
       return if options[:unattended]
 
-      puts str
+      fh.puts str
     end
 
     def learn!
@@ -161,7 +161,7 @@ module Reckon
       rows.sort_by { |n| [n[:date], -n[:money], n[:description]] }.each { |row| yield row }
     end
 
-    def print_transaction(rows)
+    def print_transaction(rows, fh = $stdout)
       str = "\n"
       header = %w[Date Amount Description Note]
       maxes = header.map(&:length)
@@ -185,7 +185,7 @@ module Reckon
         str += "\n"
       end
 
-      interactive_output str
+      interactive_output str, fh
     end
 
     def ask_account_question(msg, row)
@@ -280,12 +280,12 @@ module Reckon
       exit
     end
 
-    def output_table
+    def output_table(fh = $stdout)
       rows = []
       each_row_backwards do |row|
         rows << row
       end
-      print_transaction(rows)
+      print_transaction(rows, fh)
     end
   end
 end

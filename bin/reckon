@@ -13,6 +13,9 @@ reckon = Reckon::App.new(options)
 
 if options[:print_table]
   reckon.output_table
+  if options[:table_output_file]
+    File.open(options[:table_output_file], 'w') { |fh| reckon.output_table fh }
+  end
   exit
 end
 

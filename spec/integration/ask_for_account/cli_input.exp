@@ -1,0 +1,33 @@
+#!/usr/bin/expect -f
+
+
+set timeout -1
+match_max 100000
+expect -exact "What is this account named in Ledger  |Assets:Bank:Checking|?\r
+\[1G▽\[6n"
+send -- "\[45;2R"
+expect -exact "\[1G\[K\[6n"
+send -- "\[45;1R"
+expect -exact "\[1G\[K\[1G\[1G"
+send -- "T"
+expect -exact "\[1GT\[K\[1G\[2G"
+send -- "e"
+expect -exact "\[1GTe\[K\[1G\[3G"
+send -- "s"
+expect -exact "\[1GTes\[K\[1G\[4G"
+send -- "t"
+expect -exact "\[1GTest\[K\[1G\[5G"
+send -- ":"
+expect -exact "\[1GTest:\[K\[1G\[6G"
+send -- ":"
+expect -exact "\[1GTest::\[K\[1G\[7G"
+send -- "B"
+expect -exact "\[1GTest::B\[K\[1G\[8G"
+send -- "a"
+expect -exact "\[1GTest::Ba\[K\[1G\[9G"
+send -- "n"
+expect -exact "\[1GTest::Ban\[K\[1G\[10G"
+send -- "k"
+expect -exact "\[1GTest::Bank\[K\[1G\[11G"
+send -- "\r"
+expect eof
