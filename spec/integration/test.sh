@@ -39,6 +39,7 @@ main () {
         echo -e "TEST_CMD\n$TEST_LOG" >> test.log
 
         if [[ $ERROR -ne 0 ]]; then
+            tail -n25 test.log
             exit 1
         fi
     done
@@ -57,7 +58,7 @@ cli_test () {
         echo "SUCCESS!"
         ERROR=0
     else
-        echo "SUCCESS!"
+        echo "FAILED!"
         ERROR=1
     fi
 }
