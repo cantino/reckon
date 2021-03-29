@@ -34,10 +34,10 @@ jobs:
           - 2.3.7
     steps:
     - uses: actions/checkout@v2
+    - name: Update package
+      run: sudo apt-get update
     - name: Install packages
       run: sudo apt-get -y install ledger hledger expect
-    - name: Install bundler
-      run: sudo gem install -v 1.17.3 bundler
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
     # change this to (see https://github.com/ruby/setup-ruby#versioning):
@@ -45,6 +45,6 @@ jobs:
       # uses: ruby/setup-ruby@473e4d8fe5dd94ee328fdfca9f8c9c7afc9dae5e
       with:
         ruby-version: ${{ matrix.ruby-version }}
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        bundler-cache: true # runs 'bundle install' and caches installed gems
     - name: Run tests
       run: bundle exec rake test_all
