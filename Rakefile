@@ -17,6 +17,6 @@ task :test_all do
 end
 
 task :integration_tests do
-  puts `./spec/integration/test.sh`
-  raise 'Integration tests failed' if $CHILD_STATUS.exitstatus != 0
+  cmd = 'prove -v ./spec/integration/test.sh'
+  raise 'Integration tests failed' unless system(cmd)
 end

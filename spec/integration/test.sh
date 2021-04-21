@@ -23,10 +23,15 @@ main () {
 
     echo > test.log
 
+    NUM_TESTS=$(echo "$TESTS" |wc -l)
+
+    echo "1..$NUM_TESTS"
+
+    I=1
+
     for t in $TESTS; do
         TEST_DIR=$(dirname "$t")
         pushd "$TEST_DIR" >/dev/null || exit 1
-        echo "$TEST_DIR Running..."
         if [[ -e "cli_input.exp" ]]; then
             cli_test
         else
@@ -39,9 +44,13 @@ main () {
         echo -e "TEST_CMD\n$TEST_LOG" >> test.log
 
         if [[ $ERROR -ne 0 ]]; then
+            echo -e "not ok $I - $TEST_DIR"
             tail -n25 test.log
             exit 1
+        else
+            echo -e "ok $I - $TEST_DIR"
         fi
+        I=$(($I + 1))
     done
 }
 
@@ -55,10 +64,8 @@ cli_test () {
 
     # ${#} is character length, test that there was no output from diff
     if [ ${#TEST_DIFF} -eq 0 ]; then
-        echo "SUCCESS!"
         ERROR=0
     else
-        echo "FAILED!"
         ERROR=1
     fi
 }
@@ -84,7 +91,13 @@ compare_output_for () {
     OUTPUT_FILE=$1
     LEDGER=$2
 
-    TEST_DIFF=$(diff -u <($LEDGER -f output.ledger r --date-format %F 2>&1) <($LEDGER -f "$OUTPUT_FILE" r --date-format %F 2>&1) )
+    EXPECTED_FILE=$(mktemp)
+    ACTUAL_FILE=$(mktemp)
+
+    $LEDGER -f output.ledger r >"$EXPECTED_FILE" 2>&1 || return 1
+    $LEDGER -f output.ledger r >"$ACTUAL_FILE" 2>&1 || return 1
+
+    TEST_DIFF=$(diff -u "$EXPECTED_FILE" "$ACTUAL_FILE")
 
     # ${#} is character length, test that there was no output from diff
     if [ ${#TEST_DIFF} -eq 0 ]; then
@@ -98,11 +111,9 @@ compare_output () {
     OUTPUT_FILE=$1
 
     for n in {ledger,hledger}; do
-        echo -n "  - $n..."
         if compare_output_for "$OUTPUT_FILE" "$n"; then
-            echo "SUCCESS!"
+            ERROR=0
         else
-            echo "FAILED!"
             ERROR=1
             return 0
         fi
