@@ -1,6 +1,21 @@
 # Changelog
 
-## [v0.7.1](https://github.com/cantino/reckon/tree/v0.7.1) (2021-02-06)
+## [v0.7.2](https://github.com/cantino/reckon/tree/v0.7.2) (2021-04-22)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.7.1...v0.7.2)
+
+**Closed issues:**
+
+- \[feature request\] Better format for large transactions [\#108](https://github.com/cantino/reckon/issues/108)
+- cosine similarity not comparing documents correctly [\#106](https://github.com/cantino/reckon/issues/106)
+
+**Merged pull requests:**
+
+- Add thousands separator in money output.  Fixes \#108. [\#109](https://github.com/cantino/reckon/pull/109) ([benprew](https://github.com/benprew))
+- Cosine similarity should use all docs tokens. not just matched tokens. [\#107](https://github.com/cantino/reckon/pull/107) ([benprew](https://github.com/benprew))
+- Test getting expect working with actions [\#105](https://github.com/cantino/reckon/pull/105) ([benprew](https://github.com/benprew))
+
+## [v0.7.1](https://github.com/cantino/reckon/tree/v0.7.1) (2021-02-07)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.7.0...v0.7.1)
 
@@ -135,7 +150,6 @@
 - Fix bugs in ledger file parsing.  Fixes \#56. [\#81](https://github.com/cantino/reckon/pull/81) ([benprew](https://github.com/benprew))
 - Better file encoding suggestions [\#80](https://github.com/cantino/reckon/pull/80) ([benprew](https://github.com/benprew))
 - :bug: fix matching algorithm, add logging and a spec helper.  Fixes \#73 [\#79](https://github.com/cantino/reckon/pull/79) ([benprew](https://github.com/benprew))
-- bug: invalid header lines should be ignored, not parsed. [\#78](https://github.com/cantino/reckon/pull/78) ([benprew](https://github.com/benprew))
 - convert default date format to iso8601 [\#77](https://github.com/cantino/reckon/pull/77) ([benprew](https://github.com/benprew))
 - Fix rspec failure for ruby 2.3 and 2.4 [\#69](https://github.com/cantino/reckon/pull/69) ([BlackEdder](https://github.com/BlackEdder))
 - Allow setting of money and date columns by index [\#67](https://github.com/cantino/reckon/pull/67) ([cantino](https://github.com/cantino))
@@ -188,6 +202,7 @@
 
 **Merged pull requests:**
 
+- bug: invalid header lines should be ignored, not parsed. [\#78](https://github.com/cantino/reckon/pull/78) ([benprew](https://github.com/benprew))
 - Better ISO 8601 dates support [\#49](https://github.com/cantino/reckon/pull/49) ([vzctl](https://github.com/vzctl))
 - Unattended mode and custom tokens support [\#47](https://github.com/cantino/reckon/pull/47) ([vzctl](https://github.com/vzctl))
 - \[RFC\] Implement issue \#40: Tab completion [\#46](https://github.com/cantino/reckon/pull/46) ([BlackEdder](https://github.com/BlackEdder))
@@ -201,6 +216,7 @@
 
 - Fix --encoding option [\#41](https://github.com/cantino/reckon/pull/41) ([mamciek](https://github.com/mamciek))
 - Bumped version number [\#37](https://github.com/cantino/reckon/pull/37) ([BlackEdder](https://github.com/BlackEdder))
+- Ing csv [\#30](https://github.com/cantino/reckon/pull/30) ([BlackEdder](https://github.com/BlackEdder))
 
 ## [v0.3.9](https://github.com/cantino/reckon/tree/v0.3.9) (2014-02-20)
 
@@ -217,15 +233,12 @@
 - Date format [\#35](https://github.com/cantino/reckon/pull/35) ([BlackEdder](https://github.com/BlackEdder))
 - Added example from a french bank [\#34](https://github.com/cantino/reckon/pull/34) ([BlackEdder](https://github.com/BlackEdder))
 - Austrian example [\#33](https://github.com/cantino/reckon/pull/33) ([BlackEdder](https://github.com/BlackEdder))
-- Ing csv [\#30](https://github.com/cantino/reckon/pull/30) ([BlackEdder](https://github.com/BlackEdder))
 - Further improvements in nationwide csv handling [\#29](https://github.com/cantino/reckon/pull/29) ([BlackEdder](https://github.com/BlackEdder))
 - Refactor: Add money class [\#28](https://github.com/cantino/reckon/pull/28) ([BlackEdder](https://github.com/BlackEdder))
 - Initial split of CSVparser from class App [\#27](https://github.com/cantino/reckon/pull/27) ([BlackEdder](https://github.com/BlackEdder))
 - Updated version of pull request 24: Allow for other currency symbols while calculating money\_score [\#26](https://github.com/cantino/reckon/pull/26) ([BlackEdder](https://github.com/BlackEdder))
 - Change double column detection [\#23](https://github.com/cantino/reckon/pull/23) ([BlackEdder](https://github.com/BlackEdder))
-- Added optional argument to contains\_header to skip multiple header lines [\#22](https://github.com/cantino/reckon/pull/22) ([BlackEdder](https://github.com/BlackEdder))
 - Add a Bitdeli Badge to README [\#20](https://github.com/cantino/reckon/pull/20) ([bitdeli-chef](https://github.com/bitdeli-chef))
-- Update README to show latest usage info [\#19](https://github.com/cantino/reckon/pull/19) ([purcell](https://github.com/purcell))
 
 ## [v0.3.8](https://github.com/cantino/reckon/tree/v0.3.8) (2013-07-03)
 
@@ -242,6 +255,7 @@
 
 **Merged pull requests:**
 
+- Update README to show latest usage info [\#19](https://github.com/cantino/reckon/pull/19) ([purcell](https://github.com/purcell))
 - add support for spanish dates dd/mm/yyyy closes \#13 [\#14](https://github.com/cantino/reckon/pull/14) ([mauromorales](https://github.com/mauromorales))
 - fix issue showing true when parsing the currency option related to \#7 [\#12](https://github.com/cantino/reckon/pull/12) ([mauromorales](https://github.com/mauromorales))
 
@@ -251,6 +265,7 @@
 
 **Merged pull requests:**
 
+- Added optional argument to contains\_header to skip multiple header lines [\#22](https://github.com/cantino/reckon/pull/22) ([BlackEdder](https://github.com/BlackEdder))
 - Updated the sources to allow for custom curreny [\#11](https://github.com/cantino/reckon/pull/11) ([ghost](https://github.com/ghost))
 - Add --account option on the commandline [\#10](https://github.com/cantino/reckon/pull/10) ([copiousfreetime](https://github.com/copiousfreetime))
 
