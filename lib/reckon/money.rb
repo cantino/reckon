@@ -50,11 +50,18 @@ module Reckon
         return @amount_raw[0] == '-' ? @amount_raw[1..-1] : "-#{@amount_raw}"
       end
 
-      if @suffixed
-        (@amount >= 0 ? " " : "") + sprintf("%0.2f #{@currency}", @amount * (negate ? -1 : 1))
-      else
-        (@amount >= 0 ? " " : "") + sprintf("%0.2f", @amount * (negate ? -1 : 1)).gsub(/^((\-)|)(?=\d)/, "\\1#{@currency}")
-      end
+      amt = pretty_amount(@amount * (negate ? -1 : 1))
+      amt = if @suffixed
+              "#{amt} #{@currency}"
+            else
+              amt.gsub(/^((-)|)(?=\d)/, "\\1#{@currency}")
+            end
+
+      return (@amount >= 0 ? " " : "") + amt
+    end
+
+    def pretty_amount(amount)
+      sprintf("%0.2f", amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
     end
 
     def parse(value, options = {})

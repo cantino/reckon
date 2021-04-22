@@ -1,5 +1,5 @@
 2009-12-10	CREDIT; Some Company vendorpymt PPD ID: 5KL3832735
-	Assets:Bank:Checking			 $2105.00
+	Assets:Bank:Checking			 $2,105.00
 	Income:Default			
 
 2009-12-11	CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL
@@ -15,11 +15,11 @@
 	Assets:Bank:Checking			-$12.23
 
 2009-12-23	CREDIT; Some Company vendorpymt PPD ID: 59728JSL20
-	Assets:Bank:Checking			 $3520.00
+	Assets:Bank:Checking			 $3,520.00
 	Income:Default			
 
 2009-12-23	CREDIT; Blarg BLARG REVENUE PPD ID: 00jah78563
-	Assets:Bank:Checking			 $1558.52
+	Assets:Bank:Checking			 $1,558.52
 	Income:Default			
 
 2009-12-24	DEBIT; GITHUB 041287430274 CA 12/22GITHUB 04

@@ -8,7 +8,7 @@
 
 2013-06-19	2013-06-24; Buy; ISHARES S&P/TSX CAPPED REIT IN; XRE; 300; 15.90; CDN; CAD
 	Income:Unknown			
-	Assets:Bank:Checking			-$4779.95
+	Assets:Bank:Checking			-$4,779.95
 
 2013-06-27	2013-06-27; Dividend; ICICI BK SPONSORED ADR; IBN; 100; USD
 	Assets:Bank:Checking			 $66.70
@@ -19,7 +19,7 @@
 	Income:Unknown			
 
 2014-01-07	2014-01-10; Sell; BMO NASDAQ 100 EQTY HEDGED TO; ZQQ; -300; 27.44; CDN; CAD
-	Assets:Bank:Checking			 $8222.05
+	Assets:Bank:Checking			 $8,222.05
 	Income:Unknown			
 
 2014-01-07	2014-01-07; Interest; BMO S&P/TSX EQUAL WEIGHT BKS I; ZEB; 250; CAD
