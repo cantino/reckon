@@ -32,17 +32,17 @@ describe Reckon::Money do
   describe "pretty" do
     it "work with negative and positive numbers" do
       expect(Reckon::Money.new(-20.00).pretty).to eq("-$20.00")
-      expect(Reckon::Money.new(1558.52).pretty).to eq(" $1558.52")
+      expect(Reckon::Money.new(1558.52).pretty).to eq(" $1,558.52")
     end
 
     it "work with other currencies such as €" do
       expect(Reckon::Money.new(-20.00, currency: "€", suffixed: false).pretty).to eq("-€20.00")
-      expect(Reckon::Money.new(1558.52, currency: "€", suffixed: false).pretty).to eq(" €1558.52")
+      expect(Reckon::Money.new(1558.52, currency: "€", suffixed: false).pretty).to eq(" €1,558.52")
     end
 
     it "work with suffixed currencies such as SEK" do
       expect(Reckon::Money.new(-20.00, currency: "SEK", suffixed: true).pretty).to eq("-20.00 SEK")
-      expect(Reckon::Money.new(1558.52, currency: "SEK", suffixed: true).pretty).to eq(" 1558.52 SEK")
+      expect(Reckon::Money.new(1558.52, currency: "SEK", suffixed: true).pretty).to eq(" 1,558.52 SEK")
     end
   end
 
