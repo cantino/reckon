@@ -11,16 +11,16 @@ echo "Update 'lib/reckon/version.rb'"
 echo -e "module Reckon\n  VERSION=\"$VERSION\"\nend" > lib/reckon/version.rb
 echo "Run `bundle install` to build updated Gemfile.lock"
 bundle install
-echo "3. Run changelog generator (requires $TOKEN to be your github token)"
-github_changelog_generator -u cantino -p reckon -t $TOKEN --future-release $VERSION
-echo "4. Commit changes"
+echo "Run changelog generator (requires $TOKEN to be your github token)"
+github_changelog_generator -u cantino -p reckon -t $TOKEN --future-release v$VERSION
+echo "Commit changes"
 git add CHANGELOG.md lib/reckon/version.rb Gemfile.lock
 git commit -m "Release $VERSION"
-echo "7. Build new gem"
-gem build reckon.gemspec
-echo "5. Tag release"
+echo "Tag release"
 git tag v$VERSION
+echo "Build new gem"
+gem build reckon.gemspec
 echo "Push changes and tags"
-git push && git push --tags
+echo "git push && git push --tags"
 echo "Push new gem"
-gem push reckon-$VERSION.gem
+echo "gem push reckon-$VERSION.gem"
