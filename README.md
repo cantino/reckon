@@ -80,13 +80,13 @@ If you find CSV files that it can't parse, send me examples or pull requests!
 You can run reckon in a non-interactive mode.
 To guess the accounts reckon can use an existing ledger file or a token file with keywords.
 
-`reckon --unattended -l 2010.dat -f bank.csv -o ledger.dat`
+`reckon --unattended -a Checking -l 2010.dat -f bank.csv -o ledger.dat`
 
-`reckon --unattended --account-tokens tokens.yaml -f bank.csv -o ledger.dat`
+`reckon --unattended -a Checking --account-tokens tokens.yaml -f bank.csv -o ledger.dat`
 
 In unattended mode, you can use STDIN to read your csv data, by specifying `-` as the argument to `-f`.
 
-`csv_file_generator | reckon --unattended -l 2010.dat -o ledger.dat -f -`
+`csv_file_generator | reckon --unattended -a Checking -l 2010.dat -o ledger.dat -f -`
 
 ### Account Tokens
 
