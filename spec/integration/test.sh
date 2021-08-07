@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# set -x
-
 set -Euo pipefail
 
 
@@ -23,7 +21,7 @@ main () {
 
     echo > test.log
 
-    NUM_TESTS=$(echo "$TESTS" |wc -l)
+    NUM_TESTS=$(echo "$TESTS" |wc -l |awk '{print $1}')
 
     echo "1..$NUM_TESTS"
 
@@ -31,17 +29,19 @@ main () {
 
     for t in $TESTS; do
         TEST_DIR=$(dirname "$t")
+        TEST_LOG=$(mktemp)
         pushd "$TEST_DIR" >/dev/null || exit 1
         if [[ -e "cli_input.exp" ]]; then
-            cli_test
+            cli_test >$TEST_LOG 2>&1
         else
-            unattended_test
+            unattended_test >$TEST_LOG 2>&1
         fi
 
         popd >/dev/null || exit 1
         # have to save output after popd
         echo -e "\n\n======>$TEST_DIR" >> test.log
-        echo -e "TEST_CMD\n$TEST_LOG" >> test.log
+        echo -e "TEST_CMD: $TEST_CMD" >> test.log
+        cat $TEST_LOG >> test.log
 
         if [[ $ERROR -ne 0 ]]; then
             echo -e "not ok $I - $TEST_DIR"
@@ -56,11 +56,11 @@ main () {
 
 cli_test () {
     OUTPUT_FILE=$(mktemp)
-    TEST_CMD="$RECKON_CMD --table-output-file $OUTPUT_FILE $(cat test_args)"
-    TEST_CMD="expect -d -c 'spawn $TEST_CMD' cli_input.exp"
-    TEST_LOG=$(eval "$TEST_CMD" 2>&1)
+    CLI_CMD="$RECKON_CMD --table-output-file $OUTPUT_FILE $(cat test_args)"
+    TEST_CMD="expect -d -c 'spawn $CLI_CMD' cli_input.exp"
+    eval $TEST_CMD 2>&1
     ERROR=0
-    TEST_DIFF=$(diff -u "$OUTPUT_FILE" "expected_output")
+    TEST_DIFF=$(diff -u "$OUTPUT_FILE" expected_output)
 
     # ${#} is character length, test that there was no output from diff
     if [ ${#TEST_DIFF} -eq 0 ]; then
@@ -73,7 +73,7 @@ cli_test () {
 unattended_test() {
     OUTPUT_FILE=$(mktemp)
     TEST_CMD="$RECKON_CMD -o $OUTPUT_FILE $(cat test_args)"
-    TEST_LOG=$(eval "$TEST_CMD" 2>&1)
+    eval $TEST_CMD 2>&1
     ERROR=0
 
     compare_output "$OUTPUT_FILE"
@@ -87,6 +87,26 @@ test_fail () {
     fi
 }
 
+compare_output () {
+    OUTPUT_FILE=$1
+    pwd
+    if [[ -e compare_cmds ]]; then
+        COMPARE_CMDS=$(cat compare_cmds)
+    else
+        COMPARE_CMDS=$'ledger\nhledger'
+    fi
+
+    ERROR=1
+    while IFS= read -r n; do
+        if compare_output_for "$OUTPUT_FILE" "$n"; then
+            ERROR=0
+        else
+            ERROR=1
+            break
+        fi
+    done <<< "$COMPARE_CMDS"
+}
+
 compare_output_for () {
     OUTPUT_FILE=$1
     LEDGER=$2
@@ -94,8 +114,11 @@ compare_output_for () {
     EXPECTED_FILE=$(mktemp)
     ACTUAL_FILE=$(mktemp)
 
-    $LEDGER -f output.ledger r >"$EXPECTED_FILE" 2>&1 || return 1
-    $LEDGER -f output.ledger r >"$ACTUAL_FILE" 2>&1 || return 1
+    echo $LEDGER -f output.ledger r "$EXPECTED_FILE"
+    eval $LEDGER -f output.ledger r >"$EXPECTED_FILE"  || return 1
+
+    echo $LEDGER -f output.ledger r "$ACTUAL_FILE"
+    eval $LEDGER -f output.ledger r >"$ACTUAL_FILE"  || return 1
 
     TEST_DIFF=$(diff -u "$EXPECTED_FILE" "$ACTUAL_FILE")
 
@@ -105,19 +128,6 @@ compare_output_for () {
     else
         return 1
     fi
-}
-
-compare_output () {
-    OUTPUT_FILE=$1
-
-    for n in {ledger,hledger}; do
-        if compare_output_for "$OUTPUT_FILE" "$n"; then
-            ERROR=0
-        else
-            ERROR=1
-            return 0
-        fi
-    done
 }
 
 main "$@"

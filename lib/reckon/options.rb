@@ -73,8 +73,12 @@ module Reckon
           options[:currency] = e
         end
 
-        opts.on("", "--date-format '%d/%m/%Y'", "Force the date format (see Ruby DateTime strftime)") do |d|
+        opts.on("", "--date-format FORMAT", "CSV file date format (see `date` for format)") do |d|
           options[:date_format] = d
+        end
+
+        opts.on("", "--ledger-date-format FORMAT", "Ledger date format (see `date` for format)") do |d|
+          options[:ledger_date_format] = d
         end
 
         opts.on("-u", "--unattended", "Don't ask questions and guess all the accounts automatically. Use with --learn-from or --account-tokens options.") do |n|

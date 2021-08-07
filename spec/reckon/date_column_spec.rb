@@ -38,4 +38,16 @@ describe Reckon::DateColumn do
         .to eq(Date.new(2013, 2, 1))
     end
   end
+
+  describe "#pretty_for" do
+    it 'should use ledger_date_format' do
+      expect(Reckon::DateColumn.new(%w[13/02/2013], {ledger_date_format: '%d/%m/%Y'}).pretty_for(0))
+               .to eq('13/02/2013')
+    end
+
+    it 'should default to is' do
+      expect(Reckon::DateColumn.new(%w[13/12/2013]).pretty_for(0))
+        .to eq('2013-12-13')
+    end
+  end
 end
