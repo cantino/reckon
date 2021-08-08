@@ -58,10 +58,13 @@ Learn more:
         --encoding 'UTF-8'
                                      Specify an encoding for the CSV file
     -c, --currency '$'               Currency symbol to use - default $ (ex £, EUR)
-        --date-format '%d/%m/%Y'
-                                     Force the date format (see Ruby DateTime strftime)
+        --date-format FORMAT
+                                     CSV file date format (see `date` for format)
+        --ledger-date-format FORMAT
+                                     Ledger date format (see `date` for format)
     -u, --unattended                 Don't ask questions and guess all the accounts automatically. Use with --learn-from or --account-tokens options.
     -t, --account-tokens FILE        YAML file with manually-assigned tokens for each account (see README)
+        --table-output-file FILE
         --default-into-account NAME
                                      Default into account
         --default-outof-account NAME

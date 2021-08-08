@@ -114,7 +114,7 @@ module Reckon
 
     def initialize(ledger, options = {})
       @options = options
-      @date_format = options[:date_format] || '%Y-%m-%d'
+      @date_format = options[:ledger_date_format] || options[:date_format] || '%Y-%m-%d'
       parse(ledger)
     end
 
