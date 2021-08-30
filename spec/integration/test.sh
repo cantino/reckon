@@ -58,7 +58,7 @@ cli_test () {
     OUTPUT_FILE=$(mktemp)
     CLI_CMD="$RECKON_CMD --table-output-file $OUTPUT_FILE $(cat test_args)"
     TEST_CMD="expect -d -c 'spawn $CLI_CMD' cli_input.exp"
-    eval $TEST_CMD 2>&1
+    eval "$TEST_CMD" 2>&1
     ERROR=0
     TEST_DIFF=$(diff -u "$OUTPUT_FILE" expected_output)
 
@@ -73,7 +73,7 @@ cli_test () {
 unattended_test() {
     OUTPUT_FILE=$(mktemp)
     TEST_CMD="$RECKON_CMD -o $OUTPUT_FILE $(cat test_args)"
-    eval $TEST_CMD 2>&1
+    eval "$TEST_CMD" 2>&1
     ERROR=0
 
     compare_output "$OUTPUT_FILE"
@@ -114,11 +114,13 @@ compare_output_for () {
     EXPECTED_FILE=$(mktemp)
     ACTUAL_FILE=$(mktemp)
 
-    echo $LEDGER -f output.ledger r "$EXPECTED_FILE"
-    eval $LEDGER -f output.ledger r >"$EXPECTED_FILE"  || return 1
+    EXPECTED_CMD="$LEDGER -f output.ledger r >$EXPECTED_FILE"
+    echo "$EXPECTED_CMD"
+    eval "$EXPECTED_CMD" || return 1
 
-    echo $LEDGER -f output.ledger r "$ACTUAL_FILE"
-    eval $LEDGER -f output.ledger r >"$ACTUAL_FILE"  || return 1
+    ACTUAL_CMD="$LEDGER -f \"$OUTPUT_FILE\" r"
+    echo "running $ACTUAL_CMD"
+    eval $ACTUAL_CMD >$ACTUAL_FILE || return 1
 
     TEST_DIFF=$(diff -u "$EXPECTED_FILE" "$ACTUAL_FILE")
 
