@@ -1,0 +1,3 @@
+Buchungstag;Wertstellungstag;GegenIBAN;Name Gegenkonto;Verwendungszweck;Umsatz;Währung
+2021-08-19;2021-08-19;1111;Employer;Example;"1.000,00";EUR
+2021-08-20;2021-08-20;0000;Someone;Example;"-99,99";EUR

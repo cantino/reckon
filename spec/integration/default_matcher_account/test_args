@@ -1,0 +1,1 @@
+-f input.csv -a Assets:Bank:Checking --contains-header 1 --csv-separator ';' --comma-separates-cents --currency '€' --date-column 2 --money-column 6 --unattended

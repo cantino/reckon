@@ -1,0 +1,7 @@
+2021-08-19	2021-08-19; 1111; Employer; Other example; EUR
+	Assets:Bank:Checking			 €1,000.00
+	Income:Unknown
+
+2021-08-20	2021-08-20; 0000; Someone; Example; EUR
+	Expenses:Unknown
+	Assets:Bank:Checking			-€99.99

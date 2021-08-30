@@ -16,7 +16,10 @@ module Reckon
       self.seen = Set.new
       self.options[:currency] ||= '$'
       @csv_parser = CSVParser.new( options )
-      @matcher = CosineSimilarity.new(options)
+      # We create 2 matches, one for incoming transactions (usually income) and
+      # one for outgoing (usually expenses)
+      @in_matcher = CosineSimilarity.new(options)
+      @out_matcher = CosineSimilarity.new(options)
       learn!
     end
 
@@ -41,7 +44,10 @@ module Reckon
           if t.start_with?('/')
             add_regexp(account, t)
           else
-            @matcher.add_document(account, t)
+            # I think there's no way to determine if an account is an into or
+            # out_of account from the token alone.
+            @in_matcher.add_document(account, t)
+            @out_matcher.add_document(account, t)
           end
         end
       end
@@ -52,17 +58,18 @@ module Reckon
 
       raise "#{ledger_file} doesn't exist!" unless File.exist?(ledger_file)
 
+      LOGGER.info "learning from #{ledger_file}"
       learn_from_ledger(File.read(ledger_file))
     end
 
     def learn_from_ledger(ledger)
-      LOGGER.info "learning from #{ledger}"
       LedgerParser.new(ledger).entries.each do |entry|
         entry[:accounts].each do |account|
           str = [entry[:desc], account[:amount]].join(" ")
           if account[:name] != options[:bank_account]
+            matcher = account[:amount].to_f < 0 ? @out_matcher : @in_matcher
             LOGGER.info "adding document #{account[:name]} #{str}"
-            @matcher.add_document(account[:name], str)
+            matcher.add_document(account[:name], str)
           end
           pretty_date = entry[:date].iso8601
           if account[:name] == options[:bank_account]
@@ -138,7 +145,7 @@ module Reckon
         end
 
         ledger = ledger_format(row, line1, line2)
-        LOGGER.info "ledger line: #{ledger}"
+        LOGGER.info "ledger line:\n #{ledger}"
         learn_from_ledger(ledger) unless options[:account_tokens_file]
         output(ledger)
       end
@@ -250,8 +257,9 @@ module Reckon
     end
 
     def suggest(row)
+      matcher = row[:money].to_f < 0 ? @in_matcher : @out_matcher
       most_specific_regexp_match(row) +
-        @matcher.find_similar(row[:description]).map { |n| n[:account] }
+        matcher.find_similar(row[:description]).map { |n| n[:account] }
     end
 
     def ledger_format(row, line1, line2)
