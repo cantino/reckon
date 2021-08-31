@@ -1,28 +1,27 @@
 2014-01-30	Transfer to CBT (Savings); [CW] TF 0004#3409-797; debit; Transfer; Chequing
-	Expenses:Unknown			
+	Expenses:Unknown
 	Assets:Bank:Checking			-$500.00
 
 2014-01-30	Costco; [PR]COSTCO WHOLESAL; debit; Business Services; Chequing
-	Expenses:Unknown			
+	Expenses:Unknown
 	Assets:Bank:Checking			-$559.96
 
 2014-02-03	Dn Sun Life; [DN]SUN LIFE MSP/DIV; credit; Income; Chequing
 	Assets:Bank:Checking			 $943.34
-	Expenses:Unknown			
+	Income:Unknown
 
 2014-02-03	Ds Lms Msp Condo; [DS]LMS598 MSP/DIV; debit; Condo Fees; Chequing
-	Expenses:Unknown			
+	Expenses:Unknown
 	Assets:Bank:Checking			-$331.63
 
 2014-02-06	So Pa; [SO]PA 0005191230116379851; debit; Mortgage & Rent; Chequing
-	Expenses:Unknown			
+	Expenses:Unknown
 	Assets:Bank:Checking			-$140.72
 
 2014-02-10	Ib Granville; [IB] 2601 GRANVILLE; debit; Uncategorized; Chequing
-	Expenses:Unknown			
+	Expenses:Unknown
 	Assets:Bank:Checking			-$100.00
 
 2014-12-10	Dn Ing Inv; [DN]ING INV/PLA; credit; Investments; Chequing
 	Assets:Bank:Checking			 $0.01
-	Expenses:Unknown			
-
+	Income:Unknown
