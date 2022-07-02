@@ -22,4 +22,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "chronic", ">= 0.3.0"
   s.add_runtime_dependency "highline", ">= 1.5.2"
   s.add_runtime_dependency "rchardet", ">= 1.8.0"
+  s.add_runtime_dependency "matrix", ">= 0.4.2"
 end
