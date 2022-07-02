@@ -21,7 +21,7 @@ jobs:
       matrix:
         ruby-version:
           # Current ruby stable version
-          - 3.0
+          - 3.1.2
           # Ubuntu 20.10
           - 2.7
           # Ubuntu 19.10
