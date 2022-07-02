@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.8.1](https://github.com/cantino/reckon/tree/v0.8.1) (2022-07-02)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.8.0...v0.8.1)
+
+**Closed issues:**
+
+- Reckon files every transaction \(incoming and outgoing\) as Income:Unknown [\#116](https://github.com/cantino/reckon/issues/116)
+
+**Merged pull requests:**
+
+- fix bugs with test.sh [\#117](https://github.com/cantino/reckon/pull/117) ([benprew](https://github.com/benprew))
+
 ## [v0.8.0](https://github.com/cantino/reckon/tree/v0.8.0) (2021-08-08)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.7.2...v0.8.0)
@@ -222,7 +234,6 @@
 - Unattended mode and custom tokens support [\#47](https://github.com/cantino/reckon/pull/47) ([vzctl](https://github.com/vzctl))
 - \[RFC\] Implement issue \#40: Tab completion [\#46](https://github.com/cantino/reckon/pull/46) ([BlackEdder](https://github.com/BlackEdder))
 - set readline to allow for backspace in ask dialog [\#44](https://github.com/cantino/reckon/pull/44) ([mrtazz](https://github.com/mrtazz))
-- Fix --encoding option [\#41](https://github.com/cantino/reckon/pull/41) ([mamciek](https://github.com/mamciek))
 
 ## [v0.3.10](https://github.com/cantino/reckon/tree/v0.3.10) (2014-08-16)
 
@@ -230,6 +241,7 @@
 
 **Merged pull requests:**
 
+- Fix --encoding option [\#41](https://github.com/cantino/reckon/pull/41) ([mamciek](https://github.com/mamciek))
 - Bumped version number [\#37](https://github.com/cantino/reckon/pull/37) ([BlackEdder](https://github.com/BlackEdder))
 
 ## [v0.3.9](https://github.com/cantino/reckon/tree/v0.3.9) (2014-02-20)
