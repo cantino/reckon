@@ -2,6 +2,7 @@
 
 require 'pp'
 require 'yaml'
+require 'stringio'
 
 module Reckon
   class App
@@ -17,6 +18,7 @@ module Reckon
       self.options[:currency] ||= '$'
       @csv_parser = CSVParser.new( options )
       @matcher = CosineSimilarity.new(options)
+      @parser = LedgerParser.new
       learn!
     end
 
@@ -52,12 +54,13 @@ module Reckon
 
       raise "#{ledger_file} doesn't exist!" unless File.exist?(ledger_file)
 
-      learn_from_ledger(File.read(ledger_file))
+      learn_from_ledger(File.new(ledger_file))
     end
 
+    # Takes an IO-like object
     def learn_from_ledger(ledger)
       LOGGER.info "learning from #{ledger}"
-      LedgerParser.new(ledger).entries.each do |entry|
+      @parser.parse(ledger).each do |entry|
         entry[:accounts].each do |account|
           str = [entry[:desc], account[:amount]].join(" ")
           if account[:name] != options[:bank_account]
@@ -137,9 +140,9 @@ module Reckon
           next
         end
 
-        ledger = ledger_format(row, line1, line2)
+        ledger = @parser.format_row(row, line1, line2)
         LOGGER.info "ledger line: #{ledger}"
-        learn_from_ledger(ledger) unless options[:account_tokens_file]
+        learn_from_ledger(StringIO.new(ledger)) unless options[:account_tokens_file]
         output(ledger)
       end
     end
@@ -252,13 +255,6 @@ module Reckon
     def suggest(row)
       most_specific_regexp_match(row) +
         @matcher.find_similar(row[:description]).map { |n| n[:account] }
-    end
-
-    def ledger_format(row, line1, line2)
-      out = "#{row[:pretty_date]}\t#{row[:description]}#{row[:note] ? "\t; " + row[:note]: ""}\n"
-      out += "\t#{line1.first}\t\t\t#{line1.last}\n"
-      out += "\t#{line2.first}\t\t\t#{line2.last}\n\n"
-      out
     end
 
     def output(ledger_line)

@@ -8,10 +8,12 @@ require 'pp'
 require 'rantly'
 require 'rantly/rspec_extensions'
 require 'shellwords'
+require 'stringio'
 
 describe Reckon::LedgerParser do
   before do
-    @ledger = Reckon::LedgerParser.new(EXAMPLE_LEDGER, date_format: '%Y/%m/%d')
+    @ledger = Reckon::LedgerParser.new(date_format: '%Y/%m/%d')
+    @entries = @ledger.parse(StringIO.new(EXAMPLE_LEDGER))
   end
 
   describe "parse" do
@@ -58,7 +60,7 @@ describe Reckon::LedgerParser do
         headers = %w[date code desc name currency amount type commend]
         safe_s = Shellwords.escape(s)
 
-        lp_csv = Reckon::LedgerParser.new(s, date_format: '%Y/%m/%d').to_csv.join("\n")
+        lp_csv = Reckon::LedgerParser.new(date_format: '%Y/%m/%d').to_csv(StringIO.new(s)).join("\n")
         actual = CSV.parse(lp_csv, headers: headers).map(&filter_format)
 
         ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y/%m/%d' -f - `
@@ -83,9 +85,9 @@ comment
 
 end comment
 HERE
-      l = Reckon::LedgerParser.new(ledger)
-      expect(l.entries.length).to eq(1)
-      expect(l.entries.first[:desc]).to eq('Dinner should show up')
+      entries = Reckon::LedgerParser.new.parse(StringIO.new(ledger))
+      expect(entries.length).to eq(1)
+      expect(entries.first[:desc]).to eq('Dinner should show up')
 
     end
 
@@ -96,30 +98,30 @@ HERE
     Liabilities:ChaseSapphire                                       -$81.77
     # END FINANCE SCRIPT OUTPUT Thu 02 Apr 2020 12:05:54 PM EDT
 HERE
-      l = Reckon::LedgerParser.new(ledger)
-      expect(l.entries.first[:accounts].map { |n| n[:name] }).to eq(['Expenses:Household', 'Liabilities:ChaseSapphire'])
-      expect(l.entries.first[:accounts].size).to eq(2)
-      expect(l.entries.length).to eq(1)
+      entries = Reckon::LedgerParser.new.parse(StringIO.new(ledger))
+      expect(entries.first[:accounts].map { |n| n[:name] }).to eq(['Expenses:Household', 'Liabilities:ChaseSapphire'])
+      expect(entries.first[:accounts].size).to eq(2)
+      expect(entries.length).to eq(1)
     end
 
     it "should ignore non-standard entries" do
-      @ledger.entries.length.should == 7
+      @entries.length.should == 7
     end
 
     it "should parse entries correctly" do
-      @ledger.entries.first[:desc].should == "Checking balance"
-      @ledger.entries.first[:date].should == Date.parse("2004-05-01")
-      @ledger.entries.first[:accounts].first[:name].should == "Assets:Bank:Checking"
-      @ledger.entries.first[:accounts].first[:amount].should == 1000
-      @ledger.entries.first[:accounts].last[:name].should == "Equity:Opening Balances"
-      @ledger.entries.first[:accounts].last[:amount].should == -1000
+      @entries.first[:desc].should == "Checking balance"
+      @entries.first[:date].should == Date.parse("2004-05-01")
+      @entries.first[:accounts].first[:name].should == "Assets:Bank:Checking"
+      @entries.first[:accounts].first[:amount].should == 1000
+      @entries.first[:accounts].last[:name].should == "Equity:Opening Balances"
+      @entries.first[:accounts].last[:amount].should == -1000
 
-      @ledger.entries.last[:desc].should == "Credit card company"
-      @ledger.entries.last[:date].should == Date.parse("2004/05/27")
-      @ledger.entries.last[:accounts].first[:name].should == "Liabilities:MasterCard"
-      @ledger.entries.last[:accounts].first[:amount].should == 20.24
-      @ledger.entries.last[:accounts].last[:name].should == "Assets:Bank:Checking"
-      @ledger.entries.last[:accounts].last[:amount].should == -20.24
+      @entries.last[:desc].should == "Credit card company"
+      @entries.last[:date].should == Date.parse("2004/05/27")
+      @entries.last[:accounts].first[:name].should == "Liabilities:MasterCard"
+      @entries.last[:accounts].first[:amount].should == 20.24
+      @entries.last[:accounts].last[:name].should == "Assets:Bank:Checking"
+      @entries.last[:accounts].last[:amount].should == -20.24
     end
   end
 

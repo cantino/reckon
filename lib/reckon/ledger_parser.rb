@@ -110,20 +110,21 @@ require 'rubygems'
 module Reckon
   class LedgerParser
 
-    attr_accessor :entries
-
-    def initialize(ledger, options = {})
+    # ledger is an object that response to #each_line,
+    # (i.e. a StringIO or an IO object)
+    def initialize(options = {})
       @options = options
       @date_format = options[:ledger_date_format] || options[:date_format] || '%Y-%m-%d'
-      parse(ledger)
     end
 
     def parse(ledger)
-      @entries = []
+      entries = []
       new_entry = {}
       in_comment = false
       comment_chars = ';#%*|'
-      ledger.strip.split("\n").each do |entry|
+      ledger.each_line do |entry|
+        entry.rstrip!
+        puts "'#{entry}'"
         # strip comment lines
         in_comment = true if entry == 'comment'
         in_comment = false if entry == 'end comment'
@@ -132,7 +133,7 @@ module Reckon
 
         # (date, type, code, description), type and code are optional
         if (m = entry.match(%r{^(\d+[\d/-]+)\s+([*!])?\s*(\([^)]+\))?\s*(.*)$}))
-          add_entry(new_entry)
+          add_entry(entries, new_entry)
           new_entry = {
             date: try_parse_date(m[1]),
             type: m[2] || "",
@@ -141,23 +142,24 @@ module Reckon
             accounts: []
           }
         elsif entry =~ /^\s*$/ && new_entry[:date]
-          add_entry(new_entry)
+          add_entry(entries,new_entry)
           new_entry = {}
         elsif new_entry[:date] && entry =~ /^\s+/
           LOGGER.info("Adding new account #{entry}")
           new_entry[:accounts] << parse_account_line(entry)
         else
           LOGGER.info("Unknown entry type: #{entry}")
-          add_entry(new_entry)
+          add_entry(entries, new_entry)
           new_entry = {}
         end
       end
-      add_entry(new_entry)
+      add_entry(entries, new_entry)
+      entries
     end
 
     # roughly matches ledger csv format
-    def to_csv
-      return @entries.flat_map do |n|
+    def to_csv(ledger)
+      return parse(ledger).flat_map do |n|
         n[:accounts].map do |a|
           row = [
             n[:date].strftime(@date_format),
@@ -174,13 +176,21 @@ module Reckon
       end
     end
 
+    def format_row(row, line1, line2)
+      out = "#{row[:pretty_date]}\t#{row[:description]}#{row[:note] ? "\t; " + row[:note]: ""}\n"
+      out += "\t#{line1.first}\t\t\t#{line1.last}\n"
+      out += "\t#{line2.first}\t\t\t#{line2.last}\n\n"
+      out
+    end
+
+
     private
 
-    def add_entry(entry)
+    def add_entry(entries, entry)
       return unless entry[:date] && entry[:accounts].length > 1
 
       entry[:accounts] = balance(entry[:accounts])
-      @entries << entry
+      entries << entry
     end
 
     def try_parse_date(date_str)
