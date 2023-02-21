@@ -18,7 +18,7 @@ module Reckon
       self.options[:currency] ||= '$'
       @csv_parser = CSVParser.new( options )
       @matcher = CosineSimilarity.new(options)
-      @parser = LedgerParser.new
+      @parser = options[:format] =~ /beancount/i ? BeancountParser.new : LedgerParser.new
       learn!
     end
 

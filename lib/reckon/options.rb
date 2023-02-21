@@ -111,6 +111,10 @@ module Reckon
           options[:suffixed] = e
         end
 
+        opts.on("", "--ledger-format FORMAT", "Output/Learn format: BEANCOUNT or LEDGER. Default: LEDGER") do |n|
+          options[:format] = n
+        end
+
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts
           exit
