@@ -1,0 +1,16 @@
+2021-07-02	Expense; 999
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$100.00
+
+2021-07-02	Expense; 999
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$200.00
+
+2021-07-08	Transfer; 999; In1
+	Assets:Bank:Checking			 $200.00
+	Expenses:Unknown			
+
+2021-07-08	Transfer; 999; Out1
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$500.00
+

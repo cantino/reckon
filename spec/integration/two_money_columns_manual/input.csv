@@ -1,0 +1,5 @@
+Date,Summary,Withdrawal,Deposit,Ending balance,Remarks,In/outward transfer account,Notes
+2021/07/02,Expense,200,,999,,,
+2021/07/02,Expense,100,,999,,,
+2021/07/08,Transfer,,200,999,,,In1
+2021/07/08,Transfer,500,,999,,,Out1

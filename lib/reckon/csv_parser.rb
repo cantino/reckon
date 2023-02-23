@@ -162,13 +162,30 @@ module Reckon
     def detect_columns
       results = evaluate_columns(columns)
 
+      # We keep money_column options for backwards compatibility reasons, while
+      # adding option to specify multiple money_columns
       if options[:money_column]
         self.money_column_indices = [options[:money_column] - 1]
+
+      # One or two columns can be specified as money_columns
+      elsif options[:money_columns]
+        if options[:money_columns].length == 1
+          self.money_column_indices = [options[:money_column] - 1]
+        elsif options[:money_columns].length == 2
+          first_idx = options[:money_columns][0] - 1
+          second_idx = options[:money_columns][1] - 1
+          self.money_column_indices = [first_idx, second_idx]
+        else
+          puts "Unable to determine money columns, use --money-columns to specify the 1 or 2 column(s) reckon should use."
+        end
+
+      # If no money_column(s) argument is supplied, try to automatically infer money_column(s)
       else
         self.money_column_indices = results.select { |n| n[:is_money_column] }.map { |n| n[:index] }
         if self.money_column_indices.length == 1
           puts "Using column #{money_column_indices.first + 1} as the money column.  Use --money-colum to specify a different one."
         elsif self.money_column_indices.length == 2
+          puts "Using columns #{money_column_indices[0] + 1} and #{money_column_indices[1] + 1} as money column. Use --money-columns to specify different ones."
           found_double_money_column(*self.money_column_indices)
         else
           puts "Unable to determine a money column, use --money-column to specify the column reckon should use."
