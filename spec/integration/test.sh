@@ -31,7 +31,7 @@ main () {
         TEST_DIR=$(dirname "$t")
         TEST_LOG=$(mktemp)
         pushd "$TEST_DIR" >/dev/null || exit 1
-        if [[ -e "cli_input.exp" ]]; then
+        if [[ -e "cli_input.txt" ]]; then
             cli_test >$TEST_LOG 2>&1
         else
             unattended_test >$TEST_LOG 2>&1
@@ -56,10 +56,8 @@ main () {
 
 cli_test () {
     OUTPUT_FILE=$(mktemp)
-    CLI_CMD="$RECKON_CMD --table-output-file $OUTPUT_FILE $(cat test_args)"
-    TEST_CMD="expect -d -c 'spawn $CLI_CMD' cli_input.exp"
-    eval "$TEST_CMD" 2>&1
-    ERROR=0
+    TEST_CMD="$RECKON_CMD --table-output-file $OUTPUT_FILE $(cat test_args)"
+    cat cli_input.txt | $TEST_CMD
     TEST_DIFF=$(diff -u "$OUTPUT_FILE" expected_output)
 
     # ${#} is character length, test that there was no output from diff

@@ -31,7 +31,7 @@ jobs:
     - name: Update package
       run: sudo apt-get update
     - name: Install packages
-      run: sudo apt-get -y install ledger hledger expect
+      run: sudo apt-get -y install ledger hledger
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
     # change this to (see https://github.com/ruby/setup-ruby#versioning):
