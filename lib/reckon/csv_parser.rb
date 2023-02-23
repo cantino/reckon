@@ -126,13 +126,6 @@ module Reckon
       return results.sort_by { |n| n[:index] }
     end
 
-    def found_double_money_column(id1, id2)
-      self.money_column_indices = [id1, id2]
-      puts "It looks like this CSV has two seperate columns for money, one of which shows positive"
-      puts "changes and one of which shows negative changes.  If this is true, great.  Otherwise,"
-      puts "please report this issue to us so we can take a look!\n"
-    end
-
     # Some csv files negative/positive amounts are indicated in separate account
     def detect_sign_column
       return if columns[0].length <= 2 # This test needs requires more than two rows otherwise will lead to false positives
@@ -172,9 +165,8 @@ module Reckon
         if options[:money_columns].length == 1
           self.money_column_indices = [options[:money_column] - 1]
         elsif options[:money_columns].length == 2
-          first_idx = options[:money_columns][0] - 1
-          second_idx = options[:money_columns][1] - 1
-          self.money_column_indices = [first_idx, second_idx]
+          in_col, out_col = options[:money_columns]
+          self.money_column_indices = [in_col -1, out_col -1]
         else
           puts "Unable to determine money columns, use --money-columns to specify the 1 or 2 column(s) reckon should use."
         end
@@ -186,7 +178,7 @@ module Reckon
           puts "Using column #{money_column_indices.first + 1} as the money column.  Use --money-colum to specify a different one."
         elsif self.money_column_indices.length == 2
           puts "Using columns #{money_column_indices[0] + 1} and #{money_column_indices[1] + 1} as money column. Use --money-columns to specify different ones."
-          found_double_money_column(*self.money_column_indices)
+          self.money_column_indices = self.money_column_indices[0..1]
         else
           puts "Unable to determine a money column, use --money-column to specify the column reckon should use."
         end
