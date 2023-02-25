@@ -65,7 +65,14 @@ module Reckon
       date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length
       date_score += 30 if entry =~ /^\d+[:\/\.-]\d+[:\/\.-]\d+([ :]\d+[:\/\.]\d+)?$/
       date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
-      return date_score
+
+      begin
+        DateTime.parse(entry)
+        date_score += 20
+      rescue Date::Error, ArgumentError
+      end
+
+      date_score
     end
   end
 end

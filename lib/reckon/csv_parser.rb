@@ -6,7 +6,10 @@ module Reckon
 
     def initialize(options = {})
       self.options = options
+
+      self.options[:csv_separator] = "\t" if options[:csv_separator] == '\t'
       self.options[:currency] ||= '$'
+
       @csv_data = parse(options[:string] || File.read(options[:file]), options[:file])
       filter_csv
       detect_columns
@@ -175,6 +178,8 @@ module Reckon
       else
         self.money_column_indices = results.select { |n| n[:is_money_column] }.map { |n| n[:index] }
         if self.money_column_indices.length == 1
+          # TODO: print the unfiltered column number, not the filtered
+          # ie if money column is 7, but we ignore columns 4 and 5, this prints "Using column 5 as the money column"
           puts "Using column #{money_column_indices.first + 1} as the money column.  Use --money-colum to specify a different one."
         elsif self.money_column_indices.length == 2
           puts "Using columns #{money_column_indices[0] + 1} and #{money_column_indices[1] + 1} as money column. Use --money-columns to specify different ones."
@@ -212,12 +217,30 @@ module Reckon
       data.sub!("\xEF\xBB\xBF", '') # strip byte order marker, if it exists
 
       rows = []
+
+      separator = options[:csv_separator] || guess_column_separator(data)
       data.each_line.with_index do |line, i|
         next if i < (options[:contains_header] || 0)
-        rows << CSV.parse_line(line, col_sep: options[:csv_separator] || ',')
+        rows << CSV.parse_line(line, col_sep: separator)
       end
 
       rows
+    end
+
+    def guess_column_separator(data)
+      delimiters = [',', "\t", ';', ':', '|']
+
+      counts = [0] * delimiters.length
+
+      data.each_line do |line|
+        delimiters.each_with_index do |delim, i|
+          counts[i] += line.count(delim)
+        end
+      end
+
+      LOGGER.info("guessing #{delimiters[counts.index(counts.max)]} as csv separator")
+
+      delimiters[counts.index(counts.max)]
     end
 
     def try_encoding(data, filename = nil)
