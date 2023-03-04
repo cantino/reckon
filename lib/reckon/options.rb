@@ -44,6 +44,10 @@ module Reckon
           options[:money_column] = col
         end
 
+        opts.on("", "--money-columns 2,3", "Column number of the money columns, starts from 1 (1 or 2 columns)") do |ignore|
+          options[:money_columns] = ignore.split(",").map(&:to_i)
+        end
+
         opts.on("", "--raw-money", "Don't format money column (for stocks)") do |n|
           options[:raw] = n
         end

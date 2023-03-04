@@ -45,6 +45,8 @@ Learn more:
                                      Columns to ignore, starts from 1
         --money-column 2
                                      Column number of the money column, starts from 1
+        --money-columns 2,3
+                                     Column number of the money columns, starts from 1 (1 or 2 columns)
         --raw-money
                                      Don't format money column (for stocks)
         --date-column 3

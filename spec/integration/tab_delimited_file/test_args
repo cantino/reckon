@@ -1,0 +1,1 @@
+-f input.csv --unattended -c € --ignore-columns 4,5 --comma-separates-cents -v --date-format '%Y%m%d' --csv-separator '\t' -a Test::Account

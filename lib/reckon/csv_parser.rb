@@ -6,7 +6,10 @@ module Reckon
 
     def initialize(options = {})
       self.options = options
+
+      self.options[:csv_separator] = "\t" if options[:csv_separator] == '\t'
       self.options[:currency] ||= '$'
+
       @csv_data = parse(options[:string] || File.read(options[:file]), options[:file])
       filter_csv
       detect_columns
@@ -126,13 +129,6 @@ module Reckon
       return results.sort_by { |n| n[:index] }
     end
 
-    def found_double_money_column(id1, id2)
-      self.money_column_indices = [id1, id2]
-      puts "It looks like this CSV has two seperate columns for money, one of which shows positive"
-      puts "changes and one of which shows negative changes.  If this is true, great.  Otherwise,"
-      puts "please report this issue to us so we can take a look!\n"
-    end
-
     # Some csv files negative/positive amounts are indicated in separate account
     def detect_sign_column
       return if columns[0].length <= 2 # This test needs requires more than two rows otherwise will lead to false positives
@@ -162,14 +158,32 @@ module Reckon
     def detect_columns
       results = evaluate_columns(columns)
 
+      # We keep money_column options for backwards compatibility reasons, while
+      # adding option to specify multiple money_columns
       if options[:money_column]
         self.money_column_indices = [options[:money_column] - 1]
+
+      # One or two columns can be specified as money_columns
+      elsif options[:money_columns]
+        if options[:money_columns].length == 1
+          self.money_column_indices = [options[:money_column] - 1]
+        elsif options[:money_columns].length == 2
+          in_col, out_col = options[:money_columns]
+          self.money_column_indices = [in_col -1, out_col -1]
+        else
+          puts "Unable to determine money columns, use --money-columns to specify the 1 or 2 column(s) reckon should use."
+        end
+
+      # If no money_column(s) argument is supplied, try to automatically infer money_column(s)
       else
         self.money_column_indices = results.select { |n| n[:is_money_column] }.map { |n| n[:index] }
         if self.money_column_indices.length == 1
+          # TODO: print the unfiltered column number, not the filtered
+          # ie if money column is 7, but we ignore columns 4 and 5, this prints "Using column 5 as the money column"
           puts "Using column #{money_column_indices.first + 1} as the money column.  Use --money-colum to specify a different one."
         elsif self.money_column_indices.length == 2
-          found_double_money_column(*self.money_column_indices)
+          puts "Using columns #{money_column_indices[0] + 1} and #{money_column_indices[1] + 1} as money column. Use --money-columns to specify different ones."
+          self.money_column_indices = self.money_column_indices[0..1]
         else
           puts "Unable to determine a money column, use --money-column to specify the column reckon should use."
         end
@@ -203,12 +217,30 @@ module Reckon
       data.sub!("\xEF\xBB\xBF", '') # strip byte order marker, if it exists
 
       rows = []
+
+      separator = options[:csv_separator] || guess_column_separator(data)
       data.each_line.with_index do |line, i|
         next if i < (options[:contains_header] || 0)
-        rows << CSV.parse_line(line, col_sep: options[:csv_separator] || ',')
+        rows << CSV.parse_line(line, col_sep: separator)
       end
 
       rows
+    end
+
+    def guess_column_separator(data)
+      delimiters = [',', "\t", ';', ':', '|']
+
+      counts = [0] * delimiters.length
+
+      data.each_line do |line|
+        delimiters.each_with_index do |delim, i|
+          counts[i] += line.count(delim)
+        end
+      end
+
+      LOGGER.info("guessing #{delimiters[counts.index(counts.max)]} as csv separator")
+
+      delimiters[counts.index(counts.max)]
     end
 
     def try_encoding(data, filename = nil)

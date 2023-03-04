@@ -50,4 +50,10 @@ describe Reckon::DateColumn do
         .to eq('2013-12-13')
     end
   end
+
+  describe "#likelihood" do
+    it "should prefer numbers that looks like dates" do
+      expect(Reckon::DateColumn.likelihood("123456789")).to be < Reckon::DateColumn.likelihood("20160102")
+    end
+  end
 end
