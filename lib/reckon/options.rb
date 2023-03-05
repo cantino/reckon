@@ -61,6 +61,10 @@ module Reckon
           options[:contains_header] = hdr.to_i
         end
 
+        opts.on("", "--contains-footer [N]", Integer, "Skip N footer rows - default 0") do |hdr|
+          options[:contains_footer] = hdr.to_i || 0
+        end
+        
         opts.on("", "--csv-separator ','", "CSV separator (default ',')") do |sep|
           options[:csv_separator] = sep
         end

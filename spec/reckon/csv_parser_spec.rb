@@ -54,7 +54,8 @@ describe Reckon::CSVParser do
       let(:invalid_file) { fixture_path('invalid_header_example.csv') }
 
       it 'should ignore invalid header lines' do
-        Reckon::CSVParser.new(file: invalid_file, contains_header: 4)
+        parser = Reckon::CSVParser.new(file: invalid_file, contains_header: 4)
+        expect(parser.csv_data).to eq([["19/02/2016", "VIR RECU 508160", "VIR RECU 1234567834S DE: Francois REF: 123457891234567894561231 PROVENANCE: DE Allemagne ", "50,00", "EUR"], ["18/02/2016", "COTISATION JAZZ", "COTISATION JAZZ ", "-8,10", "EUR"]])
       end
 
       it 'should fail' do

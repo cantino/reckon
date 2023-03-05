@@ -1,5 +1,7 @@
 #coding: utf-8
 
+require 'stringio'
+
 module Reckon
   class CSVParser
     attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column, :date_column
@@ -10,6 +12,7 @@ module Reckon
       self.options[:csv_separator] = "\t" if options[:csv_separator] == '\t'
       self.options[:currency] ||= '$'
 
+      # we convert to a string so we can do character encoding cleanup
       @csv_data = parse(options[:string] || File.read(options[:file]), options[:file])
       filter_csv
       detect_columns
@@ -217,14 +220,25 @@ module Reckon
       data.sub!("\xEF\xBB\xBF", '') # strip byte order marker, if it exists
 
       rows = []
-
       separator = options[:csv_separator] || guess_column_separator(data)
-      data.each_line.with_index do |line, i|
-        next if i < (options[:contains_header] || 0)
-        rows << CSV.parse_line(line, col_sep: separator)
+      header_lines_to_skip = options[:contains_header] || 0
+      footer_lines_to_skip = (options[:contains_footer] || 0) + 1 # -1 is skip 0 footer rows
+      
+      # convert to a stringio object to handle multi-line fields
+      begin
+        rows = CSV.parse(StringIO.new(data), col_sep: separator)
+        rows[header_lines_to_skip..-footer_lines_to_skip]
+      rescue CSV::MalformedCSVError => e
+        # try removing N header lines before parsing
+        index = 0
+        count = 0
+        while count < header_lines_to_skip
+          index = data.index("\n", index) + 1 # skip over newline character
+          count += 1
+        end
+        rows = CSV.parse(StringIO.new(data[index..-1]), col_sep: separator)
+        rows[0..-footer_lines_to_skip]
       end
-
-      rows
     end
 
     def guess_column_separator(data)
