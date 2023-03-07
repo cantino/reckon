@@ -17,7 +17,6 @@ module Reckon
 
     def initialize(options)
       @docs = DocumentInfo.new({}, {})
-      @options = options
     end
 
     def add_document(account, doc)

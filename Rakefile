@@ -13,10 +13,10 @@ task :test_all do
   puts "Running unit tests"
   Rake::Task["spec"].invoke
   puts "Running integration tests"
-  Rake::Task["integration_tests"].invoke
+  Rake::Task["test_integration"].invoke
 end
 
-task :integration_tests do
+task :test_integration do
   cmd = 'prove -v ./spec/integration/test.sh'
   raise 'Integration tests failed' unless system(cmd)
 end

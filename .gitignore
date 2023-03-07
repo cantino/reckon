@@ -28,6 +28,14 @@ private_tests
 
 ## Bundler
 vendor
+.bundle
+# binstubs
+exec/
+
+# Don't commit gem files
+*.gem
 
 test.log
 test_log.txt
+
+.byebug_history

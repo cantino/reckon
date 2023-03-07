@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # frozen_string_literal: true
 
 # From: https://www.ledger-cli.org/3.0/doc/ledger3.html#Transactions-and-Comments
@@ -124,7 +123,6 @@ module Reckon
       comment_chars = ';#%*|'
       ledger.each_line do |entry|
         entry.rstrip!
-        puts "'#{entry}'"
         # strip comment lines
         in_comment = true if entry == 'comment'
         in_comment = false if entry == 'end comment'

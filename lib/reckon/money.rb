@@ -6,11 +6,10 @@ module Reckon
     include Comparable
     attr_accessor :amount, :currency, :suffixed
     def initialize(amount, options = {})
-      @options = options
       @amount_raw = amount
       @raw = options[:raw]
 
-      @amount = parse(amount, options)
+      @amount = parse(amount, options[:comma_separates_cents])
       @amount = -@amount if options[:inverse]
       @currency = options[:currency] || "$"
       @suffixed = options[:suffixed]
@@ -21,7 +20,7 @@ module Reckon
     end
 
     def to_s
-      return @options[:raw] ? "#{@amount_raw} | #{@amount}" : @amount
+      return @raw ? "#{@amount_raw} | #{@amount}" : @amount
     end
 
     # unary minus
@@ -60,24 +59,7 @@ module Reckon
       return (@amount >= 0 ? " " : "") + amt
     end
 
-    def pretty_amount(amount)
-      sprintf("%0.2f", amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
-    end
-
-    def parse(value, options = {})
-      value = value.to_s
-      # Empty string is treated as money with value 0
-      return value.to_f if value.to_s.empty?
-
-      invert = value.match(/^\(.*\)$/)
-      value = value.gsub(/[^0-9,.-]/, '')
-      value = value.tr('.', '').tr(',', '.') if options[:comma_separates_cents]
-      value = value.tr(',', '')
-      value = value.to_f
-      return invert ? -value : value
-    end
-
-    def Money::likelihood(entry)
+    def self.likelihood(entry)
       money_score = 0
       # digits separated by , or . with no more than 2 trailing digits
       money_score += 40 if entry.match(/\d+[,.]\d{2}[^\d]*$/)
@@ -88,6 +70,26 @@ module Reckon
       money_score -= 20 if (entry !~ /^[\$\+\.\-,\d\(\)]+$/) && entry.length > 0
       money_score
     end
+
+    private
+
+    def pretty_amount(amount)
+      sprintf("%0.2f", amount).reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+    end
+
+    def parse(value, comma_separates_cents)
+      value = value.to_s
+      # Empty string is treated as money with value 0
+      return value.to_f if value.to_s.empty?
+
+      invert = value.match(/^\(.*\)$/)
+      value = value.gsub(/[^0-9,.-]/, '')
+      value = value.tr('.', '').tr(',', '.') if comma_separates_cents
+      value = value.tr(',', '')
+      value = value.to_f
+      return invert ? -value : value
+    end
+
   end
 
   class MoneyColumn < Array

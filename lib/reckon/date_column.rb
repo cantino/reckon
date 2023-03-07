@@ -2,13 +2,17 @@ module Reckon
   class DateColumn < Array
     attr_accessor :endian_precedence
     def initialize( arr = [], options = {} )
-      @options = options
+      # output date format
+      @ledger_date_format = options[:ledger_date_format]
+
+      # input date format
+      date_format = options[:date_format]
       arr.each do |value|
-        if options[:date_format]
+        if date_format
           begin
-            value = Date.strptime(value, options[:date_format])
+            value = Date.strptime(value, date_format)
           rescue
-            puts "I'm having trouble parsing '#{value}' with the desired format: #{options[:date_format]}"
+            puts "I'm having trouble parsing '#{value}' with the desired format: #{date_format}"
             exit 1
           end
         else
@@ -34,7 +38,7 @@ module Reckon
         self.push( value )
       end
       # if endian_precedence still nil, raise error
-      unless @endian_precedence || options[:date_format]
+      unless @endian_precedence || date_format
         raise( "Unable to determine date format. Please specify using --date-format" )
       end
     end
@@ -54,7 +58,7 @@ module Reckon
       date = self.for(index)
       return "" if date.nil?
 
-      date.strftime(@options[:ledger_date_format] || '%Y-%m-%d')
+      date.strftime(@ledger_date_format || '%Y-%m-%d')
     end
 
     def self.likelihood(entry)
