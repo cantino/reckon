@@ -1,1 +1,1 @@
--f input.csv --unattended --account Assets:Bank:Checking --contains-header 4
+-f input.csv --unattended --account Assets:Bank:Checking --contains-header 4 --comma-separates-cents --verbose

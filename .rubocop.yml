@@ -1,0 +1,20 @@
+Layout/LineLength:
+  Max: 88
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: False
+
+Metrics/MethodLength:
+  Enabled: False
+
+Metrics/AbcSize:
+  Enabled: False
+
+Style/NumericPredicate:
+  Enabled: False

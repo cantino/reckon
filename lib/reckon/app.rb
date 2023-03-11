@@ -1,12 +1,14 @@
-# coding: utf-8
+# frozen_string_literal: true
 
-require 'pp'
 require 'yaml'
 require 'stringio'
 
 module Reckon
+  # The main app
   class App
     attr_accessor :options, :seen, :csv_parser, :regexps, :matcher
+
+    # TODO: use options cli instead of recreating it here?
     @@cli = HighLine.new
 
     def initialize(opts = {})
@@ -15,8 +17,7 @@ module Reckon
 
       self.regexps = {}
       self.seen = Set.new
-      self.options[:currency] ||= '$'
-      @csv_parser = CSVParser.new( options )
+      @csv_parser = CSVParser.new(options)
       @matcher = CosineSimilarity.new(options)
       @parser = options[:format] =~ /beancount/i ? BeancountParser.new : LedgerParser.new
       learn!
@@ -31,6 +32,9 @@ module Reckon
     def learn!
       learn_from_account_tokens(options[:account_tokens_file])
       learn_from_ledger_file(options[:existing_ledger_file])
+      # TODO: make this work
+      # this doesn't work because output_file is an IO object
+      # learn_from_ledger_file(options[:output_file]) if File.exist?(options[:output_file])
     end
 
     def learn_from_account_tokens(filename)
@@ -87,7 +91,7 @@ module Reckon
           merged_acct = [account, k].compact.join(':')
           extract_account_tokens(v, merged_acct)
         end
-        at.inject({}) { |memo, e| memo.merge!(e)}
+        at.inject({}) { |memo, e| memo.merge!(e) }
       end
     end
 
@@ -95,6 +99,7 @@ module Reckon
       # https://github.com/tenderlove/psych/blob/master/lib/psych/visitors/to_ruby.rb
       match = regex_str.match(/^\/(.*)\/([ix]*)$/m)
       fail "failed to parse regexp #{regex_str}" unless match
+
       options = 0
       (match[2] || '').split('').each do |option|
         case option
@@ -123,13 +128,16 @@ module Reckon
 
         if row[:money] > 0
           # out_of_account
-          answer = ask_account_question("Which account provided this income? (#{cmd_options})", row)
+          answer = ask_account_question(
+            "Which account provided this income? (#{cmd_options})", row
+          )
           line1 = [options[:bank_account], row[:pretty_money]]
           line2 = [answer, ""]
         else
           # into_account
-          answer = ask_account_question("To which account did this money go? (#{cmd_options})", row)
-#          line1 = [answer, row[:pretty_money_negated]]
+          answer = ask_account_question(
+            "To which account did this money go? (#{cmd_options})", row
+          )
           line1 = [answer, ""]
           line2 = [options[:bank_account], row[:pretty_money]]
         end
@@ -249,7 +257,7 @@ module Reckon
           [account, match[0]]
         end
       }.compact
-      matches.sort_by! { |_account, matched_text| matched_text.length }.map(&:first)
+      matches.sort_by { |_account, matched_text| matched_text.length }.map(&:first)
     end
 
     def suggest(row)
