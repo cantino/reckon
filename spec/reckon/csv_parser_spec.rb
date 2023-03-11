@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# coding: utf-8
 
 require_relative "../spec_helper"
 require 'rubygems'
@@ -8,24 +7,53 @@ require_relative '../../lib/reckon'
 describe Reckon::CSVParser do
   let(:chase) { Reckon::CSVParser.new(file: fixture_path('chase.csv')) }
   let(:some_other_bank) { Reckon::CSVParser.new(file: fixture_path('some_other.csv')) }
-  let(:two_money_columns) { Reckon::CSVParser.new(file: fixture_path('two_money_columns.csv')) }
+  let(:two_money_columns) {
+    Reckon::CSVParser.new(file: fixture_path('two_money_columns.csv'))
+  }
   let(:suntrust_csv) { Reckon::CSVParser.new(file: fixture_path('suntrust.csv')) }
   let(:simple_csv) { Reckon::CSVParser.new(file: fixture_path('simple.csv')) }
-  let(:nationwide) { Reckon::CSVParser.new(file: fixture_path('nationwide.csv'), csv_separator: ',', suffixed: true, currency: "POUND") }
-  let(:german_date) { Reckon::CSVParser.new(file: fixture_path('german_date_example.csv')) }
-  let(:danish_kroner_nordea) { Reckon::CSVParser.new(file: fixture_path('danish_kroner_nordea_example.csv'), csv_separator: ';', comma_separates_cents: true) }
-  let(:yyyymmdd_date) { Reckon::CSVParser.new(file: fixture_path('yyyymmdd_date_example.csv')) }
-  let(:spanish_date) { Reckon::CSVParser.new(file: fixture_path('spanish_date_example.csv'), date_format: '%d/%m/%Y') }
-  let(:english_date) { Reckon::CSVParser.new(file: fixture_path('english_date_example.csv')) }
-  let(:ing_csv) { Reckon::CSVParser.new(file: fixture_path('ing.csv'), comma_separates_cents: true ) }
-  let(:austrian_csv) { Reckon::CSVParser.new(file: fixture_path('austrian_example.csv'), comma_separates_cents: true, csv_separator: ';' ) }
-  let(:french_csv) { Reckon::CSVParser.new(file: fixture_path('french_example.csv'), csv_separator: ';', comma_separates_cents: true) }
-  let(:broker_canada) { Reckon::CSVParser.new(file: fixture_path('broker_canada_example.csv')) }
-  let(:intuit_mint) { Reckon::CSVParser.new(file: fixture_path('intuit_mint_example.csv')) }
+  let(:nationwide) {
+    Reckon::CSVParser.new(file: fixture_path('nationwide.csv'), csv_separator: ',',
+                          suffixed: true, currency: "POUND")
+  }
+  let(:german_date) {
+    Reckon::CSVParser.new(file: fixture_path('german_date_example.csv'))
+  }
+  let(:danish_kroner_nordea) {
+    Reckon::CSVParser.new(file: fixture_path('danish_kroner_nordea_example.csv'),
+                          csv_separator: ';', comma_separates_cents: true)
+  }
+  let(:yyyymmdd_date) {
+    Reckon::CSVParser.new(file: fixture_path('yyyymmdd_date_example.csv'))
+  }
+  let(:spanish_date) {
+    Reckon::CSVParser.new(file: fixture_path('spanish_date_example.csv'),
+                          date_format: '%d/%m/%Y')
+  }
+  let(:english_date) {
+    Reckon::CSVParser.new(file: fixture_path('english_date_example.csv'))
+  }
+  let(:ing_csv) {
+    Reckon::CSVParser.new(file: fixture_path('ing.csv'), comma_separates_cents: true)
+  }
+  let(:austrian_csv) {
+    Reckon::CSVParser.new(file: fixture_path('austrian_example.csv'),
+                          comma_separates_cents: true, csv_separator: ';')
+  }
+  let(:french_csv) {
+    Reckon::CSVParser.new(file: fixture_path('french_example.csv'), csv_separator: ';',
+                          comma_separates_cents: true)
+  }
+  let(:broker_canada) {
+    Reckon::CSVParser.new(file: fixture_path('broker_canada_example.csv'))
+  }
+  let(:intuit_mint) {
+    Reckon::CSVParser.new(file: fixture_path('intuit_mint_example.csv'))
+  }
 
   describe "parse" do
     it "should use binary encoding if none specified and chardet fails" do
-      allow(CharDet).to receive(:detect).and_return({'encoding' => nil})
+      allow(CharDet).to receive(:detect).and_return({ 'encoding' => nil })
       app = Reckon::CSVParser.new(file: fixture_path("extratofake.csv"))
       expect(app.send(:try_encoding, "foobarbaz")).to eq("BINARY")
     end
@@ -37,12 +65,16 @@ describe Reckon::CSVParser do
     end
 
     it "should work with other separators" do
-      Reckon::CSVParser.new(:string => "one;two\nthree;four", :csv_separator => ';').columns.should == [['one', 'three'], ['two', 'four']]
+      Reckon::CSVParser.new(:string => "one;two\nthree;four",
+                            :csv_separator => ';').columns.should == [
+                              ['one', 'three'], ['two', 'four']
+                            ]
     end
 
     it 'should parse quoted lines' do
       file = %q("30.03.2015";"29.03.2015";"09.04.2015";"BARAUSZAHLUNGSENTGELT";"5266 xxxx xxxx 9454";"";"0";"EUR";"0,00";"EUR";"-3,50";"0")
-      Reckon::CSVParser.new(string: file, csv_separator: ';', comma_separates_cents: true).columns.length.should == 12
+      Reckon::CSVParser.new(string: file, csv_separator: ';',
+                            comma_separates_cents: true).columns.length.should == 12
     end
 
     it 'should parse csv with BOM' do
@@ -82,19 +114,24 @@ describe Reckon::CSVParser do
 
   describe "columns" do
     it "should return the csv transposed" do
-      simple_csv.columns.should == [["entry1", "entry4"], ["entry2", "entry5"], ["entry3", "entry6"]]
+      simple_csv.columns.should == [["entry1", "entry4"], ["entry2", "entry5"],
+                                    ["entry3", "entry6"]]
       chase.columns.length.should == 4
     end
 
     it "should be ok with empty lines" do
       lambda {
-        Reckon::CSVParser.new(:string => "one,two\nthree,four\n\n\n\n\n").columns.should == [['one', 'three'], ['two', 'four']]
+        Reckon::CSVParser.new(:string => "one,two\nthree,four\n\n\n\n\n").columns.should == [
+          ['one', 'three'], ['two', 'four']
+        ]
       }.should_not raise_error
     end
   end
 
   describe "detect_columns" do
-    let(:harder_date_example_csv) { Reckon::CSVParser.new(file: fixture_path('harder_date_example.csv')) }
+    let(:harder_date_example_csv) {
+      Reckon::CSVParser.new(file: fixture_path('harder_date_example.csv'))
+    }
 
     it "should detect the money column" do
       chase.money_column_indices.should == [3]
@@ -180,13 +217,17 @@ describe Reckon::CSVParser do
     end
 
     it "should handle the comma_separates_cents option correctly" do
-      european_csv = Reckon::CSVParser.new(:string => "$2,00;something\n1.025,67;something else", :csv_separator => ';', :comma_separates_cents => true)
+      european_csv = Reckon::CSVParser.new(
+        :string => "$2,00;something\n1.025,67;something else", :csv_separator => ';', :comma_separates_cents => true
+      )
       european_csv.money_for(0).should == 2.00
       european_csv.money_for(1).should == 1025.67
     end
 
     it "should return negated values if the inverse option is passed" do
-      inversed_csv = Reckon::CSVParser.new(file: fixture_path('inversed_credit_card.csv'), inverse: true)
+      inversed_csv = Reckon::CSVParser.new(
+        file: fixture_path('inversed_credit_card.csv'), inverse: true
+      )
       inversed_csv.money_for(0).should == -30.00
       inversed_csv.money_for(3).should == 500.00
     end
@@ -244,7 +285,8 @@ describe Reckon::CSVParser do
     end
 
     it "should not append empty description column" do
-      parser = Reckon::CSVParser.new(:string => '01/09/2015,05354 SUBWAY,8.19,,',:date_format => '%d/%m/%Y')
+      parser = Reckon::CSVParser.new(:string => '01/09/2015,05354 SUBWAY,8.19,,',
+                                     :date_format => '%d/%m/%Y')
       parser.description_for(0).should == '05354 SUBWAY'
     end
 
@@ -264,7 +306,8 @@ describe Reckon::CSVParser do
     end
 
     it "work with other currencies such as €" do
-      euro_bank = Reckon::CSVParser.new(file: fixture_path('some_other.csv'), currency: "€", suffixed: false )
+      euro_bank = Reckon::CSVParser.new(file: fixture_path('some_other.csv'),
+                                        currency: "€", suffixed: false)
       euro_bank.pretty_money_for(1).should == "-€20.00"
       euro_bank.pretty_money_for(4).should == " €1,558.52"
       euro_bank.pretty_money_for(7).should == "-€116.22"
@@ -273,7 +316,8 @@ describe Reckon::CSVParser do
     end
 
     it "work with suffixed currencies such as SEK" do
-      swedish_bank = Reckon::CSVParser.new(file: fixture_path('some_other.csv'), currency: 'SEK', suffixed: true )
+      swedish_bank = Reckon::CSVParser.new(file: fixture_path('some_other.csv'),
+                                           currency: 'SEK', suffixed: true)
       swedish_bank.pretty_money_for(1).should == "-20.00 SEK"
       swedish_bank.pretty_money_for(4).should == " 1,558.52 SEK"
       swedish_bank.pretty_money_for(7).should == "-116.22 SEK"
@@ -289,7 +333,7 @@ describe Reckon::CSVParser do
 
   describe '85 regression test' do
     it 'should detect correct date column' do
-      p = Reckon::CSVParser.new(file:fixture_path('85-date-example.csv'))
+      p = Reckon::CSVParser.new(file: fixture_path('85-date-example.csv'))
       expect(p.date_column_index).to eq(2)
     end
   end

@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 module Reckon
+  # Parses CSV files
   class CSVParser
-    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index, :description_column_indices, :money_column, :date_column
+    attr_accessor :options, :csv_data, :money_column_indices, :date_column_index,
+                  :description_column_indices, :money_column, :date_column
 
     def initialize(options = {})
       self.options = options
@@ -16,21 +20,9 @@ module Reckon
       detect_columns
     end
 
+    # transpose csv_data (array of rows) to an array of columns
     def columns
-      @columns ||=
-        begin
-          last_row_length = nil
-          csv_data.inject([]) do |memo, row|
-            unless row.all? { |i| i.nil? || i.length == 0 }
-              row.each_with_index do |entry, index|
-                memo[index] ||= []
-                memo[index] << (entry || '').strip
-              end
-              last_row_length = row.length
-            end
-            memo
-          end
-        end
+      @columns ||= @csv_data[0].zip(*@csv_data[1..])
     end
 
     def date_for(index)
@@ -38,7 +30,7 @@ module Reckon
     end
 
     def pretty_date_for(index)
-      @date_column.pretty_for( index )
+      @date_column.pretty_for(index)
     end
 
     def money_for(index)
@@ -46,7 +38,7 @@ module Reckon
     end
 
     def pretty_money(amount, negate = false)
-      Money.new( amount, @options ).pretty( negate )
+      Money.new(amount, @options).pretty(negate)
     end
 
     def pretty_money_for(index, negate = false)
@@ -58,11 +50,11 @@ module Reckon
 
     def description_for(index)
       description_column_indices.map { |i| columns[i][index].to_s.strip }
-        .reject(&:empty?)
-        .join("; ")
-        .squeeze(" ")
-        .gsub(/(;\s+){2,}/, '')
-        .strip
+                                .reject(&:empty?)
+                                .join("; ")
+                                .squeeze(" ")
+                                .gsub(/(;\s+){2,}/, '')
+                                .strip
     end
 
     def row(index)
@@ -88,9 +80,10 @@ module Reckon
         money_score = date_score = possible_neg_money_count = possible_pos_money_count = 0
         last = nil
         column.reverse.each_with_index do |entry, row_from_bottom|
+          entry ||= "" # entries can be nil
           row = csv_data[csv_data.length - 1 - row_from_bottom]
           entry = entry.strip
-          money_score += Money::likelihood( entry )
+          money_score += Money::likelihood(entry)
           possible_neg_money_count += 1 if entry =~ /^\$?[\-\(]\$?\d+/
           possible_pos_money_count += 1 if entry =~ /^\+?\$?\+?\d+/
           date_score += DateColumn.likelihood(entry)
@@ -101,8 +94,8 @@ module Reckon
             row.each do |row_entry|
               row_entry = row_entry.to_s.gsub(/[^\-\d\.]/, '').to_f
               if row_entry != 0 && last + row_entry == entry_as_num
-                 money_score -= 10
-                 break
+                money_score -= 10
+                break
               end
             end
           end
@@ -114,7 +107,8 @@ module Reckon
           found_likely_money_column = true
         end
 
-        results << { :index => index, :money_score => money_score, :date_score => date_score }
+        results << { :index => index, :money_score => money_score,
+                     :date_score => date_score }
       end
 
       results.sort_by! { |n| -n[:money_score] }
@@ -133,14 +127,15 @@ module Reckon
     # Some csv files negative/positive amounts are indicated in separate account
     def detect_sign_column
       return if columns[0].length <= 2 # This test needs requires more than two rows otherwise will lead to false positives
+
       signs = []
       if @money_column_indices[0] > 0
-        column = columns[ @money_column_indices[0] - 1 ]
+        column = columns[@money_column_indices[0] - 1]
         signs = column.uniq
       end
       if (signs.length != 2 &&
           (@money_column_indices[0] + 1 < columns.length))
-        column = columns[ @money_column_indices[0] + 1 ]
+        column = columns[@money_column_indices[0] + 1]
         signs = column.uniq
       end
       if signs.length == 2
@@ -170,14 +165,16 @@ module Reckon
           self.money_column_indices = [options[:money_column] - 1]
         elsif options[:money_columns].length == 2
           in_col, out_col = options[:money_columns]
-          self.money_column_indices = [in_col -1, out_col -1]
+          self.money_column_indices = [in_col - 1, out_col - 1]
         else
           puts "Unable to determine money columns, use --money-columns to specify the 1 or 2 column(s) reckon should use."
         end
 
       # If no money_column(s) argument is supplied, try to automatically infer money_column(s)
       else
-        self.money_column_indices = results.select { |n| n[:is_money_column] }.map { |n| n[:index] }
+        self.money_column_indices = results.select { |n|
+                                      n[:is_money_column]
+                                    }.map { |n| n[:index] }
         if self.money_column_indices.length == 1
           # TODO: print the unfiltered column number, not the filtered
           # ie if money column is 7, but we ignore columns 4 and 5, this prints "Using column 5 as the money column"
@@ -210,23 +207,27 @@ module Reckon
       self.description_column_indices = results.map { |i| i[:index] }
     end
 
-    def parse(data, filename=nil)
+    def parse(data, filename = nil)
       # Use force_encoding to convert the string to utf-8 with as few invalid characters
       # as possible.
       data.force_encoding(try_encoding(data, filename))
       data = data.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
       data.sub!("\xEF\xBB\xBF", '') # strip byte order marker, if it exists
 
-      rows = []
       separator = options[:csv_separator] || guess_column_separator(data)
       header_lines_to_skip = options[:contains_header] || 0
-      footer_lines_to_skip = (options[:contains_footer] || 0) + 1 # -1 is skip 0 footer rows
-      
+      # -1 is skip 0 footer rows
+      footer_lines_to_skip = (options[:contains_footer] || 0) + 1
+
       # convert to a stringio object to handle multi-line fields
+      parser_opts = {
+        col_sep: separator,
+        skip_blanks: true
+      }
       begin
-        rows = CSV.parse(StringIO.new(data), col_sep: separator)
+        rows = CSV.parse(StringIO.new(data), **parser_opts)
         rows[header_lines_to_skip..-footer_lines_to_skip]
-      rescue CSV::MalformedCSVError => e
+      rescue CSV::MalformedCSVError
         # try removing N header lines before parsing
         index = 0
         count = 0
@@ -234,7 +235,7 @@ module Reckon
           index = data.index("\n", index) + 1 # skip over newline character
           count += 1
         end
-        rows = CSV.parse(StringIO.new(data[index..-1]), col_sep: separator)
+        rows = CSV.parse(StringIO.new(data[index..-1]), **parser_opts)
         rows[0..-footer_lines_to_skip]
       end
     end
