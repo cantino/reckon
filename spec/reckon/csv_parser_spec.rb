@@ -50,12 +50,26 @@ describe Reckon::CSVParser do
       Reckon::CSVParser.new(file: file).columns.length.should == 41
     end
 
+    it 'should parse multi-line csv fields' do
+      file = File.expand_path(fixture_path("multi-line-field.csv"))
+      p = Reckon::CSVParser.new(file: file)
+      expect(p.columns[0].length).to eq 2
+      expected_field = "In case of errors or questions about your\n" +
+                       "        electronic transfers:\n" +
+                       "        This is a multi-line string\n" +
+                       "        "
+      expect(p.columns[-1][-1]).to eq expected_field
+    end
+
     describe 'file with invalid csv in header' do
       let(:invalid_file) { fixture_path('invalid_header_example.csv') }
 
       it 'should ignore invalid header lines' do
         parser = Reckon::CSVParser.new(file: invalid_file, contains_header: 4)
-        expect(parser.csv_data).to eq([["19/02/2016", "VIR RECU 508160", "VIR RECU 1234567834S DE: Francois REF: 123457891234567894561231 PROVENANCE: DE Allemagne ", "50,00", "EUR"], ["18/02/2016", "COTISATION JAZZ", "COTISATION JAZZ ", "-8,10", "EUR"]])
+        expect(parser.csv_data).to eq([
+                                        ["19/02/2016", "VIR RECU 508160",
+                                         "VIR RECU 1234567834S DE: Francois REF: 123457891234567894561231 PROVENANCE: DE Allemagne ", "50,00", "EUR"], ["18/02/2016", "COTISATION JAZZ", "COTISATION JAZZ ", "-8,10", "EUR"]
+                                      ])
       end
 
       it 'should fail' do
