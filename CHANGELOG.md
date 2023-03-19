@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.9.1](https://github.com/cantino/reckon/tree/v0.9.1) (2023-03-19)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.9.0...v0.9.1)
+
+**Closed issues:**
+
+- More than one column support [\#120](https://github.com/cantino/reckon/issues/120)
+- Beancount support [\#119](https://github.com/cantino/reckon/issues/119)
+- Problem with importing CSV [\#60](https://github.com/cantino/reckon/issues/60)
+
 ## [v0.9.0](https://github.com/cantino/reckon/tree/v0.9.0) (2023-02-23)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.9.0-beta...v0.9.0)
