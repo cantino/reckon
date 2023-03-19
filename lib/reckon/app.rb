@@ -8,15 +8,13 @@ module Reckon
   class App
     attr_accessor :options, :seen, :csv_parser, :regexps, :matcher
 
-    # TODO: use options cli instead of recreating it here?
-    @@cli = HighLine.new
-
     def initialize(opts = {})
       self.options = opts
       LOGGER.level = Logger::INFO if options[:verbose]
 
       self.regexps = {}
       self.seen = Set.new
+      @cli = HighLine.new
       @csv_parser = CSVParser.new(options)
       @matcher = CosineSimilarity.new(options)
       @parser = options[:format] =~ /beancount/i ? BeancountParser.new : LedgerParser.new
@@ -29,6 +27,7 @@ module Reckon
       fh.puts str
     end
 
+    # Learn from previous transactions. Used to recommend accounts for a transaction.
     def learn!
       learn_from_account_tokens(options[:account_tokens_file])
       learn_from_ledger_file(options[:existing_ledger_file])
@@ -214,7 +213,7 @@ module Reckon
         return possible_answers[0] || default
       end
 
-      answer = @@cli.ask(msg) do |q|
+      answer = @cli.ask(msg) do |q|
         q.completion = possible_answers
         q.readline = true
         q.default = possible_answers.first
@@ -232,7 +231,7 @@ module Reckon
     end
 
     def add_description(row)
-      desc_answer = @@cli.ask("Enter a new description for this transaction (empty line aborts)\n") do |q|
+      desc_answer = @cli.ask("Enter a new description for this transaction (empty line aborts)\n") do |q|
         q.overwrite = true
         q.readline = true
         q.default = row[:description]
@@ -242,7 +241,7 @@ module Reckon
     end
 
     def add_note(row)
-      desc_answer = @@cli.ask("Enter a new note for this transaction (empty line aborts)\n") do |q|
+      desc_answer = @cli.ask("Enter a new note for this transaction (empty line aborts)\n") do |q|
         q.overwrite = true
         q.readline = true
         q.default = row[:note]

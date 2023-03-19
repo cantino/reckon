@@ -4,7 +4,7 @@ require 'rubygems'
 require 'reckon'
 
 begin
-  options = Reckon::Options.parse
+  options = Reckon::Options.parse_command_line_options
 rescue RuntimeError => e
   puts("ERROR: #{e}")
   exit(1)
