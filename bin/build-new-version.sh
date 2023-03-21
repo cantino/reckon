@@ -29,3 +29,4 @@ echo "Push changes and tags"
 echo "git push && git push --tags"
 echo "Push new gem"
 echo "gem push reckon-$VERSION.gem"
+gh release create "v$VERSION" "reckon-$VERSION.gem" --draft --generate-notes
