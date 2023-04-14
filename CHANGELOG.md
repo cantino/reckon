@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.9.2](https://github.com/cantino/reckon/tree/v0.9.2) (2023-04-14)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.9.1...v0.9.2)
+
+**Closed issues:**
+
+- reckon fails any csv with Date::Error [\#121](https://github.com/cantino/reckon/issues/121)
+- \[FEATURE REQUEST\] Use ledger files as input source in addition to csv's [\#92](https://github.com/cantino/reckon/issues/92)
+
+**Merged pull requests:**
+
+- 121 require date [\#122](https://github.com/cantino/reckon/pull/122) ([benprew](https://github.com/benprew))
+
 ## [v0.9.1](https://github.com/cantino/reckon/tree/v0.9.1) (2023-03-19)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.9.0...v0.9.1)
