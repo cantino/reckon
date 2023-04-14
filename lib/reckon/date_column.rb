@@ -11,7 +11,7 @@ module Reckon
         if date_format
           begin
             value = Date.strptime(value, date_format)
-          rescue
+          rescue Date::Error
             puts "I'm having trouble parsing '#{value}' with the desired format: #{date_format}"
             exit 1
           end
@@ -22,12 +22,11 @@ module Reckon
           value = [$1, $2, $3].join("/") if value =~ /^(\d{4})\-(\d{2})\-(\d{2})$/            # yyyy-mm-dd format
           value = [$1, $2, $3].join("/") if value =~ /^(\d{4})(\d{2})(\d{2})/                 # yyyymmdd format
 
-
           unless @endian_precedence # Try to detect endian_precedence
-            reg_match = value.match( /^(\d\d)\/(\d\d)\/\d\d\d?\d?/ )
+            reg_match = value.match(%r{^(\d\d)/(\d\d)/\d\d\d?\d?})
             # If first one is not \d\d/\d\d/\d\d\d?\d set it to default
             if !reg_match
-              @endian_precedence = [:middle, :little]
+              @endian_precedence = %i[middle little]
             elsif reg_match[1].to_i > 12
               @endian_precedence = [:little]
             elsif reg_match[2].to_i > 12
@@ -35,23 +34,24 @@ module Reckon
             end
           end
         end
-        self.push( value )
+        push(value)
       end
+
       # if endian_precedence still nil, raise error
-      unless @endian_precedence || date_format
-        raise( "Unable to determine date format. Please specify using --date-format" )
-      end
+      return if @endian_precedence || date_format
+
+      raise("Unable to determine date format. Please specify using --date-format")
     end
 
-    def for( index )
-      value = self.at( index )
-      guess = Chronic.parse(value, :context => :past,
-                            :endian_precedence => @endian_precedence )
-      if guess.to_i < 953236800 && value =~ /\//
-        guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), :context => :past,
-                              :endian_precedence => @endian_precedence)
+    def for(index)
+      value = at(index)
+      guess = Chronic.parse(value, contex: :past,
+                                   endian_precedence: @endian_precedence)
+      if guess.to_i < 953_236_800 && value =~ %r{/}
+        guess = Chronic.parse((value.split("/")[0...-1] + [(2000 + value.split("/").last.to_i).to_s]).join("/"), context: :past,
+                                                                                                                 endian_precedence: @endian_precedence)
       end
-      guess && guess.to_date
+      guess&.to_date
     end
 
     def pretty_for(index)
@@ -65,7 +65,10 @@ module Reckon
       date_score = 0
       date_score += 10 if entry =~ /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i
       date_score += 5 if entry =~ /^[\-\/\.\d:\[\]]+$/
-      date_score += entry.gsub(/[^\-\/\.\d:\[\]]/, '').length if entry.gsub(/[^\-\/\.\d:\[\]]/, '').length > 3
+      # add points for columns that start with date-like characters -/.\d:[]
+      date_score += entry.gsub(/[^\-\/\.\d:\[\]]/, '').length if entry.gsub(
+        /[^\-\/\.\d:\[\]]/, ''
+      ).length > 3
       date_score -= entry.gsub(/[\-\/\.\d:\[\]]/, '').length
       date_score += 30 if entry =~ /^\d+[:\/\.-]\d+[:\/\.-]\d+([ :]\d+[:\/\.]\d+)?$/
       date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
