@@ -1,7 +1,13 @@
+# frozen_string_literal: true
+
+require 'date'
+
 module Reckon
+  # Handle date columns in csv
   class DateColumn < Array
     attr_accessor :endian_precedence
-    def initialize( arr = [], options = {} )
+
+    def initialize(arr = [], options = {})
       # output date format
       @ledger_date_format = options[:ledger_date_format]
 
@@ -11,7 +17,9 @@ module Reckon
         if date_format
           begin
             value = Date.strptime(value, date_format)
-          rescue Date::Error
+          # ruby 2.6.0 doesn't have Date::Error, but Date::Error is a subclass of
+          # ArgumentError
+          rescue ArgumentError
             puts "I'm having trouble parsing '#{value}' with the desired format: #{date_format}"
             exit 1
           end
@@ -76,7 +84,11 @@ module Reckon
       begin
         DateTime.parse(entry)
         date_score += 20
-      rescue Date::Error, ArgumentError
+      # ruby 2.6.0 doesn't have Date::Error, but Date::Error is a subclass of
+      # ArgumentError
+      rescue ArgumentError
+        # we don't need do anything here since the column didn't parse as a date
+        nil
       end
 
       date_score
