@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.9.3](https://github.com/cantino/reckon/tree/v0.9.3) (2023-08-25)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.9.2...v0.9.3)
+
+**Closed issues:**
+
+- Can you choose to apply amounts against category instead of account name? [\#123](https://github.com/cantino/reckon/issues/123)
+
+**Merged pull requests:**
+
+- Fix end quote around note in beancount format [\#124](https://github.com/cantino/reckon/pull/124) ([stephas](https://github.com/stephas))
+
 ## [v0.9.2](https://github.com/cantino/reckon/tree/v0.9.2) (2023-04-14)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.9.1...v0.9.2)
