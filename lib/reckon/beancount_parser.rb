@@ -65,7 +65,7 @@ module Reckon
     end
 
     def format_row(row, line1, line2)
-      out = %Q{#{row[:pretty_date]} * "#{row[:description]}" "#{row[:note]}\n}
+      out = %Q{#{row[:pretty_date]} * "#{row[:description]}" "#{row[:note]}"\n}
       out += "\t#{line1.first}\t\t\t#{line1.last}\n"
       out += "\t#{line2.first}\t\t\t#{line2.last}\n\n"
       out
