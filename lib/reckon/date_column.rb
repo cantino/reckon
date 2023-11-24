@@ -81,12 +81,15 @@ module Reckon
       date_score += 30 if entry =~ /^\d+[:\/\.-]\d+[:\/\.-]\d+([ :]\d+[:\/\.]\d+)?$/
       date_score += 10 if entry =~ /^\d+\[\d+:GMT\]$/i
 
+      # ruby 2.6.0 doesn't have Date::Error, but Date::Error is a subclass of
+      # ArgumentError
+      #
+      # Sometimes DateTime.parse can throw a RangeError
+      # See https://github.com/cantino/reckon/issues/126
       begin
         DateTime.parse(entry)
         date_score += 20
-      # ruby 2.6.0 doesn't have Date::Error, but Date::Error is a subclass of
-      # ArgumentError
-      rescue ArgumentError
+      rescue StandardError
         # we don't need do anything here since the column didn't parse as a date
         nil
       end
