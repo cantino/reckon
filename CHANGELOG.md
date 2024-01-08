@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.9.5](https://github.com/cantino/reckon/tree/v0.9.5) (2024-01-08)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.9.4...v0.9.5)
+
+**Closed issues:**
+
+- Ruby Readline error [\#127](https://github.com/cantino/reckon/issues/127)
+- Date formats [\#126](https://github.com/cantino/reckon/issues/126)
+
+**Merged pull requests:**
+
+- Pin highline to 2.x branch. Fixes \#127 [\#128](https://github.com/cantino/reckon/pull/128) ([benprew](https://github.com/benprew))
+
+## [v0.9.4](https://github.com/cantino/reckon/tree/v0.9.4) (2023-11-24)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.9.3...v0.9.4)
+
 ## [v0.9.3](https://github.com/cantino/reckon/tree/v0.9.3) (2023-08-25)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.9.2...v0.9.3)
