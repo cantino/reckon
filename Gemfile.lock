@@ -3,7 +3,7 @@ PATH
   specs:
     reckon (0.9.4)
       chronic (>= 0.3.0)
-      highline (>= 1.5.2)
+      highline (~> 2.0)
       matrix (>= 0.4.2)
       rchardet (>= 1.8.0)
 

@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "pry", ">= 0.12.2"
   s.add_development_dependency "rantly", "= 1.2.0"
   s.add_runtime_dependency "chronic", ">= 0.3.0"
-  s.add_runtime_dependency "highline", ">= 1.5.2"
+  s.add_runtime_dependency "highline", "~> 2.0"  # 3.0 replaces readline with reline and breaks reckon
   s.add_runtime_dependency "rchardet", ">= 1.8.0"
   s.add_runtime_dependency "matrix", ">= 0.4.2"
 end
