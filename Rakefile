@@ -8,6 +8,7 @@ RSpec::Core::RakeTask.new(:spec)
 
 task default: :spec
 
+desc "Run specs and integration tests"
 task :test_all do
   puts "#{`ledger --version |head -n1`}"
   puts "Running unit tests"
@@ -16,6 +17,7 @@ task :test_all do
   Rake::Task["test_integration"].invoke
 end
 
+desc "Run integration tests"
 task :test_integration do
   cmd = 'prove -v ./spec/integration/test.sh'
   raise 'Integration tests failed' unless system(cmd)

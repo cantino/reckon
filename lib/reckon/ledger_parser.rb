@@ -107,8 +107,8 @@
 require 'rubygems'
 
 module Reckon
+  # Parses ledger files
   class LedgerParser
-
     # ledger is an object that response to #each_line,
     # (i.e. a StringIO or an IO object)
     def initialize(options = {})
@@ -140,7 +140,7 @@ module Reckon
             accounts: []
           }
         elsif entry =~ /^\s*$/ && new_entry[:date]
-          add_entry(entries,new_entry)
+          add_entry(entries, new_entry)
           new_entry = {}
         elsif new_entry[:date] && entry =~ /^\s+/
           LOGGER.info("Adding new account #{entry}")
@@ -175,12 +175,12 @@ module Reckon
     end
 
     def format_row(row, line1, line2)
-      out = "#{row[:pretty_date]}\t#{row[:description]}#{row[:note] ? "\t; " + row[:note]: ""}\n"
+      note = row[:note] ? "\t; row[:note]" : ""
+      out = "#{row[:pretty_date]}\t#{row[:description]}#{note}\n"
       out += "\t#{line1.first}\t\t\t#{line1.last}\n"
       out += "\t#{line2.first}\t\t\t#{line2.last}\n\n"
       out
     end
-
 
     private
 

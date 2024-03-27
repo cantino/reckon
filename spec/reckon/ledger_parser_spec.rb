@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-#encoding: utf-8
+# encoding: utf-8
 
 require_relative "../spec_helper"
 require 'rubygems'
@@ -28,27 +28,31 @@ describe Reckon::LedgerParser do
       property_of do
         Rantly do
           description = Proc.new do
-            sized(15){string}.tr(%q{'`:*\\},'').gsub(/\s+/, ' ').gsub(/^[!;<\[( #{comment_chars}]+/, '')
+            sized(15) {
+              string
+            }.tr(%q{'`:*\\}, '').gsub(/\s+/, ' ').gsub(/^[!;<\[( #{comment_chars}]+/, '')
           end
           currency = choose(*currencies) # to be consistent within the transaction
-          single_line_comments = ";#|%*".split('').map { |n| "#{n} #{call(description)}" }
+          single_line_comments = ";#|%*".split('').map { |n|
+            "#{n} #{call(description)}"
+          }
           comments = ['', ';   ', "\t;#{call(description)}", "  ; #{call(description)}"]
           date = Time.at(range(0, 1_581_389_644)).strftime(choose(*formats))
           codes = [' ', " (#{string(:alnum).tr('()', '')}) "]
           account = Proc.new { choose(*delimiters) + call(description) }
           account_money = Proc.new do
-              sprintf("%.02f", (float * range(5,10) + 1) * choose(1, -1))
+            sprintf("%.02f", (float * range(5, 10) + 1) * choose(1, -1))
           end
           account_line = Proc.new do
             call(account) + \
-            choose(*delimiters) + \
-            currency + \
-            choose(*currency_delimiters) + \
-            call(account_money) + \
-            choose(*comments)
+              choose(*delimiters) + \
+              currency + \
+              choose(*currency_delimiters) + \
+              call(account_money) + \
+              choose(*comments)
           end
           ledger = "#{date}#{choose(*types)}#{choose(*codes)}#{call(description)}\n"
-          range(1,5).times do
+          range(1, 5).times do
             ledger += "#{call(account_line)}\n"
           end
           ledger += "#{call(account)}\n"
@@ -56,7 +60,10 @@ describe Reckon::LedgerParser do
           ledger
         end
       end.check(1000) do |s|
-        filter_format = lambda { |n| [n['date'], n['desc'], n['name'], sprintf("%.02f", n['amount'])] }
+        filter_format = lambda { |n|
+          [n['date'], n['desc'], n['name'],
+           sprintf("%.02f", n['amount'])]
+        }
         headers = %w[date code desc name currency amount type commend]
         safe_s = Shellwords.escape(s)
 
@@ -64,7 +71,8 @@ describe Reckon::LedgerParser do
         actual = CSV.parse(lp_csv, headers: headers).map(&filter_format)
 
         ledger_csv = `echo #{safe_s} | ledger csv --date-format '%Y/%m/%d' -f - `
-        expected = CSV.parse(ledger_csv.gsub('\"', '""'), headers: headers).map(&filter_format)
+        expected = CSV.parse(ledger_csv.gsub('\"', '""'),
+                             headers: headers).map(&filter_format)
         expected.length.times do |i|
           expect(actual[i]).to eq(expected[i])
         end
@@ -72,34 +80,35 @@ describe Reckon::LedgerParser do
     end
 
     it 'should filter block comments' do
-      ledger = <<HERE
-1970/11/01 Dinner should show up
-  Assets:Checking  -123.00
-  Expenses:Restaurants
+      ledger = <<~HERE
+        1970/11/01 Dinner should show up
+          Assets:Checking  -123.00
+          Expenses:Restaurants
 
-comment
+        comment
 
-1970/11/01 Lunch should NOT show up
-  Assets:Checking  -12.00
-  Expenses:Restaurants
+        1970/11/01 Lunch should NOT show up
+          Assets:Checking  -12.00
+          Expenses:Restaurants
 
-end comment
-HERE
+        end comment
+      HERE
       entries = Reckon::LedgerParser.new.parse(StringIO.new(ledger))
       expect(entries.length).to eq(1)
       expect(entries.first[:desc]).to eq('Dinner should show up')
-
     end
 
     it 'should transaction comments' do
-      ledger = <<HERE
-2020-03-27      AMZN Mktp USX999H3203; Shopping; Sale
-    Expenses:Household                                      $82.77
-    Liabilities:ChaseSapphire                                       -$81.77
-    # END FINANCE SCRIPT OUTPUT Thu 02 Apr 2020 12:05:54 PM EDT
-HERE
+      ledger = <<~HERE
+        2020-03-27      AMZN Mktp USX999H3203; Shopping; Sale
+            Expenses:Household                                      $82.77
+            Liabilities:ChaseSapphire                                       -$81.77
+            # END FINANCE SCRIPT OUTPUT Thu 02 Apr 2020 12:05:54 PM EDT
+      HERE
       entries = Reckon::LedgerParser.new.parse(StringIO.new(ledger))
-      expect(entries.first[:accounts].map { |n| n[:name] }).to eq(['Expenses:Household', 'Liabilities:ChaseSapphire'])
+      expect(entries.first[:accounts].map { |n|
+               n[:name]
+             }).to eq(['Expenses:Household', 'Liabilities:ChaseSapphire'])
       expect(entries.first[:accounts].size).to eq(2)
       expect(entries.length).to eq(1)
     end
@@ -128,75 +137,77 @@ HERE
   describe "balance" do
     it "it should balance out missing account values" do
       @ledger.send(:balance, [
-          { :name => "Account1", :amount => 1000 },
-          { :name => "Account2", :amount => nil }
-      ]).should == [ { :name => "Account1", :amount => 1000 }, { :name => "Account2", :amount => -1000 } ]
+                     { :name => "Account1", :amount => 1000 },
+                     { :name => "Account2", :amount => nil }
+                   ]).should == [{ :name => "Account1", :amount => 1000 },
+                                 { :name => "Account2", :amount => -1000 }]
     end
 
     it "it should balance out missing account values" do
       @ledger.send(:balance, [
-          { :name => "Account1", :amount => 1000 },
-          { :name => "Account2", :amount => 100 },
-          { :name => "Account3", :amount => -200 },
-          { :name => "Account4", :amount => nil }
-      ]).should == [
-          { :name => "Account1", :amount => 1000 },
-          { :name => "Account2", :amount => 100 },
-          { :name => "Account3", :amount => -200 },
-          { :name => "Account4", :amount => -900 }
-      ]
+                     { :name => "Account1", :amount => 1000 },
+                     { :name => "Account2", :amount => 100 },
+                     { :name => "Account3", :amount => -200 },
+                     { :name => "Account4", :amount => nil }
+                   ]).should == [
+                     { :name => "Account1", :amount => 1000 },
+                     { :name => "Account2", :amount => 100 },
+                     { :name => "Account3", :amount => -200 },
+                     { :name => "Account4", :amount => -900 }
+                   ]
     end
 
     it "it should work on normal values too" do
       @ledger.send(:balance, [
-          { :name => "Account1", :amount => 1000 },
-          { :name => "Account2", :amount => -1000 }
-      ]).should == [ { :name => "Account1", :amount => 1000 }, { :name => "Account2", :amount => -1000 } ]
+                     { :name => "Account1", :amount => 1000 },
+                     { :name => "Account2", :amount => -1000 }
+                   ]).should == [{ :name => "Account1", :amount => 1000 },
+                                 { :name => "Account2", :amount => -1000 }]
     end
   end
 
   # Data
 
-  EXAMPLE_LEDGER = (<<-LEDGER).strip
-= /^Expenses:Books/
-  (Liabilities:Taxes)             -0.10
+  EXAMPLE_LEDGER = (<<~LEDGER).strip
+    = /^Expenses:Books/
+      (Liabilities:Taxes)             -0.10
 
-~ Monthly
-  Assets:Bank:Checking          $500.00
-  Income:Salary
+    ~ Monthly
+      Assets:Bank:Checking          $500.00
+      Income:Salary
 
-2004-05-01 * Checking balance
-  Assets:Bank:Checking        $1,000.00
-  Equity:Opening Balances
+    2004-05-01 * Checking balance
+      Assets:Bank:Checking        $1,000.00
+      Equity:Opening Balances
 
-2004-05-01 * Checking balance
-  Assets:Bank:Checking        €1,000.00
-  Equity:Opening Balances
+    2004-05-01 * Checking balance
+      Assets:Bank:Checking        €1,000.00
+      Equity:Opening Balances
 
-2004-05-01 * Checking balance
-  Assets:Bank:Checking        1,000.00 SEK
-  Equity:Opening Balances
+    2004-05-01 * Checking balance
+      Assets:Bank:Checking        1,000.00 SEK
+      Equity:Opening Balances
 
-2004/05/01 * Investment balance
-  Assets:Brokerage              50 AAPL @ $30.00
-  Equity:Opening Balances
+    2004/05/01 * Investment balance
+      Assets:Brokerage              50 AAPL @ $30.00
+      Equity:Opening Balances
 
-; blah
-!account blah
+    ; blah
+    !account blah
 
-!end
+    !end
 
-D $1,000
+    D $1,000
 
-2004/05/14 * Pay day
-  Assets:Bank:Checking          $500.00
-  Income:Salary
+    2004/05/14 * Pay day
+      Assets:Bank:Checking          $500.00
+      Income:Salary
 
-2004/05/27 Book Store
-  Expenses:Books                 $20.00
-  Liabilities:MasterCard
-2004/05/27 (100) Credit card company
-  Liabilities:MasterCard         $20.24
-  Assets:Bank:Checking
+    2004/05/27 Book Store
+      Expenses:Books                 $20.00
+      Liabilities:MasterCard
+    2004/05/27 (100) Credit card company
+      Liabilities:MasterCard         $20.24
+      Assets:Bank:Checking
   LEDGER
 end
