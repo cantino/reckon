@@ -132,6 +132,23 @@ describe Reckon::LedgerParser do
       @entries.last[:accounts].last[:name].should == "Assets:Bank:Checking"
       @entries.last[:accounts].last[:amount].should == -20.24
     end
+
+    it "should parse dot-separated dates" do
+      ledger = <<~HERE
+        2024.03.12	groceries; 11223344556; 32095205940
+        	assets:bank:spending			 530.00 NOK
+        	assets:bank:co:groceries
+
+        2024.03.13	autosave; 11223344555; 11223344556
+        	assets:bank:savings
+        	assets:bank:spending			-10.00 NOK
+      HERE
+      options = { ledger_date_format: '%Y.%m.%d' }
+      entries = Reckon::LedgerParser.new(options).parse(StringIO.new(ledger))
+      expect(entries.first[:date]).to eq(Date.new(2024, 3, 12))
+      expect(entries.last[:date]).to eq(Date.new(2024, 3, 13))
+      expect(entries.length).to eq(2)
+    end
   end
 
   describe "balance" do

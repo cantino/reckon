@@ -130,7 +130,7 @@ module Reckon
         next if entry =~ /^\s*[#{comment_chars}]/
 
         # (date, type, code, description), type and code are optional
-        if (m = entry.match(%r{^(\d+[\d/-]+)\s+([*!])?\s*(\([^)]+\))?\s*(.*)$}))
+        if (m = entry.match(%r{^(\d+[^\s]+)\s+([*!])?\s*(\([^)]+\))?\s*(.*)$}))
           add_entry(entries, new_entry)
           new_entry = {
             date: try_parse_date(m[1]),
