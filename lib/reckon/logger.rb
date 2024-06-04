@@ -3,6 +3,6 @@ module Reckon
   LOGGER.level = Logger::WARN
 
   def log(tag, msg)
-    LOGGER.warn(tag, msg)
+    LOGGER.add(Logger::WARN, msg, tag)
   end
 end
