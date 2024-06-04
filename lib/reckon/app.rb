@@ -210,6 +210,14 @@ module Reckon
     end
 
     def ask_account_question(msg, row)
+      # return account token if it matches
+      token_answer = most_specific_regexp_match(row)
+      if token_answer.any?
+        row[:note] = "Matched account token"
+        print_transaction([row])
+        return token_answer[0]
+      end
+
       possible_answers = suggest(row)
       LOGGER.info "possible_answers===> #{possible_answers.inspect}"
 
