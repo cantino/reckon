@@ -4,7 +4,6 @@ module Reckon
   # Singleton class for parsing command line flags
   class Options
     def self.parse_command_line_options(args = ARGV, stdin = $stdin)
-      cli = HighLine.new
       options = { output_file: $stdout }
       OptionParser.new do |opts|
         opts.banner = "Usage: Reckon.rb [options]"
@@ -174,26 +173,35 @@ module Reckon
         options[:string] = stdin.read
       end
 
+      validate_options(options)
+
+      return options
+    end
+
+    def self.validate_options(options)
+      cli = HighLine.new
       unless options[:file]
         options[:file] = cli.ask("What CSV file should I parse? ")
-        unless options[:file].empty?
-          puts "\nYou must provide a CSV file to parse.\n"
-          puts parser
+        if options[:file].empty?
+          puts "\nERROR: You must provide a CSV file to parse.\n"
           exit
         end
       end
 
       unless options[:bank_account]
-        raise "Must specify --account in unattended mode" if options[:unattended]
+        if options[:unattended]
+          puts "ERROR: Must specify --account in unattended mode"
+          exit
+        end
 
-        options[:bank_account] = cli.ask("What is this account named in Ledger?\n") do |q|
+        options[:bank_account] = cli.ask("What is the Ledger account name?\n") do |q|
           q.readline = true
           q.validate = /^.{2,}$/
           q.default = "Assets:Bank:Checking"
         end
       end
 
-      return options
+      return true
     end
   end
 end
