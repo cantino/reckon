@@ -142,6 +142,11 @@ module Reckon
           line2 = [options[:bank_account], row[:pretty_money]]
         end
 
+        if answer == '~~SKIP~~'
+          LOGGER.info "skipping transaction: #{row}"
+          next
+        end
+
         finish if %w[quit q].include?(answer)
         if %w[skip s].include?(answer)
           interactive_output "Skipping"
