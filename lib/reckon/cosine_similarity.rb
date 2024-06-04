@@ -12,6 +12,7 @@ require 'set'
 # These weights and measures are used to suggest which account a transaction should be
 # assigned to.
 module Reckon
+  # Calculates cosine similarity for tf/idf
   class CosineSimilarity
     DocumentInfo = Struct.new(:tokens, :accounts)
 
