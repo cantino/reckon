@@ -109,21 +109,61 @@ module Reckon
       regexps[Regexp.new(match[1], options)] = account
     end
 
+    def score_for(row)
+      return '10' unless most_specific_regexp_match(row).empty?
+
+      matches = matches_for(row)
+      scores = matches.map { |n| n[:similarity] }
+      score = scores[0..1].reduce(:-) || 0
+      return (score * 10).to_i.to_s
+    end
+
+    def account_for(row)
+      acct = most_specific_regexp_match(row)
+      return acct unless acct.empty?
+
+      matches = matches_for(row)
+      return matches[0..1].map { |n| n[:account] } unless matches.empty?
+    end
+
+    def matches_for(row)
+      return @matcher.find_similar("#{row[:description]} #{row[:pretty_money]}")
+    end
+
+    # loop through each_row_backwards and interact with the user
     def walk_backwards
       cmd_options = "[account]/[q]uit/[s]kip/[n]ote/[d]escription"
       seen_anything_new = false
+      rows = []
       each_row_backwards do |row|
-        print_transaction([row])
+        if options[:new_ui]
+          row[:score] = score_for(row)
+          row[:account] = account_for(row)
+          if options[:unattended] && options[:fail_on_unknown_account] && !row[:account]
+            raise %(Couldn't find any matches for '#{row[:description]}'
+            Try adding an account token with --account-tokens)
+          end
 
+          line1, line2 = ledger_lines_for(row)
+          ledger = @parser.format_row(row, line1, line2)
+          LOGGER.info "ledger line: #{ledger}"
+          learn_from_ledger(StringIO.new(ledger)) unless options[:account_tokens_file]
+
+          rows << row
+          next
+        end
+
+        print_transaction([row])
         if already_seen?(row)
           interactive_output "NOTE: This row is very similar to a previous one!"
-          if !seen_anything_new
+          unless seen_anything_new
             interactive_output "Skipping..."
             next
           end
         else
           seen_anything_new = true
         end
+
 
         if row[:money] > 0
           # out_of_account
@@ -141,6 +181,9 @@ module Reckon
           line2 = [options[:bank_account], row[:pretty_money]]
         end
 
+        score = score_for(row)
+        row[:note] ||= ""
+        row[:note] += " score: #{score}"
         finish if %w[quit q].include?(answer)
         if %w[skip s].include?(answer)
           interactive_output "Skipping"
@@ -152,23 +195,141 @@ module Reckon
         learn_from_ledger(StringIO.new(ledger)) unless options[:account_tokens_file]
         output(ledger)
       end
+
+      new_ui(rows) if options[:new_ui]
     end
 
-    def each_row_backwards
+    def new_ui(rows)
+      if options[:unattended]
+        save!(rows)
+        return
+      end
+
+      rows = rows.sort_by { |x| [x[:description], -x[:score].to_i] }
+
+      loop do
+        print_transaction_new_ui(rows)
+        answer = @cli.ask("Command: ([s]ave/[e]dit/[q]uit)\n")
+        if %w[save s].include?(answer)
+          interactive_output "saving"
+
+          save!(rows)
+
+          interactive_output "Save complete. Exiting..."
+          return
+        elsif %w[quit q].include?(answer)
+          return
+        elsif %w[edit e].include?(answer)
+          edit_transactions(rows)
+        end
+      end
+    end
+
+    def save!(rows)
+      rows.each do |row|
+        line1, line2 = ledger_lines_for(row)
+
+        ledger = @parser.format_row(row, line1, line2)
+        LOGGER.info "ledger line: #{ledger}"
+        output(ledger)
+      end
+    end
+
+    def ledger_lines_for(row)
+      default = row[:money] < 0 ? options[:default_into_account] : options[:default_outof_account]
+      account = row[:account].nil? ? default : row[:account][0]
+      if row[:money] > 0
+        # out_of_account
+        line1 = [options[:bank_account], row[:pretty_money]]
+        line2 = [account, ""]
+      else
+        # into_account
+        line1 = [account, ""]
+        line2 = [options[:bank_account], row[:pretty_money]]
+      end
+      return line1, line2
+    end
+
+    def edit_transactions(rows)
+      # range can be a range of rows or a single row
+      index_range = row_list
+
+      # this can fail in dumb ways, so we ask the user for a list of rows again
+      begin
+        while index_range.min < 0 || index_range.max > rows.length - 1
+          interactive_output "invalid selection. Rows must be between 1 and #{rows.length}"
+          index_range = row_list
+        end
+      rescue NoMethodError => e
+        interactive_output e
+        interactive_output "invalid selection. Rows must be between 1 and #{rows.length}"
+        index_range = row_list
+        retry
+      end
+
+      print_transaction_new_ui(rows[index_range])
+
+      new_account = ask_account_question("Change to which account",
+                                         rows[index_range.first])
+      index_range.each do |n|
+        rows[n][:account] ||= []
+        rows[n][:account][0] = new_account
+        rows[n][:score] = '10'
+      end
+    end
+
+    def row_list
+      answer = @cli.ask("Which row number(s)? (ex. 1-4 or 9)")
+      if answer =~ /-/
+        first, last = answer.split(/-/).map(&:to_i)
+        r = first - 1..last - 1
+
+        # if r.min is nil probably a mistake in the range, ask user to re-enter it
+        r.min.nil? ? -1..-1 : r
+      else
+        answer.to_i - 1..answer.to_i - 1
+      end
+    end
+
+    def each_row_backwards(&block)
       rows = []
       (0...@csv_parser.columns.first.length).to_a.each do |index|
         if @csv_parser.date_for(index).nil?
           LOGGER.warn("Skipping row: '#{@csv_parser.row(index)}' that doesn't have a valid date")
           next
         end
-        rows << { :date => @csv_parser.date_for(index),
-                  :pretty_date => @csv_parser.pretty_date_for(index),
-                  :pretty_money => @csv_parser.pretty_money_for(index),
-                  :pretty_money_negated => @csv_parser.pretty_money_for(index, :negate),
-                  :money => @csv_parser.money_for(index),
-                  :description => @csv_parser.description_for(index) }
+        rows << { date: @csv_parser.date_for(index),
+                  pretty_date: @csv_parser.pretty_date_for(index),
+                  pretty_money: @csv_parser.pretty_money_for(index),
+                  pretty_money_negated: @csv_parser.pretty_money_for(index, :negate),
+                  money: @csv_parser.money_for(index),
+                  description: @csv_parser.description_for(index) }
       end
-      rows.sort_by { |n| [n[:date], -n[:money], n[:description]] }.each { |row| yield row }
+      rows.sort_by do |n|
+        [n[:date], -n[:money], n[:description]]
+      end.each(&block)
+    end
+
+    def red(str)
+      return "\033[31m#{str}\033[0m"
+    end
+
+    def green(str)
+      return "\033[32m#{str}\033[0m"
+    end
+
+    def yellow(str)
+      return "\033[33m#{str}\033[0m"
+    end
+
+    def score_color(score)
+      if score > 6
+        "green"
+      elsif score > 2
+        "yellow"
+      else
+        "red"
+      end
     end
 
     def print_transaction(rows, fh = $stdout)
@@ -191,6 +352,43 @@ module Reckon
         row.each_with_index do |_, i|
           just = maxes[i]
           str += sprintf(" %#{just}s |", row[i])
+        end
+        str += "\n"
+      end
+
+      interactive_output str, fh
+    end
+
+    def print_transaction_new_ui(rows, fh = $stdout)
+      str = "\n"
+      header = %w[# Date Amount Description Note Sc Account]
+      maxes = header.map(&:length)
+
+      rows = rows.each_with_index.map do |r, i|
+        desc = r[:description][0..56]
+        desc += "..." if r[:description].length > 57
+        [(i + 1).to_s, r[:pretty_date], r[:pretty_money], desc, r[:note], r[:score],
+         r[:account] && r[:account][0]]
+      end
+
+      rows.each do |r|
+        r.length.times do |i|
+          l = r[i] ? r[i].length : 0
+          maxes[i] = l if maxes[i] < l
+        end
+      end
+
+      header.each_with_index do |n, i|
+        str += " #{n.center(maxes[i])} |"
+      end
+      str += "\n"
+
+      rows.each do |row|
+        score = row[-2].to_i
+        row.each_with_index do |_, i|
+          just = maxes[i]
+          value = row[i]
+          str += send(score_color(score), sprintf(" %#{just}s |", value))
         end
         str += "\n"
       end
