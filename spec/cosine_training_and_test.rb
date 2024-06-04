@@ -8,7 +8,7 @@ ledger_file = ARGV[0]
 account = ARGV[1]
 seed = ARGV[2] ? ARGV[2].to_i : Random.new_seed
 
-ledger = Reckon::LedgerParser.new(File.new(ledger_file))
+ledger = Reckon::LedgerParser.new.parse(File.new(ledger_file))
 matcher = Reckon::CosineSimilarity.new({})
 
 train = []
@@ -50,3 +50,4 @@ end
 # pp result.compact
 puts "using #{seed} as random seed"
 puts "true: #{result.count(nil)} false: #{result.count { |v| !v.nil? }}"
+puts(result.filter { |v| !v.nil? })
