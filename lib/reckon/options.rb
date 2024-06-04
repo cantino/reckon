@@ -17,8 +17,13 @@ module Reckon
           options[:bank_account] = a
         end
 
-        opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
-          options[:verbose] = v
+        options[:verbose] = Logger::WARN
+        opts.on("", "--v", "Run verbosely") do
+          options[:verbose] = Logger::INFO
+        end
+
+        opts.on("", "--vv", "Run very verbosely") do
+          options[:verbose] = Logger::DEBUG
         end
 
         opts.on("-i", "--inverse", "Use the negative of each amount") do |v|
