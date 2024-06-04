@@ -175,7 +175,7 @@ module Reckon
     end
 
     def format_row(row, line1, line2)
-      note = row[:note] ? "\t; row[:note]" : ""
+      note = row[:note] ? "\t; #{row[:note]}" : ""
       out = "#{row[:pretty_date]}\t#{row[:description]}#{note}\n"
       out += "\t#{line1.first}\t\t\t#{line1.last}\n"
       out += "\t#{line2.first}\t\t\t#{line2.last}\n\n"

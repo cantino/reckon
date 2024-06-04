@@ -64,13 +64,13 @@ module Reckon
     private
 
     def filter_csv
-      if options[:ignore_columns]
-        new_columns = []
-        columns.each_with_index do |column, index|
-          new_columns << column unless options[:ignore_columns].include?(index + 1)
-        end
-        @columns = new_columns
+      return unless options[:ignore_columns]
+
+      new_columns = []
+      columns.each_with_index do |column, index|
+        new_columns << (options[:ignore_columns].include?(index + 1) ? [''] * column.length : column)
       end
+      @columns = new_columns
     end
 
     def evaluate_columns(cols)
@@ -222,7 +222,8 @@ module Reckon
       # convert to a stringio object to handle multi-line fields
       parser_opts = {
         col_sep: separator,
-        skip_blanks: true
+        skip_blanks: true,
+        row_sep: :auto
       }
       begin
         rows = CSV.parse(StringIO.new(data), **parser_opts)
@@ -235,7 +236,7 @@ module Reckon
           index = data.index("\n", index) + 1 # skip over newline character
           count += 1
         end
-        rows = CSV.parse(StringIO.new(data[index..-1]), **parser_opts)
+        rows = CSV.parse(StringIO.new(data[index..]), **parser_opts)
         rows[0..-footer_lines_to_skip]
       end
     end

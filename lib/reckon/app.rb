@@ -81,7 +81,7 @@ module Reckon
 
     # Add tokens from account_tokens_file to accounts
     def extract_account_tokens(subtree, account = nil)
-      if subtree.nil?
+      if subtree.nil? || !subtree
         puts "Warning: empty #{account} tree"
         {}
       elsif subtree.is_a?(Array)
@@ -180,8 +180,9 @@ module Reckon
       str = "\n"
       header = %w[Date Amount Description Note]
       maxes = header.map(&:length)
-
-      rows = rows.map { |r| [r[:pretty_date], r[:pretty_money], r[:description], r[:note]] }
+      rows = rows.map { |r|
+        [r[:pretty_date], r[:pretty_money], r[:description], r[:note]]
+      }
 
       rows.each do |r|
         r.length.times { |i| l = r[i] ? r[i].length : 0; maxes[i] = l if maxes[i] < l }
