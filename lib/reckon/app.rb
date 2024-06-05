@@ -10,7 +10,7 @@ module Reckon
 
     def initialize(opts = {})
       self.options = opts
-      LOGGER.level = options[:verbose]
+      LOGGER.level = options[:verbose] || Logger::WARN
 
       self.regexps = {}
       self.seen = Set.new
