@@ -18,11 +18,15 @@ module Reckon
         end
 
         options[:verbose] = Logger::WARN
-        opts.on("", "--v", "Run verbosely") do
+        opts.on("-v", "--v", "Run verbosely (show info log messages)") do
           options[:verbose] = Logger::INFO
         end
 
-        opts.on("", "--vv", "Run very verbosely") do
+        opts.on("", "--verbose", "Run verbosely (show info log messages)") do
+          options[:verbose] = Logger::INFO
+        end
+
+        opts.on("", "--vv", "Run very verbosely (show debug log messages)") do
           options[:verbose] = Logger::DEBUG
         end
 
