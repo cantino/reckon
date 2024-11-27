@@ -58,6 +58,19 @@ module Reckon
           options[:raw] = n
         end
 
+        options[:sort] = :date
+        opts.on("", "--sort DATE|DESC|AMT", "Sort file by date, description, or amount") do |s|
+          if s == 'DESC'
+            options[:sort] = :description
+          elsif s == 'AMT'
+            options[:sort] = :money
+          elsif s == 'DATE'
+            options[:sort] = :date
+          else
+            raise "'#{s}' is not valid. valid sort options are DATE, DESC, AMT"
+          end
+        end
+
         opts.on("", "--date-column 3", Integer,
                 "Column number of the date column, starts from 1") do |col|
           options[:date_column] = col

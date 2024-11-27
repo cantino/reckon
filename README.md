@@ -49,6 +49,8 @@ Learn more:
                                      Column number of the money columns, starts from 1 (1 or 2 columns)
         --raw-money
                                      Don't format money column (for stocks)
+        --sort DATE|DESC|AMT
+                                     Sort file by date, description, or amount
         --date-column 3
                                      Column number of the date column, starts from 1
         --contains-header [N]

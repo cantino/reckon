@@ -14,6 +14,7 @@ module Reckon
 
       self.regexps = {}
       self.seen = Set.new
+      options[:sort] ||= :date
       @cli = HighLine.new
       @csv_parser = CSVParser.new(options)
       @matcher = CosineSimilarity.new(options)
@@ -168,7 +169,11 @@ module Reckon
                   :money => @csv_parser.money_for(index),
                   :description => @csv_parser.description_for(index) }
       end
-      rows.sort_by { |n| [n[:date], -n[:money], n[:description]] }.each { |row| yield row }
+      rows.sort_by do |n|
+        [n[options[:sort]], -n[:money], n[:description]]
+      end.each do |row|
+        yield row
+      end
     end
 
     def print_transaction(rows, fh = $stdout)
