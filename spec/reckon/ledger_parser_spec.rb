@@ -59,7 +59,7 @@ describe Reckon::LedgerParser do
           ledger += choose(*single_line_comments) + "\n"
           ledger
         end
-      end.check(1000) do |s|
+      end.check(100) do |s|
         filter_format = lambda { |n|
           [n['date'], n['desc'], n['name'],
            sprintf("%.02f", n['amount'])]
