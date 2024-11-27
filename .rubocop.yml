@@ -18,3 +18,15 @@ Metrics/AbcSize:
 
 Style/NumericPredicate:
   Enabled: False
+
+Metrics/PerceivedComplexity:
+  Enabled: False
+
+Metrics/CyclomaticComplexity:
+  Enabled: False
+
+Style/FormatString:
+  Enabled: False
+
+Naming/MethodParameterName:
+  Enabled: False
