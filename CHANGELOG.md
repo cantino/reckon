@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.10.0](https://github.com/cantino/reckon/tree/v0.10.0) (2024-11-27)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.9.6...v0.10.0)
+
+**Closed issues:**
+
+- Is it possible to use reckon with only no info about incoming or going out? [\#131](https://github.com/cantino/reckon/issues/131)
+- Reckon fails immediately with error about uninitialized constant `Readline` [\#129](https://github.com/cantino/reckon/issues/129)
+
+## [v0.9.6](https://github.com/cantino/reckon/tree/v0.9.6) (2024-03-27)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.9.5...v0.9.6)
+
+**Closed issues:**
+
+- reckon can't learn from a file with the "wrong" date format [\#130](https://github.com/cantino/reckon/issues/130)
+
 ## [v0.9.5](https://github.com/cantino/reckon/tree/v0.9.5) (2024-01-08)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.9.4...v0.9.5)

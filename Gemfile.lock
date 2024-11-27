@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    reckon (0.9.6)
+    reckon (0.10.0)
       chronic (>= 0.3.0)
       highline (~> 2.0)
       matrix (>= 0.4.2)
