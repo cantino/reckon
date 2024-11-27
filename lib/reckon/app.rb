@@ -183,14 +183,20 @@ module Reckon
 
     def print_transaction(rows, fh = $stdout)
       str = "\n"
-      header = %w[Date Amount Description Note]
+      header = %w[Date Amount Description]
+      header += ["Note"] if rows.map { |r| r[:note] }.any?
       maxes = header.map(&:length)
-      rows = rows.map { |r|
-        [r[:pretty_date], r[:pretty_money], r[:description], r[:note]]
-      }
+      rows = rows.map do |r|
+        [r[:pretty_date], r[:pretty_money], r[:description], r[:note]].compact
+      end
 
       rows.each do |r|
-        r.length.times { |i| l = r[i] ? r[i].length : 0; maxes[i] = l if maxes[i] < l }
+        r.length.times do |i|
+          l = 0
+          l = r[i].length if r[i]
+          maxes[i] ||= 0
+          maxes[i] = l if maxes[i] < l
+        end
       end
 
       header.each_with_index do |n, i|
@@ -214,7 +220,8 @@ module Reckon
       token_answer = most_specific_regexp_match(row)
       if token_answer.any?
         row[:note] = "Matched account token"
-        print_transaction([row])
+        puts "NOTE: Matched account token"
+        puts token_answer[0]
         return token_answer[0]
       end
 
