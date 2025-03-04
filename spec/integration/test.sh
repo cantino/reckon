@@ -112,11 +112,11 @@ compare_output_for () {
     EXPECTED_FILE=$(mktemp)
     ACTUAL_FILE=$(mktemp)
 
-    EXPECTED_CMD="$LEDGER -f output.ledger r >$EXPECTED_FILE"
+    EXPECTED_CMD="$LEDGER -f output.ledger reg >$EXPECTED_FILE"
     echo "$EXPECTED_CMD"
     eval "$EXPECTED_CMD" || return 1
 
-    ACTUAL_CMD="$LEDGER -f \"$OUTPUT_FILE\" r"
+    ACTUAL_CMD="$LEDGER -f \"$OUTPUT_FILE\" reg"
     echo "running $ACTUAL_CMD"
     eval $ACTUAL_CMD >$ACTUAL_FILE || return 1
 
