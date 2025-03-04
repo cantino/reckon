@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.11.0](https://github.com/cantino/reckon/tree/v0.11.0) (2025-03-04)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.10.0...v0.11.0)
+
+**Closed issues:**
+
+- Feature request: confidence score [\#134](https://github.com/cantino/reckon/issues/134)
+- feature request [\#133](https://github.com/cantino/reckon/issues/133)
+
 ## [v0.10.0](https://github.com/cantino/reckon/tree/v0.10.0) (2024-11-27)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.9.6...v0.10.0)

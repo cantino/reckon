@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    reckon (0.10.0)
+    reckon (0.11.0)
       chronic (>= 0.3.0)
       highline (~> 2.0)
       matrix (>= 0.4.2)
@@ -21,7 +21,7 @@ GEM
       method_source (~> 1.0)
     rake (13.0.6)
     rantly (1.2.0)
-    rchardet (1.8.0)
+    rchardet (1.9.0)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
