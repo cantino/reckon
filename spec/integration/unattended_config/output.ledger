@@ -1,0 +1,36 @@
+2009-12-10	CREDIT; Some Company vendorpymt PPD ID: 5KL3832735
+	Assets:Bank:Checking			 $2,105.00
+	Income:Unknown			
+
+2009-12-11	CREDIT; PAYPAL TRANSFER PPD ID: PAYPALSDSL
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$116.22
+
+2009-12-14	DEBIT; WEBSITE-BALANCE-10DEC09 12 12/10WEBSITE-BAL
+	Expenses:Websites			
+	Assets:Bank:Checking			-$20.96
+
+2009-12-21	DEBIT; WEBSITE-BALANCE-17DEC09 12 12/17WEBSITE-BAL
+	Expenses:Websites			
+	Assets:Bank:Checking			-$12.23
+
+2009-12-23	CREDIT; Some Company vendorpymt PPD ID: 59728JSL20
+	Assets:Bank:Checking			 $3,520.00
+	Income:Unknown			
+
+2009-12-23	CREDIT; Blarg BLARG REVENUE PPD ID: 00jah78563
+	Assets:Bank:Checking			 $1,558.52
+	Income:Unknown			
+
+2009-12-24	DEBIT; GITHUB 041287430274 CA 12/22GITHUB 04
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$7.00
+
+2009-12-24	CHECK; Book Store
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$20.00
+
+2009-12-24	DEBIT; HOST 037196321563 MO 12/22SLICEHOST
+	Expenses:Unknown			
+	Assets:Bank:Checking			-$85.00
+

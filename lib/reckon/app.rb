@@ -3,6 +3,8 @@
 require 'yaml'
 require 'stringio'
 
+UnattendedConfig = Struct.new(:similarity_threshold)
+
 module Reckon
   # The main app
   class App
@@ -42,7 +44,11 @@ module Reckon
 
       raise "#{filename} doesn't exist!" unless File.exist?(filename)
 
-      extract_account_tokens(YAML.load_file(filename)).each do |account, tokens|
+      tokens = YAML.load_file(filename)
+      cfg = build_unattended_config(tokens.delete('config'))
+      @options[:similarity_threshold] = cfg.similarity_threshold if cfg
+
+      extract_account_tokens(tokens).each do |account, tokens|
         tokens.each do |t|
           if t.start_with?('/')
             add_regexp(account, t)
@@ -51,6 +57,13 @@ module Reckon
           end
         end
       end
+    end
+
+    def build_unattended_config(cfg)
+      return unless cfg
+      invalid = cfg.keys - UnattendedConfig.members.map(&:to_s)
+      raise "Invalid keys in config: #{invalid}" if invalid.any?
+      return UnattendedConfig.new(*cfg.values_at(*UnattendedConfig.members.map(&:to_s)))
     end
 
     def learn_from_ledger_file(ledger_file)
@@ -287,7 +300,10 @@ module Reckon
 
     def suggest(row)
       most_specific_regexp_match(row) +
-        @matcher.find_similar(row[:description]).map { |n| n[:account] }
+        @matcher.find_similar(row[:description]).filter do |n|
+          !@options[:similarity_threshold] ||
+          n.fetch(:simliarity, 0) * 10 >= @options[:similarity_threshold]
+        end.map { |n| n[:account] }
     end
 
     def output(ledger_line)

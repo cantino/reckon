@@ -108,6 +108,9 @@ Would tokenize to 'ING', 'Direct' and 'Deposit'.  The matcher would then suggest
 Here's an example of `tokens.yaml`:
 
 ```
+config:
+    similarity_threshold: 2  # range 0-10
+
 Income:
   Salary:
     - 'LÖN'
@@ -125,6 +128,8 @@ Expenses:
 ```
 
 Reckon will use `Income:Unknown` or `Expenses:Unknown` if it can't match a transaction to an account.
+
+The config key is a special key used to set configuration when running in unattended mode. The only config variable is similarity_threshold (currently).
 
 You can override these names with the `--default_outof_account` and `--default_into_account` options.
 
