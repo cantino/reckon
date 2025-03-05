@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.11.1](https://github.com/cantino/reckon/tree/v0.11.1) (2025-03-05)
+
+[Full Changelog](https://github.com/cantino/reckon/compare/v0.11.0...v0.11.1)
+
+**Implemented enhancements:**
+
+- Ledger output should support comma separated values [\#39](https://github.com/cantino/reckon/issues/39)
+
+**Closed issues:**
+
+- Missing dependency erb [\#132](https://github.com/cantino/reckon/issues/132)
+- Feature request: relabeling existing ledger [\#125](https://github.com/cantino/reckon/issues/125)
+
 ## [v0.11.0](https://github.com/cantino/reckon/tree/v0.11.0) (2025-03-04)
 
 [Full Changelog](https://github.com/cantino/reckon/compare/v0.10.0...v0.11.0)
