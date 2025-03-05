@@ -25,4 +25,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "rchardet", "= 1.8.0"
   s.add_runtime_dependency "matrix", ">= 0.4.2"
   s.add_runtime_dependency "csv", "> 0.1"
+  s.add_runtime_dependency "abbrev", "> 0.1"
 end
