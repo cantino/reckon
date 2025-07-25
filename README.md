@@ -77,6 +77,8 @@ Learn more:
                                      Fail on unmatched transactions.
         --suffixed
                                      Append currency symbol as a suffix.
+        --ledger-format FORMAT
+                                     Output/Learn format: BEANCOUNT or LEDGER. Default: LEDGER
     -h, --help                       Show this message
         --version                    Show version
 
